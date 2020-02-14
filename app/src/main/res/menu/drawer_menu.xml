@@ -1,9 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/favouritesFragment"
-        android:title="todo" />
+    <group
+        android:id="@+id/group2"
+        android:orderInCategory="2">
+        <item
+            android:checked="false"
+            android:id="@+id/settings"
+            android:icon="@drawable/ic_settings_grey"
+            android:title="@string/settings" />
+        <item
+            android:checked="false"
+            android:id="@+id/about"
+            android:icon="@drawable/ic_info_grey"
+            android:title="@string/about"
+            />
+        <item
+            android:checked="false"
+            android:id="@+id/feedback"
+            android:icon="@drawable/ic_feedback_grey"
+            android:title="@string/feedback"
+            />
+
+    </group>
+
+    <group
+        android:id="@+id/group3"
+        android:orderInCategory="3">
+        <item
+            android:checked="false"
+            android:id="@+id/remove_ads"
+            android:icon="@drawable/ic_shop_grey"
+            android:title="@string/remove_ads" />
+        <item
+            android:checked="false"
+            android:id="@+id/share_app"
+            android:icon="@drawable/ic_share_grey"
+            android:title="@string/share_app"
+            />
+
+    </group>
 
 
 </menu>

@@ -3,4 +3,11 @@
     <string name="reminders">التذكيرات</string>
     <string name="all_reminders">جميع التذكيرات</string>
     <string name="favorite_reminders">التذكيرات المفضله</string>
+    <string name="no_active_reminders">لا يوجد تذكيرات نشطة حاليا</string>
+    <string name="no_favorite_reminders">لا يوجد تذكيرات مفضلة حاليا</string>
+    <string name="settings">الاعدادات</string>
+    <string name="about">عن التطبيق</string>
+    <string name="feedback">الابلاغ عن مشكلة</string>
+    <string name="share_app">مشاركةالتطبيق</string>
+    <string name="remove_ads">حذف الاعلانات</string>
 </resources>
