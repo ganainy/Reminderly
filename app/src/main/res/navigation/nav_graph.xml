@@ -9,5 +9,13 @@
         android:id="@+id/homeFragment"
         android:name="com.example.reminderly.home.HomeFragment"
         android:label="@string/reminders"
-        tools:layout="@layout/home_fragment" />
+        tools:layout="@layout/home_fragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_calendarFragment"
+            app:destination="@id/calendarFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/calendarFragment"
+        android:name="com.example.reminderly.calendar.CalendarFragment"
+        android:label="CalendarFragment" />
 </navigation>

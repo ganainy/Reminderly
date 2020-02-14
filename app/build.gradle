@@ -71,4 +71,7 @@ dependencies {
     //Viewpager2
     implementation "androidx.viewpager2:viewpager2:1.0.0"
 
+    //custom calendar view to mark certain dates
+    implementation 'com.github.kizitonwose:CalendarView:0.3.2'
+
 }

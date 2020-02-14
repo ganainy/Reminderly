@@ -10,4 +10,7 @@
     <string name="feedback">الابلاغ عن مشكلة</string>
     <string name="share_app">مشاركةالتطبيق</string>
     <string name="remove_ads">حذف الاعلانات</string>
+
+    <string name="week_mode">وضع الاسبوع</string>
+
 </resources>
