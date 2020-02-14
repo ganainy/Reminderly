@@ -1,7 +1,7 @@
-package com.example.reminderly.home
+package com.example.reminderly.all
 
 import androidx.lifecycle.ViewModel
 
-class HomeViewModel : ViewModel() {
+class AllViewModel : ViewModel() {
     // TODO: Implement the ViewModel
 }

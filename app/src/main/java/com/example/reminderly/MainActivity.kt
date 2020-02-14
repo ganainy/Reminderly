@@ -18,6 +18,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+        supportActionBar?.elevation=0f
+
         //setup nav controller with drawer
         val navController = this.findNavController(R.id.nav_host_fragment)
          appBarConfiguration = AppBarConfiguration(navController.graph, drawer_layout)
