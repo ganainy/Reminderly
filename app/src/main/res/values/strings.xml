@@ -27,5 +27,7 @@
     <string name="notification_in_advance_type">التنبيه المسبق</string>
     <string name="speech_confirmation">هل التحويل صحيح؟</string>
     <string name="retry">حاول مجددا</string>
+    <string name="feature_not_supported">هاتفك لا يدعم هذه الخاصية</string>
+    <string name="fetch_contact_failure">حدث خطأ اثناء استعادة جهة الاتصال</string>
 
 </resources>

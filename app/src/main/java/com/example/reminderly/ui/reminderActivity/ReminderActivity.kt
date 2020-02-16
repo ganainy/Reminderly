@@ -1,12 +1,22 @@
 package com.example.reminderly.ui.reminderActivity
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.speech.RecognizerIntent
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
@@ -23,7 +33,10 @@ import com.example.reminderly.Utils.Utils
 import com.example.reminderly.databinding.ActivityReminderBinding
 import java.util.*
 
-const val SPEECH_TO_TEXT_CODE=1
+
+const val SPEECH_TO_TEXT_CODE = 1
+const val SELECT_PHONE_NUMBER = 2
+
 class ReminderActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ReminderActivityViewModel
@@ -37,6 +50,7 @@ class ReminderActivity : AppCompatActivity() {
             this,
             R.layout.activity_reminder
         )
+
 
         viewModel = ViewModelProvider(this).get(ReminderActivityViewModel::class.java)
 
@@ -63,7 +77,18 @@ class ReminderActivity : AppCompatActivity() {
             openSpeechToTextDialog()
         }
 
+        binding.contactsImage.setOnClickListener {
+            pickNumberFromContacts()
+        }
     }
+
+    private fun pickNumberFromContacts() {
+        val i = Intent(Intent.ACTION_PICK)
+        i.type = ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE
+        startActivityForResult(i, SELECT_PHONE_NUMBER)
+
+    }
+
 
     private fun openSpeechToTextDialog() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -76,7 +101,7 @@ class ReminderActivity : AppCompatActivity() {
         if (intent.resolveActivity(packageManager) != null) {
             startActivityForResult(intent, SPEECH_TO_TEXT_CODE)
         } else {
-            Toast.makeText(this, "Your Device Don't Support Speech Input", Toast.LENGTH_SHORT)
+            Toast.makeText(this, getString(R.string.feature_not_supported), Toast.LENGTH_SHORT)
                 .show()
         }
     }
@@ -259,10 +284,70 @@ class ReminderActivity : AppCompatActivity() {
         if (requestCode == SPEECH_TO_TEXT_CODE && resultCode == RESULT_OK && data != null) {
             val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
             Log.d("DebugTag", "onActivityResult: $result")
-           if (result[0]!=null) confirmText(result[0])
+            if (result[0] != null) confirmText(result[0])
+        }
+
+        if (requestCode == SELECT_PHONE_NUMBER && resultCode == Activity.RESULT_OK) {
+            val contactUri = data?.data ?: return
+            val projection = arrayOf(
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.NUMBER
+            )
+            val cursor = contentResolver.query(
+                contactUri, projection,
+                null, null, null
+            )
+
+            if (cursor != null && cursor.moveToFirst()) {
+                val nameIndex =
+                    cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                val numberIndex =
+                    cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                val name = cursor.getString(nameIndex)
+                val number = cursor.getString(numberIndex)
+
+                // do something with name and phone
+                convertStringToClickable(name, number)
+            } else {
+                Toast.makeText(this, getString(R.string.fetch_contact_failure), Toast.LENGTH_SHORT)
+                    .show()
+            }
+            cursor?.close()
         }
 
     }
+
+    private fun convertStringToClickable(name: String?, number: String?) {
+        //make phone number clickable and add it to reminder text
+        val text = "اتصل ب $name على الرقم $number"
+        val ss = SpannableString(text)
+
+        val clickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                openDialPadWithNumber(number)
+            }
+
+            override fun updateDrawState(ds: TextPaint) {
+                super.updateDrawState(ds)
+                ds.color = Color.BLUE
+            }
+        }
+        ss.setSpan(clickableSpan, 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+
+        if (binding.reminderTextView.text.isNotBlank()) binding.reminderTextView.append("\n")
+        binding.reminderTextView.append(ss)
+        binding.reminderTextView.append("\n")
+        binding.reminderTextView.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    private fun openDialPadWithNumber(phone: String?) {
+        //copy phone to device dial when phone is clicked
+        val intent = Intent(Intent.ACTION_DIAL)
+        intent.data = Uri.parse("tel:$phone")
+        startActivity(intent)
+    }
+
 
     private fun confirmText(convertedText: String) {
 
@@ -273,17 +358,17 @@ class ReminderActivity : AppCompatActivity() {
             customView(R.layout.speech_to_text_dialog)
             positiveButton(R.string.confirm) {
                 //will execute on confirm press
-                binding.reminderTextView.setText(convertedText)
+                binding.reminderTextView.append(convertedText)
             }
-            negativeButton(R.string.retry){
+            negativeButton(R.string.retry) {
                 openSpeechToTextDialog()
             }
             title(0, getString(R.string.speech_confirmation))
         }
 
-        //get value of numberPicker
+
         dialog.getCustomView().findViewById<TextView>(R.id.textView).apply {
-            text=convertedText
+            append(convertedText)
         }
 
     }
