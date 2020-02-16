@@ -39,18 +39,6 @@
             android:layout_height="wrap_content"
             app:constraint_referenced_ids="textView,imageView" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/floatingActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/primaryColor"
-            android:layout_margin="@dimen/default_margin"
-            android:clickable="true"
-            android:src="@drawable/ic_add_white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:focusable="true" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

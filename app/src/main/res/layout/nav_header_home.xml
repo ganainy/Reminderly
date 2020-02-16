@@ -12,7 +12,7 @@
         android:layout_height="150dp"
         android:gravity="bottom"
         android:orientation="vertical"
-        android:background="@drawable/ic_vanishing_stripes"
+        android:background="@drawable/drawer_header"
         android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
 
@@ -29,15 +29,16 @@
             app:layout_constraintTop_toTopOf="@+id/calendarImageView"
             tools:text="الجمعه 3 فبراير" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/calendarImageView"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
             android:layout_marginEnd="@dimen/default_margin"
             android:layout_marginBottom="@dimen/default_margin"
             android:src="@drawable/ic_calendar2"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:background="?android:attr/selectableItemBackground"
+            android:background="@drawable/grey_round_bg"
             app:layout_constraintEnd_toEndOf="parent" />
 
 

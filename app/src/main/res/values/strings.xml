@@ -12,5 +12,7 @@
     <string name="remove_ads">حذف الاعلانات</string>
 
     <string name="week_mode">وضع الاسبوع</string>
+    <string name="search">بحث</string>
+    <string name="remind_me_to">ذكرني ان...</string>
 
 </resources>

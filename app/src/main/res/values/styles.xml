@@ -16,4 +16,9 @@
         <item name="android:textSize">16dp</item>
     </style>
 
+
+    <style name="ReminderItemStyle" parent="MyTextViewStyle">
+        <item name="android:textColor">@color/grey</item>
+    </style>
+
 </resources>

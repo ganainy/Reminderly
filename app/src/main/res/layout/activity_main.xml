@@ -23,6 +23,7 @@
             android:id="@+id/toolbar"/>
         <!-- Layout to contain contents of main body of screen (drawer will slide over this) -->
         <fragment
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:id="@+id/nav_host_fragment"
             android:layout_width="match_parent"
@@ -42,4 +43,5 @@
             app:menu="@menu/drawer_menu" />
 
     </androidx.drawerlayout.widget.DrawerLayout>
+
 </layout>

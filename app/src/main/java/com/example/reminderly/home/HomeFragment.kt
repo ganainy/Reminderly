@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -14,6 +15,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.reminderly.MainActivityViewModel
 import com.example.reminderly.R
 import com.example.reminderly.all.AllFragment
+import com.example.reminderly.databinding.HomeFragmentBinding
 import com.example.reminderly.favorites.FavoritesFragment
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.home_fragment.*
@@ -25,6 +27,7 @@ class HomeFragment : Fragment() {
 private lateinit var mainActivityViewModel: MainActivityViewModel
     private lateinit var demoCollectionAdapter: DemoCollectionAdapter
     private lateinit var viewPager: ViewPager2
+    private lateinit var binding:HomeFragmentBinding
 
     companion object {
         fun newInstance() = HomeFragment()
@@ -35,7 +38,8 @@ private lateinit var mainActivityViewModel: MainActivityViewModel
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.home_fragment, container, false)
+        binding= HomeFragmentBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,12 +48,18 @@ private lateinit var mainActivityViewModel: MainActivityViewModel
 
         //observe live data emitted from main activity to navigate to calendar fragment on calendar
         //image click
+        mainActivityViewModel = ViewModelProvider(requireActivity()).get(MainActivityViewModel::class.java)
+
         navigateToCalendarFragment()
+        navigateToReminderFragment()
 
     }
 
+    private fun navigateToReminderFragment() {
+      binding.floatingActionButton.setOnClickListener { findNavController().navigate(R.id.action_homeFragment_to_reminderFragment) }
+    }
+
     private fun navigateToCalendarFragment() {
-        mainActivityViewModel = ViewModelProvider(requireActivity()).get(MainActivityViewModel::class.java)
         mainActivityViewModel.navigateToCalendarFragment.observe(viewLifecycleOwner, Observer {
             if (it) {
                 findNavController().navigate(R.id.action_homeFragment_to_calendarFragment)
@@ -83,6 +93,11 @@ private lateinit var mainActivityViewModel: MainActivityViewModel
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        (requireActivity() as AppCompatActivity).supportActionBar?.title=resources.getString(R.string.reminders)
     }
 
 }

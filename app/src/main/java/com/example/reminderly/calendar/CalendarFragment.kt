@@ -78,8 +78,10 @@ class CalendarFragment : Fragment() {
             // Will be set when this container is bound. See the dayBinder.
             lateinit var day: CalendarDay
             val textView = view.exOneDayText
+            val remindersCountText = view.remindersCountText
 
             init {
+
                 //todo close calendar & open new reminder on day click instead of below code
                 view.setOnClickListener {
                     if (day.owner == DayOwner.THIS_MONTH) {
@@ -97,6 +99,7 @@ class CalendarFragment : Fragment() {
         exOneCalendar.dayBinder = object : DayBinder<DayViewContainer> {
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, day: CalendarDay) {
+                //todo use remindersCountText to display reminders in day count by comparing day: CalendarDay with reminder day to see if each day has reminder
                 container.day = day
                 val textView = container.textView
                 textView.text = day.date.dayOfMonth.toString()
@@ -104,12 +107,12 @@ class CalendarFragment : Fragment() {
                     when {
                         selectedDates.contains(day.date) -> {
                             textView.setTextColorRes(R.color.example_1_bg)
-                            textView.setBackgroundResource(R.drawable.example_1_selected_bg)
+                            textView.setBackgroundResource(R.drawable.yellow_round_bg)
 
                         }
                         today == day.date -> {
                             textView.setTextColorRes(R.color.example_1_white)
-                            textView.setBackgroundResource(R.drawable.example_1_today_bg)
+                            textView.setBackgroundResource(R.drawable.grey_round_bg)
                         }
                         else -> {
                             textView.setTextColorRes(R.color.example_1_white)

@@ -13,9 +13,16 @@
         <action
             android:id="@+id/action_homeFragment_to_calendarFragment"
             app:destination="@id/calendarFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_reminderFragment"
+            app:destination="@id/reminderFragment" />
     </fragment>
     <fragment
         android:id="@+id/calendarFragment"
         android:name="com.example.reminderly.calendar.CalendarFragment"
         android:label="CalendarFragment" />
+    <fragment
+        android:id="@+id/reminderFragment"
+        android:name="com.example.reminderly.reminder.ReminderFragment"
+        android:label="ReminderFragment" />
 </navigation>
