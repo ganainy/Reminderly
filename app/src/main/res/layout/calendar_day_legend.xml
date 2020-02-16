@@ -3,6 +3,7 @@
     android:id="@+id/legendLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/example_1_bg_light"
     android:gravity="center"
     android:orientation="horizontal"
     tools:ignore="HardcodedText">

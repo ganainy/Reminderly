@@ -1,4 +1,4 @@
-package com.example.reminderly.calendarActivity
+package com.example.reminderly.ui.calendarActivity
 
 import androidx.lifecycle.ViewModel
 

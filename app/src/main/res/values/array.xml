@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="repeat_items">
+        <item>مرة واحده</item>
+        <item>كل يوم</item>
+        <item>كل اسبوع</item>
+        <item>كل شهر</item>
+        <item>كل عام</item>
+    </string-array>
+    <string-array name="priority_items">
+        <item>عادى</item>
+        <item>متوسط</item>
+        <item>هام</item>
+    </string-array>
+    <string-array name="notify_type_items">
+        <item>تنبيه بإستخدام الاشعارات</item>
+        <item>تنبيه بإستخدام الجرس</item>
+    </string-array>
+</resources>

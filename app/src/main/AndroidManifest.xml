@@ -10,9 +10,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".calendarActivity.CalendarActivity"></activity>
-        <activity android:name=".reminderActivity.ReminderActivity" />
-        <activity android:name=".mainActivity.MainActivity">
+        <activity android:name="com.example.reminderly.ui.calendarActivity.CalendarActivity"></activity>
+        <activity android:name="com.example.reminderly.ui.reminderActivity.ReminderActivity" />
+        <activity android:name="com.example.reminderly.ui.mainActivity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

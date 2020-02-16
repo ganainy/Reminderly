@@ -1,4 +1,4 @@
-package com.example.reminderly.mainActivity
+package com.example.reminderly.ui.mainActivity
 
 import android.content.Intent
 import android.graphics.Color
@@ -17,13 +17,12 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.reminderly.R
 import com.example.reminderly.Utils.DateUtils
-import com.example.reminderly.calendarActivity.CalendarActivity
 import com.example.reminderly.databinding.ActivityMainBinding
-import com.example.reminderly.reminderActivity.ReminderActivity
+import com.example.reminderly.ui.calendarActivity.CalendarActivity
+import com.example.reminderly.ui.reminderActivity.ReminderActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
@@ -33,7 +32,6 @@ import kotlinx.android.synthetic.main.app_content.*
 class MainActivity : AppCompatActivity() {
 
 
-    private lateinit var viewModel: MainActivityViewModel
     private val fragmentTransaction by lazy { supportFragmentManager.beginTransaction() }
     private lateinit var binding: ActivityMainBinding
     private lateinit var demoCollectionAdapter: DemoCollectionAdapter
@@ -45,7 +43,6 @@ class MainActivity : AppCompatActivity() {
             R.layout.activity_main
         )
 
-        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
         val toolbar = binding.appContent.findViewById(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)

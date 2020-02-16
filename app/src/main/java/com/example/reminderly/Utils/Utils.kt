@@ -17,6 +17,22 @@ class Utils {
             val imm =  context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             imm?.toggleSoftInput(InputMethodManager.SHOW_FORCED,0)
         }
+
+
+
+        fun convertToArabicNumber(englishNum:String): String {
+            val arabicChars = charArrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
+            val builder = StringBuilder()
+            for (i in englishNum.indices) {
+                if (Character.isDigit(englishNum[i])) {
+                    builder.append(arabicChars[englishNum[i].toInt() - 48])
+                } else {
+                    builder.append(englishNum[i])
+                }
+            }
+            return builder.toString()
+        }
+
     }
 }
 

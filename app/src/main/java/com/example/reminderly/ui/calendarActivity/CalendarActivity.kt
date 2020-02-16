@@ -1,4 +1,4 @@
-package com.example.reminderly.calendarActivity
+package com.example.reminderly.ui.calendarActivity
 
 import android.animation.ValueAnimator
 import android.os.Bundle

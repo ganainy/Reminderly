@@ -87,7 +87,7 @@
 
 
     <ImageButton
-        android:id="@+id/imageButton6"
+        android:id="@+id/dateImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -97,7 +97,7 @@
         android:background="@drawable/darker_green_round_bg"
         android:padding="8dp"
         android:src="@drawable/note_ic"
-        app:layout_constraintBottom_toTopOf="@+id/imageButton"
+        app:layout_constraintBottom_toTopOf="@+id/timeImage"
         app:layout_constraintEnd_toStartOf="@+id/dateText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
@@ -105,7 +105,7 @@
         app:layout_constraintVertical_chainStyle="packed" />
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/timeImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -114,13 +114,13 @@
         android:background="@drawable/darker_green_round_bg"
         android:padding="8dp"
         android:src="@drawable/ic_access_time_white"
-        app:layout_constraintBottom_toTopOf="@+id/imageButton2"
+        app:layout_constraintBottom_toTopOf="@+id/repeatImage"
         app:layout_constraintEnd_toStartOf="@+id/timeText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButton6" />
+        app:layout_constraintTop_toBottomOf="@+id/dateImage" />
 
     <ImageButton
-        android:id="@+id/imageButton2"
+        android:id="@+id/repeatImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -129,13 +129,13 @@
         android:background="@drawable/darker_green_round_bg"
         android:padding="8dp"
         android:src="@drawable/ic_repeat_white"
-        app:layout_constraintBottom_toTopOf="@+id/imageButton3"
+        app:layout_constraintBottom_toTopOf="@+id/priorityImage"
         app:layout_constraintEnd_toStartOf="@+id/repeatText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButton" />
+        app:layout_constraintTop_toBottomOf="@+id/timeImage" />
 
     <ImageButton
-        android:id="@+id/imageButton3"
+        android:id="@+id/priorityImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -144,13 +144,13 @@
         android:background="@drawable/darker_green_round_bg"
         android:padding="8dp"
         android:src="@drawable/ic_arrow_upward_white"
-        app:layout_constraintBottom_toTopOf="@+id/imageButton4"
+        app:layout_constraintBottom_toTopOf="@+id/notificationTypeImage"
         app:layout_constraintEnd_toStartOf="@+id/priorityText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButton2" />
+        app:layout_constraintTop_toBottomOf="@+id/repeatImage" />
 
     <ImageButton
-        android:id="@+id/imageButton4"
+        android:id="@+id/notificationTypeImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -159,13 +159,13 @@
         android:background="@drawable/darker_green_round_bg"
         android:padding="8dp"
         android:src="@drawable/ic_notification_white"
-        app:layout_constraintBottom_toTopOf="@+id/imageButton5"
+        app:layout_constraintBottom_toTopOf="@+id/notifyInAdvanceImage"
         app:layout_constraintEnd_toStartOf="@+id/reminderTypeText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButton3" />
+        app:layout_constraintTop_toBottomOf="@+id/priorityImage" />
 
     <ImageButton
-        android:id="@+id/imageButton5"
+        android:id="@+id/notifyInAdvanceImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -176,7 +176,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/notifyInAdvanceText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButton4" />
+        app:layout_constraintTop_toBottomOf="@+id/notificationTypeImage" />
 
     <TextView
         android:id="@+id/dateText"
@@ -187,10 +187,10 @@
         android:layout_marginEnd="8dp"
         android:ellipsize="end"
         android:maxLines="1"
-        app:layout_constraintBottom_toBottomOf="@+id/imageButton6"
+        app:layout_constraintBottom_toBottomOf="@+id/dateImage"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageButton6"
-        app:layout_constraintTop_toTopOf="@+id/imageButton6"
+        app:layout_constraintStart_toEndOf="@+id/dateImage"
+        app:layout_constraintTop_toTopOf="@+id/dateImage"
         tools:text="TextView" />
 
     <TextView
@@ -203,11 +203,11 @@
         android:ellipsize="end"
         android:gravity=""
         android:maxLines="1"
-        app:layout_constraintBottom_toBottomOf="@+id/imageButton"
+        app:layout_constraintBottom_toBottomOf="@+id/timeImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageButton"
-        app:layout_constraintTop_toTopOf="@+id/imageButton"
+        app:layout_constraintStart_toEndOf="@+id/timeImage"
+        app:layout_constraintTop_toTopOf="@+id/timeImage"
         tools:text="TextView" />
 
     <TextView
@@ -221,11 +221,11 @@
         android:gravity=""
 
         android:maxLines="1"
-        app:layout_constraintBottom_toBottomOf="@+id/imageButton2"
+        app:layout_constraintBottom_toBottomOf="@+id/repeatImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageButton2"
-        app:layout_constraintTop_toTopOf="@+id/imageButton2"
+        app:layout_constraintStart_toEndOf="@+id/repeatImage"
+        app:layout_constraintTop_toTopOf="@+id/repeatImage"
         tools:text="TextView" />
 
     <TextView
@@ -238,11 +238,11 @@
         android:ellipsize="end"
         android:gravity=""
         android:maxLines="1"
-        app:layout_constraintBottom_toBottomOf="@+id/imageButton3"
+        app:layout_constraintBottom_toBottomOf="@+id/priorityImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageButton3"
-        app:layout_constraintTop_toTopOf="@+id/imageButton3"
+        app:layout_constraintStart_toEndOf="@+id/priorityImage"
+        app:layout_constraintTop_toTopOf="@+id/priorityImage"
         tools:text="TextView" />
 
     <TextView
@@ -256,11 +256,11 @@
         android:gravity=""
 
         android:maxLines="1"
-        app:layout_constraintBottom_toBottomOf="@+id/imageButton4"
+        app:layout_constraintBottom_toBottomOf="@+id/notificationTypeImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/imageButton4"
-        app:layout_constraintTop_toTopOf="@+id/imageButton4"
+        app:layout_constraintStart_toEndOf="@+id/notificationTypeImage"
+        app:layout_constraintTop_toTopOf="@+id/notificationTypeImage"
         tools:text="TextView" />
 
     <TextView
@@ -274,11 +274,11 @@
         android:gravity=""
 
         android:maxLines="1"
-        app:layout_constraintBottom_toBottomOf="@+id/imageButton5"
+        app:layout_constraintBottom_toBottomOf="@+id/notifyInAdvanceImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/imageButton5"
-        app:layout_constraintTop_toTopOf="@+id/imageButton5"
+        app:layout_constraintStart_toEndOf="@+id/notifyInAdvanceImage"
+        app:layout_constraintTop_toTopOf="@+id/notifyInAdvanceImage"
         tools:text="TextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
