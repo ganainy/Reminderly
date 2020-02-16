@@ -15,7 +15,10 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        >
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -33,7 +36,7 @@
             tools:context=".reminder.ReminderFragment">
 
             <EditText
-                android:id="@+id/textView2"
+                android:id="@+id/reminderTextView"
                 style="@style/MyTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -57,10 +60,10 @@
                 android:backgroundTint="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+                app:layout_constraintTop_toBottomOf="@+id/reminderTextView" />
 
             <ImageView
-                android:id="@+id/imageView8"
+                android:id="@+id/micImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="48dp"
@@ -69,12 +72,12 @@
                 android:layout_marginBottom="8dp"
                 android:src="@drawable/ic_mic_white"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageView9"
+                app:layout_constraintEnd_toStartOf="@+id/contactsImage"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
             <ImageView
-                android:id="@+id/imageView9"
+                android:id="@+id/contactsImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -82,7 +85,7 @@
                 android:layout_marginBottom="8dp"
                 android:src="@drawable/ic_contact_phone_white"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/imageView8"
+                app:layout_constraintStart_toEndOf="@+id/micImage"
                 app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
 

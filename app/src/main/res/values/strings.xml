@@ -25,5 +25,7 @@
     <string name="priority_type">أهمية التذكير</string>
     <string name="notification_type">وسيلة التنبيه</string>
     <string name="notification_in_advance_type">التنبيه المسبق</string>
+    <string name="speech_confirmation">هل التحويل صحيح؟</string>
+    <string name="retry">حاول مجددا</string>
 
 </resources>

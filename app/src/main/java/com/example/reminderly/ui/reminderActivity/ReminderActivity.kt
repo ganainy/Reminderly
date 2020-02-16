@@ -2,10 +2,14 @@ package com.example.reminderly.ui.reminderActivity
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import android.util.Log
 import android.view.MenuItem
 import android.widget.NumberPicker
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
@@ -19,6 +23,7 @@ import com.example.reminderly.Utils.Utils
 import com.example.reminderly.databinding.ActivityReminderBinding
 import java.util.*
 
+const val SPEECH_TO_TEXT_CODE=1
 class ReminderActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ReminderActivityViewModel
@@ -54,6 +59,26 @@ class ReminderActivity : AppCompatActivity() {
         handleNotifyTypeImageClick()
         handleNotifyInAdvanceImageClick()
 
+        binding.micImage.setOnClickListener {
+            openSpeechToTextDialog()
+        }
+
+    }
+
+    private fun openSpeechToTextDialog() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivityForResult(intent, SPEECH_TO_TEXT_CODE)
+        } else {
+            Toast.makeText(this, "Your Device Don't Support Speech Input", Toast.LENGTH_SHORT)
+                .show()
+        }
     }
 
     private fun handleNotifyInAdvanceImageClick() {
@@ -226,6 +251,41 @@ class ReminderActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == SPEECH_TO_TEXT_CODE && resultCode == RESULT_OK && data != null) {
+            val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            Log.d("DebugTag", "onActivityResult: $result")
+           if (result[0]!=null) confirmText(result[0])
+        }
+
+    }
+
+    private fun confirmText(convertedText: String) {
+
+        //remove focus from reminder textview
+        binding.reminderTextView.clearFocus()
+
+        val dialog = MaterialDialog(this).show {
+            customView(R.layout.speech_to_text_dialog)
+            positiveButton(R.string.confirm) {
+                //will execute on confirm press
+                binding.reminderTextView.setText(convertedText)
+            }
+            negativeButton(R.string.retry){
+                openSpeechToTextDialog()
+            }
+            title(0, getString(R.string.speech_confirmation))
+        }
+
+        //get value of numberPicker
+        dialog.getCustomView().findViewById<TextView>(R.id.textView).apply {
+            text=convertedText
+        }
+
     }
 }
 
