@@ -1,4 +1,4 @@
-package com.example.reminderly
+package com.example.reminderly.mainActivity
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

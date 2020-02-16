@@ -1,23 +1,21 @@
-package com.example.reminderly.calendar
+package com.example.reminderly.calendarActivity
 
 import android.animation.ValueAnimator
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.example.reminderly.R
 import com.example.reminderly.Utils.daysOfWeekFromLocale
 import com.example.reminderly.Utils.getColorCompat
 import com.example.reminderly.Utils.setTextColorRes
-import com.example.reminderly.databinding.CalendarFragmentBinding
+import com.example.reminderly.databinding.ActivityCalendarBinding
 import com.kizitonwose.calendarview.model.CalendarDay
 import com.kizitonwose.calendarview.model.DayOwner
 import com.kizitonwose.calendarview.model.InDateStyle
@@ -25,8 +23,8 @@ import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.ViewContainer
 import com.kizitonwose.calendarview.utils.next
 import com.kizitonwose.calendarview.utils.yearMonth
+import kotlinx.android.synthetic.main.activity_calendar.*
 import kotlinx.android.synthetic.main.calendar_day_legend.*
-import kotlinx.android.synthetic.main.calendar_fragment.*
 import kotlinx.android.synthetic.main.example_1_calendar_day.view.*
 import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
@@ -34,31 +32,29 @@ import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.TextStyle
 import java.util.*
 
+class CalendarActivity : AppCompatActivity() {
 
-class CalendarFragment : Fragment() {
-
-    private lateinit var binding: CalendarFragmentBinding
+    private lateinit var binding: ActivityCalendarBinding
 
     private val selectedDates = mutableSetOf<LocalDate>()
     private val today = LocalDate.now()
     private val monthTitleFormatter = DateTimeFormatter.ofPattern("MMMM")
 
-    companion object {
-        fun newInstance() = CalendarFragment()
-    }
 
-    private lateinit var viewModel: CalendarViewModel
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.calendar_fragment, container, false)
-        return binding.root
-    }
+        binding = DataBindingUtil.setContentView(this,
+            R.layout.activity_calendar
+        )
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+
+        setupToolbar()
+
+        //todo call exOneCalendar.notifyDayChanged(day) CALENDARDAY to mark each day that has reminders+
+
+
+
         val daysOfWeek = daysOfWeekFromLocale()
         legendLayout.children.forEachIndexed { index, view ->
             (view as TextView).apply {
@@ -213,23 +209,33 @@ class CalendarFragment : Fragment() {
 
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
+    private fun setupToolbar() {
+        val toolbar = binding.toolbar as Toolbar
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = ""
 
-        //todo    call exOneCalendar.notifyDayChanged(day) CALENDARDAY to mark each day that has reminders+
-
+        //add menu icon to toolbar (don't forget to override on option item selected for android.R.id.home to open drawer)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    override fun onStart() {
-        super.onStart()
-        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
-        requireActivity().window.statusBarColor = requireContext().getColorCompat(R.color.example_1_bg_light)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
-    override fun onStop() {
-        super.onStop()
-        (requireActivity() as AppCompatActivity).supportActionBar?.show()
-        requireActivity().window.statusBarColor = requireContext().getColorCompat(R.color.primaryDarkColor)
-    }
+override fun onStart() {
+    super.onStart()
+        window.statusBarColor = getColorCompat(R.color.example_1_bg_light)
+}
+
+override fun onStop() {
+    super.onStop()
+    window.statusBarColor = getColorCompat(R.color.primaryDarkColor)
+}
 }
