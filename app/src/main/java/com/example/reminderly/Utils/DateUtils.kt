@@ -5,9 +5,13 @@ import java.util.*
 
 class DateUtils {
 
-    companion object{
+    companion object {
 
-            var currentDate= Date()
+        private val currentDate: Date
+            get() {
+                return Date()
+            }
+
         private val locale = Locale("ar")
 
 
@@ -22,19 +26,18 @@ class DateUtils {
             return sdf.format(currentDate)
         }
 
-        fun formatDate(date:Date): String {
+        fun formatDate(date: Date): String {
             val sdf = SimpleDateFormat("EEEE, dd MMMM", locale)
             return sdf.format(date)
         }
 
-        fun formatTime(date:Date): String {
+        fun formatTime(date: Date): String {
             val sdf = SimpleDateFormat("hh:mm a", locale)
             return sdf.format(date)
         }
 
 
     }
-
 
 
 }

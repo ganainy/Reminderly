@@ -42,7 +42,6 @@ class ReminderActivity : AppCompatActivity() {
     private lateinit var viewModel: ReminderActivityViewModel
     private lateinit var binding: ActivityReminderBinding
 
-    private val cal: Calendar by lazy { Calendar.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,26 +59,23 @@ class ReminderActivity : AppCompatActivity() {
 
         handleSaveButton()
 
+
     }
 
     private fun initViewsDefaults() {
         binding.dateText.text = com.example.reminderly.Utils.DateUtils.getCurrentDateFormatted()
         binding.timeText.text = com.example.reminderly.Utils.DateUtils.getCurrentTimeFormatted()
 
-        handleDateImageClick()
-        handleTimeImageClick()
-        handleRepeatImageClick()
-        handlePriorityImageClick()
-        handleNotifyTypeImageClick()
-        handleNotifyInAdvanceImageClick()
+        binding.dateImage.setOnClickListener { handleDateImageClick() }
+        binding.timeImage.setOnClickListener { handleTimeImageClick() }
+        binding.repeatImage.setOnClickListener { handleRepeatImageClick() }
+        binding.priorityImage.setOnClickListener { handlePriorityImageClick() }
+        binding.notificationTypeImage.setOnClickListener { handleNotifyTypeImageClick() }
+        binding.notifyInAdvanceImage.setOnClickListener { handleNotifyInAdvanceImageClick() }
 
-        binding.micImage.setOnClickListener {
-            openSpeechToTextDialog()
-        }
+        binding.micImage.setOnClickListener { openSpeechToTextDialog() }
 
-        binding.contactsImage.setOnClickListener {
-            pickNumberFromContacts()
-        }
+        binding.contactsImage.setOnClickListener { pickNumberFromContacts() }
     }
 
     private fun pickNumberFromContacts() {
@@ -109,38 +105,42 @@ class ReminderActivity : AppCompatActivity() {
     private fun handleNotifyInAdvanceImageClick() {
         var num = 1
         var duration = "دقائق"
-        val durationList = arrayOf("دقائق", "ساعات", "أيام", "اسابيع")
+        val durationList = arrayOf(
+            getString(R.string.minutes), getString(R.string.hours), getString(
+                R.string.days
+            ), getString(R.string.weeks)
+        )
 
-        binding.notifyInAdvanceImage.setOnClickListener {
-            val dialog = MaterialDialog(this).show {
-                customView(R.layout.notify_in_advance_dialog)
-                positiveButton(R.string.confirm) {
-                    //will execute on confirm press
-                    binding.notifyInAdvanceText.text =
-                        "${Utils.convertToArabicNumber(num.toString())} $duration"
-                }
-                negativeButton(R.string.cancel)
-                title(0, getString(R.string.notification_in_advance_type))
+        val dialog = MaterialDialog(this).show {
+            customView(R.layout.notify_in_advance_dialog)
+            positiveButton(R.string.confirm) {
+                //will execute on confirm press
+                binding.notifyInAdvanceText.text =
+                    "${Utils.convertToArabicNumber(num.toString())} $duration"
+                viewModel.updateReminderNotifyAdvAmount(num)
+                viewModel.updateReminderNotifyAdvUnit(duration)
             }
+            negativeButton(R.string.cancel)
+            title(0, getString(R.string.notification_in_advance_type))
+        }
 
-            //get value of numberPicker
-            dialog.getCustomView().findViewById<NumberPicker>(R.id.numberPicker).apply {
-                maxValue = 120
-                minValue = 1
-                setOnValueChangedListener { picker, oldVal, newVal ->
-                    num = newVal
-                }
+        //get value of numberPicker
+        dialog.getCustomView().findViewById<NumberPicker>(R.id.numberPicker).apply {
+            maxValue = 120
+            minValue = 1
+            setOnValueChangedListener { picker, oldVal, newVal ->
+                num = newVal
             }
+        }
 
-            //get value of stringPicker
-            dialog.getCustomView().findViewById<NumberPicker>(R.id.stringPicker).apply {
-                minValue = 0
-                maxValue = durationList.size - 1
-                displayedValues = durationList
-                descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
-                setOnValueChangedListener { picker, oldVal, newVal ->
-                    duration = durationList[newVal]
-                }
+        //get value of stringPicker
+        dialog.getCustomView().findViewById<NumberPicker>(R.id.stringPicker).apply {
+            minValue = 0
+            maxValue = durationList.size - 1
+            displayedValues = durationList
+            descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+            setOnValueChangedListener { picker, oldVal, newVal ->
+                duration = durationList[newVal]
             }
         }
 
@@ -149,112 +149,124 @@ class ReminderActivity : AppCompatActivity() {
 
 
     private fun handleNotifyTypeImageClick() {
-        binding.notificationTypeImage.setOnClickListener {
-            MaterialDialog(this).show {
-                listItemsSingleChoice(
-                    R.array.notify_type_items,
-                    initialSelection = 0
-                ) { dialog, index, text ->
-                    // Invoked when the user selects an item
-                    Log.d("DebugTag", "handleRepeatImageClick: $index $text")
-                    binding.reminderTypeText.text = text
-                }
-                positiveButton(R.string.confirm)
-                negativeButton(R.string.cancel)
-                title(0, getString(R.string.notification_type))
+        MaterialDialog(this).show {
+            listItemsSingleChoice(
+                R.array.notify_type_items,
+                initialSelection = 0
+            ) { dialog, index, text ->
+                // Invoked when the user selects an item
+                binding.reminderTypeText.text = text
+                viewModel.updateReminderNotificationType(index)
             }
+            positiveButton(R.string.confirm)
+            negativeButton(R.string.cancel)
+            title(0, getString(R.string.notification_type))
+
         }
     }
 
     private fun handlePriorityImageClick() {
-        binding.priorityImage.setOnClickListener {
-            MaterialDialog(this).show {
-                listItemsSingleChoice(
-                    R.array.priority_items,
-                    initialSelection = 0
-                ) { dialog, index, text ->
-                    // Invoked when the user selects an item
-                    Log.d("DebugTag", "handleRepeatImageClick: $index $text")
-                    binding.priorityText.text = text
-                }
-                positiveButton(R.string.confirm)
-                negativeButton(R.string.cancel)
-                title(0, getString(R.string.priority_type))
+        MaterialDialog(this).show {
+            listItemsSingleChoice(
+                R.array.priority_items,
+                initialSelection = 0
+            ) { dialog, index, text ->
+                // Invoked when the user selects an item
+                viewModel.updateReminderPriority(index)
+                binding.priorityText.text = text
             }
+            positiveButton(R.string.confirm)
+            negativeButton(R.string.cancel)
+            title(0, getString(R.string.priority_type))
+
         }
     }
 
     private fun handleRepeatImageClick() {
-        binding.repeatImage.setOnClickListener {
-            MaterialDialog(this).show {
-                listItemsSingleChoice(
-                    R.array.repeat_items,
-                    initialSelection = 0
-                ) { dialog, index, text ->
-                    // Invoked when the user selects an item
-                    Log.d("DebugTag", "handleRepeatImageClick: $index $text")
-                    binding.repeatText.text = text
-                }
-                positiveButton(R.string.confirm)
-                negativeButton(R.string.cancel)
-                title(0, getString(R.string.repeat_count))
+        MaterialDialog(this).show {
+            listItemsSingleChoice(
+                R.array.repeat_items,
+                initialSelection = 0
+            ) { dialog, index, text ->
+                // Invoked when the user selects an item
+                binding.repeatText.text = text
+                viewModel.updateReminderRepeat(index)
             }
+            positiveButton(R.string.confirm)
+            negativeButton(R.string.cancel)
+            title(0, getString(R.string.repeat_count))
         }
+
     }
 
     private fun handleTimeImageClick() {
-        binding.timeImage.setOnClickListener {
+        val cal = Calendar.getInstance()
 
-            val timeSetListener =
-                TimePickerDialog.OnTimeSetListener { _, hour, min ->
-                    cal.set(Calendar.HOUR, hour)
-                    cal.set(Calendar.MINUTE, min)
-                    //update time text view with selected date
-                    binding.timeText.text =
-                        com.example.reminderly.Utils.DateUtils.formatTime(cal.time)
-                }
+        val timeSetListener =
+            TimePickerDialog.OnTimeSetListener { _, hour, min ->
+                cal.set(Calendar.HOUR_OF_DAY, hour)
+                cal.set(Calendar.MINUTE, min)
+                //update time text view with selected date
+                binding.timeText.text =
+                    com.example.reminderly.Utils.DateUtils.formatTime(cal.time)
+                viewModel.updateReminderTime(
+                    hour = cal.get(Calendar.HOUR_OF_DAY),
+                    minute = cal.get(Calendar.MINUTE)
+                )
+            }
 
 
-            //open date picker
-            TimePickerDialog(
-                this@ReminderActivity, timeSetListener,
-                // set DatePickerDialog to point to today's date when it loads up
-                cal.get(Calendar.HOUR),
-                cal.get(Calendar.MINUTE),
-                false
-            ).show()
-        }
+        //open date picker
+        TimePickerDialog(
+            this@ReminderActivity, timeSetListener,
+            // set DatePickerDialog to point to today's date when it loads up
+            cal.get(Calendar.HOUR_OF_DAY),
+            cal.get(Calendar.MINUTE),
+            false
+        ).show()
+
     }
 
     private fun handleDateImageClick() {
-        binding.dateImage.setOnClickListener {
+        val cal = Calendar.getInstance()
 
-            val dateSetListener =
-                DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                    cal.set(Calendar.YEAR, year)
-                    cal.set(Calendar.MONTH, monthOfYear)
-                    cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                    //update date text view with selected date
-                    binding.dateText.text =
-                        com.example.reminderly.Utils.DateUtils.formatDate(cal.time)
-                }
+        val dateSetListener =
+            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                cal.set(Calendar.YEAR, year)
+                cal.set(Calendar.MONTH, monthOfYear)
+                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                //update date text view with selected date
+                binding.dateText.text =
+                    com.example.reminderly.Utils.DateUtils.formatDate(cal.time)
+                viewModel.updateReminderDate(
+                    year = cal.get(Calendar.YEAR),
+                    month = cal.get(Calendar.MONTH),
+                    day = cal.get(Calendar.DAY_OF_MONTH)
+                )
 
+            }
 
-            //open date picker
-            DatePickerDialog(
-                this@ReminderActivity, dateSetListener,
-                // set DatePickerDialog to point to today's date when it loads up
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }
+        //open date picker
+        DatePickerDialog(
+            this@ReminderActivity, dateSetListener,
+            // set DatePickerDialog to point to today's date when it loads up
+            cal.get(Calendar.YEAR),
+            cal.get(Calendar.MONTH),
+            cal.get(Calendar.DAY_OF_MONTH)
+        ).show()
+
     }
 
 
     private fun handleSaveButton() {
         binding.saveFab.setOnClickListener {
-            //todo
+            if (binding.reminderEditText.text.isBlank()) {
+                Toast.makeText(this, getString(R.string.text_empty), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            viewModel.saveReminder(binding.reminderEditText.text.toString())
+
         }
     }
 
@@ -281,39 +293,56 @@ class ReminderActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == SPEECH_TO_TEXT_CODE && resultCode == RESULT_OK && data != null) {
-            val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            Log.d("DebugTag", "onActivityResult: $result")
-            if (result[0] != null) confirmText(result[0])
-        }
+        if (resultCode != Activity.RESULT_OK) return
 
-        if (requestCode == SELECT_PHONE_NUMBER && resultCode == Activity.RESULT_OK) {
-            val contactUri = data?.data ?: return
-            val projection = arrayOf(
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Phone.NUMBER
-            )
-            val cursor = contentResolver.query(
-                contactUri, projection,
-                null, null, null
-            )
-
-            if (cursor != null && cursor.moveToFirst()) {
-                val nameIndex =
-                    cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-                val numberIndex =
-                    cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                val name = cursor.getString(nameIndex)
-                val number = cursor.getString(numberIndex)
-
-                // do something with name and phone
-                convertStringToClickable(name, number)
-            } else {
-                Toast.makeText(this, getString(R.string.fetch_contact_failure), Toast.LENGTH_SHORT)
-                    .show()
+        when (requestCode) {
+            SPEECH_TO_TEXT_CODE -> {
+                if (data == null) {
+                    Toast.makeText(
+                        this,
+                        getString(R.string.something_went_wrong),
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                    return
+                }
+                val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                Log.d("DebugTag", "onActivityResult: $result")
+                if (result[0] != null) confirmText(result[0])
             }
-            cursor?.close()
+            SELECT_PHONE_NUMBER -> {
+                val contactUri = data?.data ?: return
+                val projection = arrayOf(
+                    ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                    ContactsContract.CommonDataKinds.Phone.NUMBER
+                )
+                val cursor = contentResolver.query(
+                    contactUri, projection,
+                    null, null, null
+                )
+
+                if (cursor != null && cursor.moveToFirst()) {
+                    val nameIndex =
+                        cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                    val numberIndex =
+                        cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                    val name = cursor.getString(nameIndex)
+                    val number = cursor.getString(numberIndex)
+
+                    // do something with name and phone
+                    convertStringToClickable(name, number)
+                } else {
+                    Toast.makeText(
+                        this,
+                        getString(R.string.fetch_contact_failure),
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+                cursor?.close()
+            }
         }
+
 
     }
 
@@ -334,11 +363,12 @@ class ReminderActivity : AppCompatActivity() {
         }
         ss.setSpan(clickableSpan, 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
+        viewModel.updateReminderClickableString(text)
 
-        if (binding.reminderTextView.text.isNotBlank()) binding.reminderTextView.append("\n")
-        binding.reminderTextView.append(ss)
-        binding.reminderTextView.append("\n")
-        binding.reminderTextView.movementMethod = LinkMovementMethod.getInstance()
+        if (binding.reminderEditText.text.isNotBlank()) binding.reminderEditText.append("\n")
+        binding.reminderEditText.append(ss)
+        binding.reminderEditText.append("\n")
+        binding.reminderEditText.movementMethod = LinkMovementMethod.getInstance()
     }
 
     private fun openDialPadWithNumber(phone: String?) {
@@ -352,13 +382,13 @@ class ReminderActivity : AppCompatActivity() {
     private fun confirmText(convertedText: String) {
 
         //remove focus from reminder textview
-        binding.reminderTextView.clearFocus()
+        binding.reminderEditText.clearFocus()
 
         val dialog = MaterialDialog(this).show {
             customView(R.layout.speech_to_text_dialog)
             positiveButton(R.string.confirm) {
                 //will execute on confirm press
-                binding.reminderTextView.append(convertedText)
+                binding.reminderEditText.append(convertedText)
             }
             negativeButton(R.string.retry) {
                 openSpeechToTextDialog()
