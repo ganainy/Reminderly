@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private val fragmentTransaction by lazy { supportFragmentManager.beginTransaction() }
     private lateinit var binding: ActivityMainBinding
-    private lateinit var demoCollectionAdapter: DemoCollectionAdapter
+    private lateinit var fragmentViewPagerAdapter: FragmentViewPagerAdapter
     private lateinit var viewPager: ViewPager2
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,10 +87,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupViewPager() {
 
-        demoCollectionAdapter =
-            DemoCollectionAdapter(this)
+        fragmentViewPagerAdapter =
+            FragmentViewPagerAdapter(this)
         viewPager = findViewById(R.id.pager)
-        viewPager.adapter = demoCollectionAdapter
+        viewPager.adapter = fragmentViewPagerAdapter
     }
 
     private fun setupTablayoutWithViewpager() {
@@ -179,5 +179,8 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
+
+
 
 }

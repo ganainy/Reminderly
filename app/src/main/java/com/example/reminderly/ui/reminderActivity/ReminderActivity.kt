@@ -28,9 +28,14 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
+import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.Utils
 import com.example.reminderly.databinding.ActivityReminderBinding
+import com.example.reminderly.ui.mainActivity.MainActivity
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 
@@ -40,7 +45,9 @@ const val SELECT_PHONE_NUMBER = 2
 class ReminderActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ReminderActivityViewModel
+    private lateinit var viewModelFactory: ReminderViewModelFactory
     private lateinit var binding: ActivityReminderBinding
+    private val disposable = CompositeDisposable()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,8 +57,10 @@ class ReminderActivity : AppCompatActivity() {
             R.layout.activity_reminder
         )
 
-
-        viewModel = ViewModelProvider(this).get(ReminderActivityViewModel::class.java)
+        val reminderDatabaseDao = ReminderDatabase.getInstance(this).reminderDatabaseDao
+        viewModelFactory = ReminderViewModelFactory(application, reminderDatabaseDao)
+        viewModel =
+            ViewModelProvider(this, viewModelFactory).get(ReminderActivityViewModel::class.java)
 
         setupToolbar()
 
@@ -265,7 +274,20 @@ class ReminderActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            viewModel.saveReminder(binding.reminderEditText.text.toString())
+            viewModel.updateText(binding.reminderEditText.text.toString())
+
+            disposable.add(viewModel.saveReminder()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {   //completed
+                        viewModel.resetReminder()
+                        startActivity(Intent(this@ReminderActivity,MainActivity::class.java))
+                    },
+                    {   //error
+                        Toast.makeText(this, getString(R.string.error_saving_reminder), Toast.LENGTH_SHORT).show()
+                    }
+                ))
 
         }
     }
@@ -401,6 +423,11 @@ class ReminderActivity : AppCompatActivity() {
             append(convertedText)
         }
 
+    }
+
+    override fun onStop() {
+        super.onStop()
+        disposable.clear()
     }
 }
 

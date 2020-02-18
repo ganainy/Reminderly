@@ -3,16 +3,20 @@ package com.example.reminderly.ui.reminderActivity
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import com.example.footy.database.ReminderDatabaseDao
 import com.example.reminderly.R
-import com.example.reminderly.model.*
+import com.example.reminderly.model.Reminder
+import io.reactivex.Completable
 import java.util.*
 
-class ReminderActivityViewModel(val app:Application) : AndroidViewModel(app) {
+class ReminderActivityViewModel(
+    val app: Application,
+    private val database: ReminderDatabaseDao
+) : AndroidViewModel(app) {
 
 
-    val tempReminderList= mutableListOf<Reminder>()
 
-      val defaultReminder by lazy {
+      private val defaultReminder by lazy {
          Reminder() }
 
     fun updateReminderDate(year:Int,month:Int,day:Int){
@@ -35,32 +39,16 @@ class ReminderActivityViewModel(val app:Application) : AndroidViewModel(app) {
     }
 
     fun updateReminderRepeat(index: Int) {
-        defaultReminder.repeat= when(index){
-            0->Repeat.ONCE
-            1->Repeat.HOURLY
-            2->Repeat.DAILY
-            3->Repeat.WEEKLY
-            4->Repeat.MONTHLY
-            5->Repeat.YEARLY
-            else -> throw Exception("unknown  type")
-        }
+        defaultReminder.repeat=index
     }
 
     fun updateReminderPriority(index: Int) {
-        defaultReminder.priority= when(index){
-            0->Priority.LOW
-            1->Priority.MEDIUM
-            2->Priority.HIGH
-            else -> throw Exception("unknown  type")
-        }
+        defaultReminder.priority= index
     }
 
     fun updateReminderNotificationType(index: Int) {
-        defaultReminder.repeatType= when(index){
-            0-> RepeatType.NOTIFICATION
-            1->RepeatType.ALARM
-            else -> throw Exception("unknown  type")
-        }
+        defaultReminder.repeatType= index
+
     }
 
     fun updateReminderNotifyAdvAmount(num: Int) {
@@ -69,10 +57,10 @@ class ReminderActivityViewModel(val app:Application) : AndroidViewModel(app) {
 
     fun updateReminderNotifyAdvUnit(durationUnit: String) {
         defaultReminder.notifyAdvUnit= when(durationUnit){
-            app.getString(R.string.minutes)-> NotifyAdvUnit.MINUTE
-            app.getString(R.string.hours)-> NotifyAdvUnit.HOUR
-            app.getString(R.string.days)-> NotifyAdvUnit.DAY
-            app.getString(R.string.weeks)-> NotifyAdvUnit.WEEK
+            app.getString(R.string.minutes)-> 0
+            app.getString(R.string.hours)-> 1
+            app.getString(R.string.days)-> 2
+            app.getString(R.string.weeks)-> 3
             else -> throw Exception("unknown  type")
         }
     }
@@ -85,13 +73,18 @@ class ReminderActivityViewModel(val app:Application) : AndroidViewModel(app) {
     }
 
 
-    fun saveReminder(text: String) {
+    fun updateText(text: String) {
         //set reminder text and save it
         defaultReminder.text=text
-        tempReminderList.add(defaultReminder)
+    }
+
+    fun saveReminder() : Completable{
+        return database.insert(defaultReminder)
+    }
+
+    fun resetReminder(){
         //reset default reminder so its params won't be used for future reminders
         defaultReminder.resetToDefaults()
-
     }
 
 

@@ -35,5 +35,7 @@
     <string name="weeks">اسابيع</string>
     <string name="text_empty">لا يمكن حفظ تذكير فارغ</string>
     <string name="something_went_wrong">حدث خطأ اثناء استعاده البيانات</string>
+    <string name="error_saving_reminder">خطأ اثناء حفظ التذكير</string>
+    <string name="reminder_saved">تم حفظ التذكير</string>
 
 </resources>
