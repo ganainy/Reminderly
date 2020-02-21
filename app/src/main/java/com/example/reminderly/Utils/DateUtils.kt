@@ -14,26 +14,33 @@ class DateUtils {
 
         private val locale = Locale("ar")
 
+        private val dateFormat = SimpleDateFormat("EEEE, dd MMMM", locale)
+        private val timeFormat = SimpleDateFormat("hh:mm a", locale)
+
 
         fun getCurrentDateFormatted(): String {
-            val sdf = SimpleDateFormat("EEEE, dd MMMM", locale)
-            return sdf.format(currentDate)
-
+            return dateFormat.format(currentDate)
         }
 
         fun getCurrentTimeFormatted(): String {
-            val sdf = SimpleDateFormat("hh:mm a", locale)
-            return sdf.format(currentDate)
+            return timeFormat.format(currentDate)
         }
 
         fun formatDate(date: Date): String {
-            val sdf = SimpleDateFormat("EEEE, dd MMMM", locale)
-            return sdf.format(date)
+            return dateFormat.format(date)
         }
 
         fun formatTime(date: Date): String {
-            val sdf = SimpleDateFormat("hh:mm a", locale)
-            return sdf.format(date)
+            return timeFormat.format(date)
+        }
+
+
+        fun getDateFromCalendar(calendar: Calendar): String {
+            return dateFormat.format(calendar.time)
+        }
+
+        fun getTimeFromCalendar(calendar: Calendar): String {
+            return timeFormat.format(calendar.time)
         }
 
 

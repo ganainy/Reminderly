@@ -1,134 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.cardview.widget.CardView
-
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="4dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="@dimen/default_margin">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <data>
+
+        <variable
+            name="reminder"
+            type="com.example.reminderly.database.Reminder" />
+
+        <variable
+            name="clickListener"
+            type="com.example.ourchat.ui.chat.ReminderClickListener" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="4dp"
+        android:onClick="@{() -> clickListener.onReminderClick(reminder)}"
+        app:cardCornerRadius="@dimen/default_margin">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
 
-        <TextView
-            android:id="@+id/dateText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            tools:text="@tools:sample/lorem/random"
-            android:maxLines="1"
-            style="@style/ReminderItemStyle"
-            android:ellipsize="end"
-            app:layout_constraintBottom_toBottomOf="@+id/imageView3"
-            app:layout_constraintEnd_toStartOf="@+id/imageView5"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/imageView3"
-            app:layout_constraintTop_toTopOf="@+id/imageView3" />
+            <TextView
+                android:id="@+id/dateText"
+                style="@style/ReminderItemStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="end"
+                android:maxLines="2"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView3"
+                app:layout_constraintEnd_toStartOf="@+id/imageView5"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/imageView3"
+                app:layout_constraintTop_toTopOf="@+id/imageView3"
+                app:layout_constraintVertical_bias="0.3"
+                app:setDateFromCalendar="@{reminder.createdAt}"
+              tools:text="a" />
 
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/hourText"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/reminderText"
-            app:srcCompat="@drawable/ic_access_time_grey" />
+            <ImageView
+                android:id="@+id/priorityImage"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/imageView2"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/reminderText"
+                app:setPriority="@{reminder.priority}"
+                app:srcCompat="@drawable/green_round_bg" />
 
-        <TextView
-            android:id="@+id/hourText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            tools:text="@tools:sample/lorem/random"
-            style="@style/ReminderItemStyle"
-            android:maxLines="1"
-            android:ellipsize="end"
-            app:layout_constraintBottom_toBottomOf="@+id/imageView2"
-            app:layout_constraintEnd_toStartOf="@+id/imageView3"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/imageView2"
-            app:layout_constraintTop_toTopOf="@+id/imageView2" />
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                app:layout_constraintBottom_toBottomOf="@+id/priorityImage"
+                app:layout_constraintEnd_toStartOf="@+id/hourText"
+                app:layout_constraintStart_toEndOf="@+id/priorityImage"
+                app:layout_constraintTop_toTopOf="@+id/priorityImage"
+                app:srcCompat="@drawable/ic_access_time_grey" />
 
-        <ImageView
-            android:id="@+id/imageView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@+id/hourText"
-            app:layout_constraintEnd_toStartOf="@+id/dateText"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/hourText"
-            app:layout_constraintTop_toTopOf="@+id/hourText"
-            app:srcCompat="@drawable/ic_date_range_grey" />
+            <TextView
+                android:id="@+id/hourText"
+                style="@style/ReminderItemStyle"
+                android:layout_width="0dp"
+                android:gravity="end"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView2"
+                app:layout_constraintEnd_toStartOf="@+id/imageView3"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/imageView2"
+                app:layout_constraintTop_toTopOf="@+id/imageView2"
+                app:setTimeFromCalendar="@{reminder.createdAt}"
+              tools:text="a" />
 
-        <TextView
-            android:id="@+id/reminderText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            style="@style/ReminderItemStyle"
-            tools:text="@tools:sample/lorem/random"
-            android:maxLines="5"
-            android:ellipsize="end"
-            app:layout_constraintEnd_toStartOf="@+id/imageView4"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                app:layout_constraintBottom_toBottomOf="@+id/hourText"
+                app:layout_constraintEnd_toStartOf="@+id/dateText"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/hourText"
+                app:layout_constraintTop_toTopOf="@+id/hourText"
+                app:layout_constraintVertical_bias="0.8"
+                app:srcCompat="@drawable/ic_date_range_grey" />
 
-        <ImageView
-            android:id="@+id/imageView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_more_vert_grey" />
+            <TextView
+                android:id="@+id/reminderText"
+                style="@style/ReminderItemStyle"
+                android:layout_width="0dp"
+                app:layout_constrainedWidth="true"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:ellipsize="end"
+                android:maxLines="5"
+                android:text="@{reminder.text}"
+                app:layout_constraintEnd_toStartOf="@+id/imageView4"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+              tools:text="a" />
 
-        <ImageView
-            android:id="@+id/imageView5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/ReminderItemStyle"
-            app:layout_constraintBottom_toBottomOf="@+id/dateText"
-            app:layout_constraintEnd_toStartOf="@+id/repeatText"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/dateText"
-            app:layout_constraintTop_toTopOf="@+id/dateText"
-            app:srcCompat="@drawable/ic_repeat_grey" />
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_more_vert_grey" />
 
-        <TextView
-            android:id="@+id/repeatText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            tools:text="@tools:sample/lorem/random"
-            android:maxLines="1"
-            android:ellipsize="end"
-            style="@style/ReminderItemStyle"
-            app:layout_constraintBottom_toBottomOf="@+id/imageView5"
-            app:layout_constraintEnd_toStartOf="@+id/imageView6"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/imageView5"
-            app:layout_constraintTop_toTopOf="@+id/imageView5" />
+            <ImageView
+                android:id="@+id/imageView5"
+                style="@style/ReminderItemStyle"
+                android:layout_width="wrap_content"
 
-        <ImageView
-            android:id="@+id/imageView6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/repeatText"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/repeatText"
-            app:layout_constraintTop_toTopOf="@+id/repeatText"
-            app:srcCompat="@drawable/ic_star_grey" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                app:layout_constraintBottom_toBottomOf="@+id/dateText"
+                app:layout_constraintEnd_toStartOf="@+id/repeatText"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/dateText"
+                app:layout_constraintTop_toTopOf="@+id/dateText"
+                app:layout_constraintVertical_bias="0.4"
+                app:srcCompat="@drawable/ic_repeat_grey" />
 
-</androidx.cardview.widget.CardView>
+            <TextView
+                android:id="@+id/repeatText"
+                style="@style/ReminderItemStyle"
+                android:layout_width="0dp"
+                android:gravity="end"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView5"
+                app:layout_constraintEnd_toStartOf="@+id/imageView6"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/imageView5"
+                app:layout_constraintTop_toTopOf="@+id/imageView5"
+                app:layout_constraintVertical_bias="0.4"
+                app:setRepeatType="@{reminder.repeat}"
+              tools:text="a" />
+
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="wrap_content"
+                app:layout_constrainedWidth="true"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                app:layout_constraintBottom_toBottomOf="@+id/repeatText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/repeatText"
+                app:layout_constraintTop_toTopOf="@+id/repeatText"
+                app:setFavorite="@{reminder.favorite}"
+                app:srcCompat="@drawable/ic_star_grey" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>

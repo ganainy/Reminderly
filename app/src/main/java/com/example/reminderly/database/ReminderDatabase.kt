@@ -21,9 +21,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.reminderly.database.CalendarConverter
-import com.example.reminderly.database.ClickableStringsConverter
-import com.example.reminderly.model.Reminder
+import com.example.reminderly.database.Reminder
+import com.example.reminderly.database.converters.CalendarConverter
+import com.example.reminderly.database.converters.ClickableStringsConverter
 
 /**
  * A database that stores SleepNight information.
@@ -32,8 +32,10 @@ import com.example.reminderly.model.Reminder
  * This pattern is pretty much the same for any database,
  * so you can reuse it.
  */
-@Database(entities = [Reminder::class], version = 1, exportSchema = false)
-@TypeConverters(ClickableStringsConverter::class,CalendarConverter::class)
+@Database(entities = [Reminder::class], version = 2, exportSchema = false)
+@TypeConverters(
+    ClickableStringsConverter::class,
+    CalendarConverter::class)
 abstract class ReminderDatabase : RoomDatabase() {
 
     /**

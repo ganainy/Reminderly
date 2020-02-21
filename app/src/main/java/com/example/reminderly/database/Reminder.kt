@@ -1,4 +1,4 @@
-package com.example.reminderly.model
+package com.example.reminderly.database
 
 import android.os.Parcelable
 import androidx.room.Entity
@@ -12,13 +12,13 @@ import java.util.*
 data class Reminder(
 
     @PrimaryKey(autoGenerate = true)
-    var id: Int=-1,
+    var id:Int=0,
     var text: String = "",
     var clickableStrings: MutableList<String> = mutableListOf(),
     var createdAt: Calendar = Calendar.getInstance(),
     var repeat: Int = 0,
     var priority: Int = 0,
-    var repeatType: Int = 0,
+    var reminderType: Int = 0,
     var notifyAdvAmount: Int = 0,
     var notifyAdvUnit: Int = 0,
     var isFavorite: Boolean = false
@@ -31,7 +31,7 @@ data class Reminder(
         createdAt = Calendar.getInstance()
         repeat = 0
         priority = 0
-        repeatType = 0
+        reminderType = 0
         notifyAdvAmount = 0
         notifyAdvUnit =0
          isFavorite = false
@@ -56,7 +56,7 @@ data class Reminder(
  * 2-HIGH
  * */
 
-/**RepeatType
+/**ReminderType
  * 0-NOTIFICATION
  * 1-ALARM
  * */

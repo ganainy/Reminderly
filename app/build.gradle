@@ -86,4 +86,7 @@ dependencies {
     kapt "androidx.room:room-compiler:2.2.3"
     implementation 'androidx.room:room-rxjava2:2.2.3'
 
+    //to inspect generated tables of room
+    implementation 'com.facebook.stetho:stetho:1.5.1'
+
 }

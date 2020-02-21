@@ -283,8 +283,10 @@ class ReminderActivity : AppCompatActivity() {
                     {   //completed
                         viewModel.resetReminder()
                         startActivity(Intent(this@ReminderActivity,MainActivity::class.java))
+                        finish()
                     },
                     {   //error
+                        error->
                         Toast.makeText(this, getString(R.string.error_saving_reminder), Toast.LENGTH_SHORT).show()
                     }
                 ))

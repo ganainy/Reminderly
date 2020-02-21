@@ -17,8 +17,9 @@
 package com.example.footy.database
 
 import androidx.room.*
-import com.example.reminderly.model.Reminder
+import com.example.reminderly.database.Reminder
 import io.reactivex.Completable
+import io.reactivex.Observable
 
 /**
  * Defines methods for using the SleepNight class with Room.
@@ -48,7 +49,7 @@ interface ReminderDatabaseDao {
 
 
     @Query("SELECT * FROM reminder_table ")
-    fun getAllReminders(): List<Reminder>?
+    fun getAllReminders(): Observable<List<Reminder>>
 
     @Query("SELECT * FROM reminder_table WHERE isFavorite==1")
     fun getFavoriteReminders():List<Reminder>?

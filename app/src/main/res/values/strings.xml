@@ -37,5 +37,13 @@
     <string name="something_went_wrong">حدث خطأ اثناء استعاده البيانات</string>
     <string name="error_saving_reminder">خطأ اثناء حفظ التذكير</string>
     <string name="reminder_saved">تم حفظ التذكير</string>
+    <string name="overdue">تذكيرات فائتة</string>
+    <string name="today">تذكيرات اليوم</string>
+    <string name="upcoming">تذكيرات مستقبلية</string>
+    <string name="every_hour">كل ساعة</string>
+    <string name="daily">يوميا</string>
+    <string name="weekly">اسبوعيا</string>
+    <string name="monthly">شهريا</string>
+    <string name="yearly">سنويا</string>
 
 </resources>

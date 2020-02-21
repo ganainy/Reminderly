@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import com.example.reminderly.R
-import com.example.reminderly.model.Reminder
+import com.example.reminderly.database.Reminder
 import io.reactivex.Completable
 import java.util.*
 
@@ -17,7 +17,8 @@ class ReminderActivityViewModel(
 
 
       private val defaultReminder by lazy {
-         Reminder() }
+          Reminder()
+      }
 
     fun updateReminderDate(year:Int,month:Int,day:Int){
         defaultReminder.createdAt.apply {
@@ -47,7 +48,7 @@ class ReminderActivityViewModel(
     }
 
     fun updateReminderNotificationType(index: Int) {
-        defaultReminder.repeatType= index
+        defaultReminder.reminderType= index
 
     }
 

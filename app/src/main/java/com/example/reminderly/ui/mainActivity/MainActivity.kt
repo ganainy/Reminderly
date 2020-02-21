@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         binding.appContent.findViewById<FloatingActionButton>(R.id.addReminderFab)
             .setOnClickListener {
                 startActivity(Intent(this,ReminderActivity::class.java))
+                finish()
             }
 
         //set date in navigation drawer header
@@ -179,7 +180,6 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
 
 
 

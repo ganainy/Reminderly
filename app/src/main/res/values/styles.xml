@@ -12,13 +12,13 @@
 
 
     <style name="MyTextViewStyle" parent="android:Widget.TextView">
-        <item name="android:fontFamily">@font/jozor</item>
-        <item name="android:textSize">16dp</item>
+        <item name="android:fontFamily">@font/cairo</item>
     </style>
 
 
     <style name="ReminderItemStyle" parent="MyTextViewStyle">
         <item name="android:textColor">@color/grey</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Small</item>
     </style>
 
 </resources>

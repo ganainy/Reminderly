@@ -1,9 +1,53 @@
 package com.example.reminderly.Utils
 
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import com.example.reminderly.R
+import java.util.*
 
-@BindingAdapter("setCurrentDate")
-fun setCurrentDate(textView: TextView,uselessParam:Int?) {
-textView.text=DateUtils.getCurrentDateFormatted()
+
+@BindingAdapter("setDateFromCalendar")
+fun setDateFromCalendar(textView: TextView, calendar: Calendar) {
+    textView.text = DateUtils.getDateFromCalendar(calendar)
 }
+
+@BindingAdapter("setTimeFromCalendar")
+fun setTimeFromCalendar(textView: TextView, calendar: Calendar) {
+    textView.text = DateUtils.getTimeFromCalendar(calendar)
+}
+
+@BindingAdapter("setRepeatType")
+fun setRepeatType(textView: TextView, repeat: Int) {
+    textView.text = when (repeat) {
+        0 -> textView.context.getString(R.string.once)
+        1 -> textView.context.getString(R.string.every_hour)
+        2 -> textView.context.getString(R.string.daily)
+        3 -> textView.context.getString(R.string.weekly)
+        4 -> textView.context.getString(R.string.monthly)
+        5 -> textView.context.getString(R.string.yearly)
+        else -> throw Exception("unknown type")
+    }
+}
+
+@BindingAdapter("setFavorite")
+fun setFavorite(imageView: ImageView, favorite: Boolean) {
+    if (favorite)
+    imageView.setImageDrawable(imageView.resources.getDrawable(R.drawable.ic_star_yellow,null))
+    else
+        imageView.setImageDrawable(imageView.resources.getDrawable(R.drawable.ic_star_grey,null))
+}
+
+
+@BindingAdapter("setPriority")
+fun setPriority(imageView: ImageView, priority: Int) {
+   imageView.setImageDrawable(when(priority){
+       0->imageView.resources.getDrawable(R.drawable.green_round_bg,null)
+       1->imageView.resources.getDrawable(R.drawable.yellow_round_bg,null)
+       2->imageView.resources.getDrawable(R.drawable.red_round_bg,null)
+       else -> throw Exception("unknown Priority")
+   })
+}
+
+
+

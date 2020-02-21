@@ -1,4 +1,4 @@
-package com.example.reminderly.database
+package com.example.reminderly.database.converters
 
 import androidx.room.TypeConverter
 import java.util.*
