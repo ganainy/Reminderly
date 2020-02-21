@@ -18,17 +18,14 @@ package com.example.ourchat.ui.chat
 
 
 import android.content.Context
-import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.reminderly.R
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ReminderItemBinding
 import com.example.reminderly.databinding.ReminderWithHeaderItemBinding
-import java.util.*
 
 
 class ReminderAdapter(
@@ -40,7 +37,7 @@ class ReminderAdapter(
 
     companion object {
         private const val TYPE_REMINDER = 0
-        private const val TYPE_REMINDER_WITH_HEADER = 1
+        private const val TYPE_HEADER = 1
 
 
         private var overdueHeader = false
@@ -58,8 +55,8 @@ class ReminderAdapter(
             TYPE_REMINDER -> {
                 ReminderViewHolder.from(parent)
             }
-            TYPE_REMINDER_WITH_HEADER -> {
-                ReminderWithHeaderViewHolder.from(parent)
+            TYPE_HEADER -> {
+                HeaderViewHolder.from(parent)
             }
             else -> throw IllegalArgumentException("Invalid view type")
         }
@@ -71,7 +68,7 @@ class ReminderAdapter(
             is ReminderViewHolder -> {
                 holder.bind(clickListener, getItem(position))
             }
-            is ReminderWithHeaderViewHolder -> {
+            is HeaderViewHolder -> {
                 holder.bind(clickListener, getItem(position))
             }
             else -> throw IllegalArgumentException("Invalid ViewHolder type")
@@ -82,42 +79,11 @@ class ReminderAdapter(
 
         val currentReminder = getItem(position)
 
-        when {
-            DateUtils.isToday(currentReminder.createdAt.timeInMillis) -> {
-                //current calendar is today
-                return when (todayHeader) {
-                    //add header on top of first reminder of today reminders only so it work as separator
-                    false ->{
-                        todayHeader=true
-                        headerText=context.getString(R.string.today)
-                        TYPE_REMINDER_WITH_HEADER
-                    }
-                    true -> TYPE_REMINDER
-                }
-            }
-            Calendar.getInstance().timeInMillis > currentReminder.createdAt.timeInMillis -> {
-                //calendar is older that today
-                return when (overdueHeader) {
-                    false ->{
-                        overdueHeader=true
-                        headerText=context.getString(R.string.overdue)
-                        TYPE_REMINDER_WITH_HEADER
-                    }
-                    true -> TYPE_REMINDER
-                }
-            }
-            else -> {
-                //calendar is in the future
-                return when (upcomingHeader) {
-                    false ->{
-                        upcomingHeader=true
-                        headerText=context.getString(R.string.upcoming)
-                        TYPE_REMINDER_WITH_HEADER
-                    }
-                    true -> TYPE_REMINDER
-                }
-            }
+        return when (currentReminder.header) {
+            0->TYPE_REMINDER
+                else->TYPE_HEADER
         }
+
 
     }
 
@@ -143,22 +109,20 @@ class ReminderAdapter(
     }
 
 
-    //----------------ReminderWithHeaderViewHolder------------
-    class ReminderWithHeaderViewHolder private constructor(val binding: ReminderWithHeaderItemBinding) :
+    //----------------HeaderViewHolder------------
+    class HeaderViewHolder private constructor(val binding: ReminderWithHeaderItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(clickListener: ReminderClickListener, item: Reminder) {
-            binding.reminderItem.reminder = item
-            binding.reminderItem.clickListener=clickListener
-            binding.headerText.text= headerText
+            binding.header=item.header
         }
 
         companion object {
-            fun from(parent: ViewGroup): ReminderWithHeaderViewHolder {
+            fun from(parent: ViewGroup): HeaderViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
                 val binding = ReminderWithHeaderItemBinding.inflate(layoutInflater, parent, false)
 
-                return ReminderWithHeaderViewHolder(binding)
+                return HeaderViewHolder(binding)
             }
         }
 

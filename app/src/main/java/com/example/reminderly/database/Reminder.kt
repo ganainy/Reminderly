@@ -2,6 +2,7 @@ package com.example.reminderly.database
 
 import android.os.Parcelable
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 import java.util.*
@@ -12,7 +13,7 @@ import java.util.*
 data class Reminder(
 
     @PrimaryKey(autoGenerate = true)
-    var id:Int=0,
+    var id: Int = 0,
     var text: String = "",
     var clickableStrings: MutableList<String> = mutableListOf(),
     var createdAt: Calendar = Calendar.getInstance(),
@@ -21,25 +22,34 @@ data class Reminder(
     var reminderType: Int = 0,
     var notifyAdvAmount: Int = 0,
     var notifyAdvUnit: Int = 0,
-    var isFavorite: Boolean = false
+    var isFavorite: Boolean = false,
+    @Ignore //used to add fake items to reminder list to be shown as Headers
+    var header: Int = 0
 
 ) : Parcelable {
 
+
     fun resetToDefaults() {
         text = ""
-        clickableStrings =  mutableListOf()
+        clickableStrings = mutableListOf()
         createdAt = Calendar.getInstance()
         repeat = 0
         priority = 0
         reminderType = 0
         notifyAdvAmount = 0
-        notifyAdvUnit =0
-         isFavorite = false
+        notifyAdvUnit = 0
+        isFavorite = false
     }
 
 }
 
 
+/**Header
+ * 0-ONCE
+ * 1-OVERDUE
+ * 2-TODAY
+ * 3-UPCOMING
+ * */
 
 /**Repeat
  * 0-ONCE

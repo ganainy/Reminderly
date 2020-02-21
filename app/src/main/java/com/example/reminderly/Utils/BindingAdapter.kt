@@ -49,5 +49,16 @@ fun setPriority(imageView: ImageView, priority: Int) {
    })
 }
 
+@BindingAdapter("setHeaderText")
+fun setHeaderText(textView: TextView, header: Int) {
+    textView.text = when (header) {
+        1 -> textView.context.getString(R.string.overdue)
+        2 -> textView.context.getString(R.string.today)
+        3 -> textView.context.getString(R.string.upcoming)
+        else -> throw Exception("unknown type")
+    }
+}
+
+
 
 
