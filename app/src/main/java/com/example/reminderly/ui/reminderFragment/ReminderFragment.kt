@@ -66,25 +66,19 @@ class ReminderFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
 
-        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
-        viewModelFactory =
-            ReminderViewModelFactory(
-                requireActivity().application,
-                reminderDatabaseDao
-            )
-        viewModel =
-            ViewModelProvider(this, viewModelFactory).get(ReminderViewModel::class.java)
-
-
-        binding.backButton.setOnClickListener {
-            requireActivity().onBackPressed()
-        }
-
+        initViewModel()
 
         initViewsDefaults()
 
         handleSaveButton()
 
+    }
+
+    private fun initViewModel() {
+        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
+        viewModelFactory =
+            ReminderViewModelFactory(requireActivity().application, reminderDatabaseDao)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(ReminderViewModel::class.java)
     }
 
 
@@ -102,6 +96,11 @@ class ReminderFragment : Fragment() {
         binding.micImage.setOnClickListener { openSpeechToTextDialog() }
 
         binding.contactsImage.setOnClickListener { pickNumberFromContacts() }
+
+
+        binding.backButton.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun pickNumberFromContacts() {

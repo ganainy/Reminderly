@@ -51,5 +51,8 @@
     <string name="copy">نسخ</string>
     <string name="share">مشاركة</string>
     <string name="delete">حذف</string>
+    <string name="overdue_reminders">تذكيرات فائتة</string>
+    <string name="today_reminders">تذكيرات اليوم</string>
+    <string name="upcoming_reminders">تذكيرات مستقبلية</string>
 
 </resources>

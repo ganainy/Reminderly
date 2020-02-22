@@ -127,15 +127,11 @@ class ReminderListFragment : Fragment() {
     }
 
 
-    override fun onStart() {
-        super.onStart()
-
-
-    }
 
     private fun addHeaders(reminderList: MutableList<Reminder>): MutableList<Reminder> {
         val reminderListWithHeaders = mutableListOf<Reminder>()
 
+        //todo replace this with 3 lists coming from main
         reminderList.sortBy { it.createdAt.timeInMillis }
 
         var overdueHeader = false

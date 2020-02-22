@@ -130,7 +130,7 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/darker_green_round_bg"
                 android:padding="8dp"
-                android:src="@drawable/note_ic"
+                android:src="@drawable/note_ic_white"
                 app:layout_constraintBottom_toTopOf="@+id/timeImage"
                 app:layout_constraintEnd_toStartOf="@+id/dateText"
                 app:layout_constraintStart_toStartOf="parent"

@@ -1,7 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
 
+    <group
+        android:id="@+id/group1"
+        android:orderInCategory="1">
+        <item
+            android:checked="false"
+            android:visible="false"
+            android:id="@+id/overdue"
+            app:actionLayout="@layout/badge_layout"
+            android:icon="@drawable/note_ic_grey"
+            android:title="@string/overdue_reminders" />
+        <item
+            android:visible="false"
+            android:checked="false"
+            android:id="@+id/today"
+            app:actionLayout="@layout/badge_layout"
+            android:icon="@drawable/note_ic_grey"
+            android:title="@string/today_reminders"
+            />
+        <item
+            android:visible="false"
+            android:checked="false"
+            android:id="@+id/upcoming"
+            app:actionLayout="@layout/badge_layout"
+            android:icon="@drawable/note_ic_grey"
+            android:title="@string/upcoming_reminders"
+            />
+
+    </group>
 
 
     <group

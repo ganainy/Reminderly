@@ -1,14 +1,10 @@
 package com.example.reminderly.ui.mainActivity
 
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
-import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -17,25 +13,34 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
+import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.DateUtils
+import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
 import com.example.reminderly.ui.calendarActivity.CalendarActivity
 import com.example.reminderly.ui.reminderFragment.ReminderFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayoutMediator
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_content.*
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
 
-
-    private val fragmentTransaction by lazy { supportFragmentManager.beginTransaction() }
+    private lateinit var badgeView:TextView
+    private val disposable = CompositeDisposable()
     private lateinit var binding: ActivityMainBinding
     private lateinit var fragmentViewPagerAdapter: FragmentViewPagerAdapter
     private lateinit var viewPager: ViewPager2
+    private lateinit var viewModel: MainActivityViewModel
+    private lateinit var viewModelFactory: MainActivityViewModelFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,14 +49,9 @@ class MainActivity : AppCompatActivity() {
             R.layout.activity_main
         )
 
+        setupToolbar()
 
-        val toolbar = binding.appContent.findViewById(R.id.toolbar) as Toolbar
-        setSupportActionBar(toolbar)
-
-        //add menu icon to toolbar (don't forget to override on option item selected for android.R.id.home to open drawer)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_white)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
+        initViewModel()
 
         setupViewPager()
 
@@ -60,30 +60,70 @@ class MainActivity : AppCompatActivity() {
         setupDrawerContent()
 
 
+
         //handle add fab click
         binding.appContent.findViewById<FloatingActionButton>(R.id.addReminderFab)
             .setOnClickListener {
 
                 val ft = supportFragmentManager.beginTransaction()
                 ft.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
-                ft.add(R.id.fragmentContainer, ReminderFragment(),"reminderFragment")
+                ft.add(R.id.fragmentContainer, ReminderFragment(), "reminderFragment")
                 ft.addToBackStack(null)
                 ft.commit()
             }
 
-        //set date in navigation drawer header
-        binding.navView.getHeaderView(0).findViewById<TextView>(R.id.dateTextView).text =
-            DateUtils.getCurrentDateFormatted()
 
-        //open calendar on calendar image click
-        binding.navView.getHeaderView(0).findViewById<ImageView>(R.id.calendarImageView)
-            .setOnClickListener {
-                startActivity(Intent(this, CalendarActivity::class.java))
-                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        //use view model
+        disposable.add(
+            viewModel.getAllReminders().subscribeOn(Schedulers.io()).observeOn(
+                AndroidSchedulers.mainThread()
+            ).subscribe({ reminderList ->
+                if (reminderList.isNotEmpty()) {
+                    val overdueReminders = mutableListOf<Reminder>()
+                    val todayReminders = mutableListOf<Reminder>()
+                    val upcomingReminders = mutableListOf<Reminder>()
+                    //todo pass reminder list to fragment from here instead of doing same thing there
+                    for (reminder in reminderList) {
+                        when {
+                            android.text.format.DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
+                                todayReminders.add(reminder)
+                            }
+                            reminder.createdAt.timeInMillis < Calendar.getInstance().timeInMillis -> {
+                                overdueReminders.add(reminder)
+                            }
+                            reminder.createdAt.timeInMillis > Calendar.getInstance().timeInMillis -> {
+                                upcomingReminders.add(reminder)
+                            }
+                        }
+                    }
 
-            }
+                    /**if there is overdue/today/upcoming reminders add them as tab in drawer menu
+                     * with their count*/
+                    addItemsToMenu(overdueReminders,todayReminders,upcomingReminders)
 
-        //addItemsToMenu()
+                }
+            }, { error -> })
+        )
+
+
+    }
+
+    private fun setupToolbar() {
+        val toolbar = binding.appContent.findViewById(R.id.toolbar) as Toolbar
+        setSupportActionBar(toolbar)
+        //add menu icon to toolbar (don't forget to override on option item selected for android.R.id.home to open drawer)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_white)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    private fun initViewModel() {
+        val reminderDatabaseDao = ReminderDatabase.getInstance(this).reminderDatabaseDao
+        viewModelFactory =
+            MainActivityViewModelFactory(
+                reminderDatabaseDao
+            )
+        viewModel =
+            ViewModelProvider(this, viewModelFactory).get(MainActivityViewModel::class.java)
     }
 
 
@@ -106,7 +146,7 @@ class MainActivity : AppCompatActivity() {
             tab.icon = when (position) {
                 0 -> ResourcesCompat.getDrawable(
                     resources,
-                    R.drawable.note_ic, null
+                    R.drawable.note_ic_white, null
                 )
                 1 -> ResourcesCompat.getDrawable(
                     resources,
@@ -123,38 +163,61 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.closeDrawers()
             true
         }
-    }
 
-    private fun addItemsToMenu() {
-        //todo use this to add item programmatically to navigation drawer
-        val menu: Menu = nav_view.menu
-        for (i in 1..3) {
-            val menuItem = menu.add("Runtime item $i")
-            menuItem.icon = ResourcesCompat.getDrawable(
-                resources,
-                R.drawable.note_ic, null
-            )
 
-            //create linear layout with textview in middle of it to allign it with menu item
-            val linearLayout = LinearLayout(this)
-            linearLayout.gravity = Gravity.CENTER
+        //set date in navigation drawer header
+        binding.navView.getHeaderView(0).findViewById<TextView>(R.id.dateTextView).text =
+            DateUtils.getCurrentDateFormatted()
 
-            val textView = TextView(this)
-            textView.apply {
-                setPadding(16, 0, 16, 0)
-                background = resources.getDrawable(R.drawable.green_round_bg, null)
-                text = i.toString()
-                gravity = Gravity.CENTER_VERTICAL
-                setTypeface(null, Typeface.BOLD)
-                setTextColor(Color.parseColor("#FFFFFF"))
+        //open calendar on calendar image click
+        binding.navView.getHeaderView(0).findViewById<ImageView>(R.id.calendarImageView)
+            .setOnClickListener {
+                startActivity(Intent(this, CalendarActivity::class.java))
+                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+
             }
-
-            linearLayout.addView(textView)
-            //add text view as actionView to menu item
-            menuItem.actionView = linearLayout
-
-        }
     }
+
+    private fun addItemsToMenu(
+        overdueReminders: MutableList<Reminder>,
+        todayReminders: MutableList<Reminder>,
+        upcomingReminders: MutableList<Reminder>
+    ) {
+
+            addMenuItem(overdueReminders,R.id.overdue)
+            addMenuItem(todayReminders,R.id.today)
+            addMenuItem(upcomingReminders,R.id.upcoming)
+    }
+
+    private fun addMenuItem(
+        reminders: MutableList<Reminder>,
+        menu_item_id: Int
+    ) {
+        val menuItem = nav_view.menu.findItem(menu_item_id)
+
+        if (reminders.isNotEmpty()) {
+            menuItem.isVisible = true
+            badgeView = menuItem?.actionView?.findViewById(R.id.countTextView)!!
+            badgeView.text = reminders.size.toString()
+        }
+        else{
+            menuItem.isVisible =false
+        }
+
+
+
+
+        menuItem.setOnMenuItemClickListener {
+          //todo open fragmnent to show reminders
+            true
+        }
+
+
+
+
+
+    }
+
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -197,4 +260,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    override fun onStop() {
+        super.onStop()
+        disposable.clear()
+    }
 }
