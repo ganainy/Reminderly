@@ -18,6 +18,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.DateUtils
+import com.example.reminderly.Utils.EventBus.ReminderEvent
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
 import com.example.reminderly.ui.calendarActivity.CalendarActivity
@@ -29,18 +30,26 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_content.*
+import org.greenrobot.eventbus.EventBus
 import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var badgeView:TextView
+    private lateinit var badgeView: TextView
     private val disposable = CompositeDisposable()
     private lateinit var binding: ActivityMainBinding
     private lateinit var fragmentViewPagerAdapter: FragmentViewPagerAdapter
     private lateinit var viewPager: ViewPager2
     private lateinit var viewModel: MainActivityViewModel
     private lateinit var viewModelFactory: MainActivityViewModelFactory
+
+
+    companion object{
+        val overdueReminders = mutableListOf<Reminder>()
+        val todayReminders = mutableListOf<Reminder>()
+        val upcomingReminders = mutableListOf<Reminder>()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +67,6 @@ class MainActivity : AppCompatActivity() {
         setupTablayoutWithViewpager()
 
         setupDrawerContent()
-
 
 
         //handle add fab click
@@ -79,10 +87,12 @@ class MainActivity : AppCompatActivity() {
                 AndroidSchedulers.mainThread()
             ).subscribe({ reminderList ->
                 if (reminderList.isNotEmpty()) {
-                    val overdueReminders = mutableListOf<Reminder>()
-                    val todayReminders = mutableListOf<Reminder>()
-                    val upcomingReminders = mutableListOf<Reminder>()
-                    //todo pass reminder list to fragment from here instead of doing same thing there
+
+                    overdueReminders.clear()
+                    todayReminders.clear()
+                    upcomingReminders.clear()
+
+
                     for (reminder in reminderList) {
                         when {
                             android.text.format.DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
@@ -99,7 +109,10 @@ class MainActivity : AppCompatActivity() {
 
                     /**if there is overdue/today/upcoming reminders add them as tab in drawer menu
                      * with their count*/
-                    addItemsToMenu(overdueReminders,todayReminders,upcomingReminders)
+                    addItemsToMenu(overdueReminders, todayReminders, upcomingReminders)
+
+                    /**pass reminders to reminder list fragment*/
+                    EventBus.getDefault().post( ReminderEvent(overdueReminders, todayReminders, upcomingReminders))
 
                 }
             }, { error -> })
@@ -184,9 +197,9 @@ class MainActivity : AppCompatActivity() {
         upcomingReminders: MutableList<Reminder>
     ) {
 
-            addMenuItem(overdueReminders,R.id.overdue)
-            addMenuItem(todayReminders,R.id.today)
-            addMenuItem(upcomingReminders,R.id.upcoming)
+        addMenuItem(overdueReminders, R.id.overdue)
+        addMenuItem(todayReminders, R.id.today)
+        addMenuItem(upcomingReminders, R.id.upcoming)
     }
 
     private fun addMenuItem(
@@ -199,25 +212,20 @@ class MainActivity : AppCompatActivity() {
             menuItem.isVisible = true
             badgeView = menuItem?.actionView?.findViewById(R.id.countTextView)!!
             badgeView.text = reminders.size.toString()
-        }
-        else{
-            menuItem.isVisible =false
+        } else {
+            menuItem.isVisible = false
         }
 
 
 
 
         menuItem.setOnMenuItemClickListener {
-          //todo open fragmnent to show reminders
+            //todo open fragmnent to show reminders
             true
         }
 
 
-
-
-
     }
-
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

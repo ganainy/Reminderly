@@ -90,4 +90,7 @@ dependencies {
     //to inspect generated tables of room
     implementation 'com.facebook.stetho:stetho:1.5.1'
 
+    //Eventbus
+    implementation 'org.greenrobot:eventbus:3.2.0'
+
 }

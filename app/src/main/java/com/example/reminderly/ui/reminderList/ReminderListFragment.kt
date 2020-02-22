@@ -1,12 +1,10 @@
-package com.example.reminderly.ui.all
+package com.example.reminderly.ui.reminderList
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -20,17 +18,21 @@ import com.example.footy.database.ReminderDatabase
 import com.example.ourchat.ui.chat.ReminderAdapter
 import com.example.ourchat.ui.chat.ReminderClickListener
 import com.example.reminderly.R
+import com.example.reminderly.Utils.EventBus.ReminderEvent
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.AllFragmentBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import java.util.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
+
 
 class ReminderListFragment : Fragment() {
 
     private val disposable = CompositeDisposable()
-    private val recyclerIntialized = false
+    private var recyclerIntialized = false
     private lateinit var binding: AllFragmentBinding
     private val adapter by lazy {
         ReminderAdapter(requireContext(), object : ReminderClickListener {
@@ -91,72 +93,48 @@ class ReminderListFragment : Fragment() {
 
         viewModelFactory =
             ReminderListViewModelFactory(requireActivity().application, reminderDatabaseDao)
+
         viewModel = ViewModelProvider(this, viewModelFactory).get(ReminderListViewModel::class.java)
 
 
-        getAllReminders()
-
-
-    }
-
-    private fun getAllReminders() {
-        disposable.add(
-            viewModel.getAllReminders().subscribeOn(Schedulers.io()).observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe({ reminderList ->
-                if (reminderList.isNotEmpty()) {
-
-                    //add header for the first reminder if item in that category(overdue,today,upcoming)exists
-                    val reminderListWithHeaders = addHeaders(reminderList)
-
-                    initRecycler()
-                    adapter.submitList(reminderListWithHeaders)
-
-                } else {
-                    binding.noRemindersGroup.visibility = View.VISIBLE
-                }
-            }, { error ->
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.something_went_wrong),
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-            })
-        )
     }
 
 
-
-    private fun addHeaders(reminderList: MutableList<Reminder>): MutableList<Reminder> {
-        val reminderListWithHeaders = mutableListOf<Reminder>()
-
-        //todo replace this with 3 lists coming from main
-        reminderList.sortBy { it.createdAt.timeInMillis }
-
-        var overdueHeader = false
-        var todayHeader = false
-        var upcomingHeader = false
-
-        for (reminder in reminderList) {
-            if (!overdueHeader && (reminder.createdAt.timeInMillis < Calendar.getInstance().timeInMillis)) {
-                overdueHeader = true
-                reminderListWithHeaders.add(Reminder(header = 1))//add empty reminder with header value that will be used as header in recycler
-            } else if (!todayHeader && DateUtils.isToday(reminder.createdAt.timeInMillis)) {
-                todayHeader = true
-                reminderListWithHeaders.add(Reminder(header = 2))//add empty reminder with header value that will be used as header in recycler
-            } else if (!upcomingHeader && (reminder.createdAt.timeInMillis > Calendar.getInstance().timeInMillis)) {
-                upcomingHeader = true
-                reminderListWithHeaders.add(Reminder(header = 3))//add empty reminder with header value that will be used as header in recycler
-            }
-            reminderListWithHeaders.add(reminder)
-        }
-        return reminderListWithHeaders
+    /**
+     * Once main activity get any reminder update this event will trigger and it will show reminders in recycler*/
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onReminderEvent( event: ReminderEvent) {
+      if (event.overdueReminders.isEmpty() && event.todayReminders.isEmpty() &&event.upcomingReminders.isEmpty() ){
+          binding.noRemindersGroup.visibility = View.VISIBLE
+      }else{
+          val reminderListWithHeaders= mutableListOf<Reminder>()
+          if (event.overdueReminders.isNotEmpty()) {
+              reminderListWithHeaders.add(Reminder(header = 1))//add empty reminder with header value that will be used as header in recycler
+              for (reminder in event.overdueReminders){
+              reminderListWithHeaders.add(reminder)}
+          }
+          if (event.todayReminders.isNotEmpty()) {
+              reminderListWithHeaders.add(Reminder(header = 2))//add empty reminder with header value that will be used as header in recycler
+              for (reminder in event.todayReminders){
+                  reminderListWithHeaders.add(reminder)}
+          }
+          if (event.upcomingReminders.isNotEmpty()) {
+              reminderListWithHeaders.add(Reminder(header = 3))//add empty reminder with header value that will be used as header in recycler
+              for (reminder in event.upcomingReminders){
+                  reminderListWithHeaders.add(reminder)}
+          }
+          initRecycler()
+          adapter.submitList(reminderListWithHeaders)
+      }
     }
+
+
+
 
     private fun initRecycler() {
         if (recyclerIntialized) return
 
+        recyclerIntialized=true
         binding.reminderReycler.setHasFixedSize(true)
         binding.reminderReycler.adapter = adapter
         //Change layout manager depending on orientation
@@ -184,7 +162,17 @@ class ReminderListFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         disposable.clear()
+        EventBus.getDefault().unregister(this)
+
     }
+
+
+
+    override fun onStart() {
+        super.onStart()
+        EventBus.getDefault().register(this)
+    }
+
 
 
 }

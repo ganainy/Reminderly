@@ -1,4 +1,4 @@
-package com.example.reminderly.ui.all
+package com.example.reminderly.ui.reminderList
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
