@@ -14,12 +14,13 @@
  *  limitations under the License.
  */
 
-package com.example.reminderly.ui.reminderActivity
+package com.example.reminderly.ui.reminderFragment
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.footy.database.ReminderDatabaseDao
+import com.example.reminderly.ui.reminderActivity.ReminderViewModel
 
 /**
  * Simple ViewModel factory that provides the MarsProperty and context to the ViewModel.
@@ -30,8 +31,11 @@ class ReminderViewModelFactory(
 ) : ViewModelProvider.Factory {
     @Suppress("unchecked_cast")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ReminderActivityViewModel::class.java)) {
-            return ReminderActivityViewModel( application, database) as T
+        if (modelClass.isAssignableFrom(ReminderViewModel::class.java)) {
+            return ReminderViewModel(
+                application,
+                database
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

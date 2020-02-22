@@ -27,6 +27,7 @@ import java.util.*
 class AllFragment : Fragment() {
 
     private val disposable = CompositeDisposable()
+    private val recyclerIntialized = false
     private lateinit var binding: AllFragmentBinding
     private val adapter by lazy {
         ReminderAdapter(requireContext(), object : ReminderClickListener {
@@ -61,6 +62,7 @@ class AllFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
+        Log.d("DebugTag", "onStart: $recyclerIntialized")
 
         val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
         disposable.add(
@@ -114,6 +116,8 @@ class AllFragment : Fragment() {
     }
 
     private fun initRecycler() {
+        if (recyclerIntialized)return
+
         binding.reminderReycler.setHasFixedSize(true)
         binding.reminderReycler.adapter = adapter
         //Change layout manager depending on orientation
@@ -142,6 +146,8 @@ class AllFragment : Fragment() {
         super.onStop()
         disposable.clear()
     }
+
+
 
 
 }

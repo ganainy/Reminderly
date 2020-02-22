@@ -9,16 +9,16 @@ import com.example.reminderly.database.Reminder
 import io.reactivex.Completable
 import java.util.*
 
-class ReminderActivityViewModel(
+class ReminderViewModel(
     val app: Application,
     private val database: ReminderDatabaseDao
 ) : AndroidViewModel(app) {
 
 
 
-      private val defaultReminder by lazy {
-          Reminder()
-      }
+    private val defaultReminder by lazy {
+        Reminder()
+    }
 
     fun updateReminderDate(year:Int,month:Int,day:Int){
         defaultReminder.createdAt.apply {

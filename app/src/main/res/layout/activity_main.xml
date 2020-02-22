@@ -14,15 +14,18 @@
         android:fitsSystemWindows="true">
 
 
-
-
-
         <include
             layout="@layout/app_content"
             android:id="@+id/app_content"
             />
 
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/fragmentContainer"
+
+            />
 
         <!-- Container for contents of drawer - use NavigationView to make configuration easier -->
         <com.google.android.material.navigation.NavigationView

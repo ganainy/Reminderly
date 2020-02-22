@@ -24,8 +24,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.reminderly.database.Reminder
+import com.example.reminderly.databinding.HeaderItemBinding
 import com.example.reminderly.databinding.ReminderItemBinding
-import com.example.reminderly.databinding.ReminderWithHeaderItemBinding
 
 
 class ReminderAdapter(
@@ -110,7 +110,7 @@ class ReminderAdapter(
 
 
     //----------------HeaderViewHolder------------
-    class HeaderViewHolder private constructor(val binding: ReminderWithHeaderItemBinding) :
+    class HeaderViewHolder private constructor(val binding: HeaderItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(clickListener: ReminderClickListener, item: Reminder) {
@@ -120,7 +120,7 @@ class ReminderAdapter(
         companion object {
             fun from(parent: ViewGroup): HeaderViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = ReminderWithHeaderItemBinding.inflate(layoutInflater, parent, false)
+                val binding = HeaderItemBinding.inflate(layoutInflater, parent, false)
 
                 return HeaderViewHolder(binding)
             }

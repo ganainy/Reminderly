@@ -22,7 +22,7 @@ import com.example.reminderly.R
 import com.example.reminderly.Utils.DateUtils
 import com.example.reminderly.databinding.ActivityMainBinding
 import com.example.reminderly.ui.calendarActivity.CalendarActivity
-import com.example.reminderly.ui.reminderActivity.ReminderActivity
+import com.example.reminderly.ui.reminderFragment.ReminderFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
@@ -39,7 +39,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this,
+        binding = DataBindingUtil.setContentView(
+            this,
             R.layout.activity_main
         )
 
@@ -62,8 +63,12 @@ class MainActivity : AppCompatActivity() {
         //handle add fab click
         binding.appContent.findViewById<FloatingActionButton>(R.id.addReminderFab)
             .setOnClickListener {
-                startActivity(Intent(this,ReminderActivity::class.java))
-                finish()
+
+                val ft = supportFragmentManager.beginTransaction()
+                ft.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
+                ft.add(R.id.fragmentContainer, ReminderFragment(),"reminderFragment")
+                ft.addToBackStack(null)
+                ft.commit()
             }
 
         //set date in navigation drawer header
@@ -73,17 +78,13 @@ class MainActivity : AppCompatActivity() {
         //open calendar on calendar image click
         binding.navView.getHeaderView(0).findViewById<ImageView>(R.id.calendarImageView)
             .setOnClickListener {
-                startActivity(Intent(this,CalendarActivity::class.java))
+                startActivity(Intent(this, CalendarActivity::class.java))
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
             }
 
         //addItemsToMenu()
     }
-
-
-
-
 
 
     private fun setupViewPager() {
@@ -103,10 +104,14 @@ class MainActivity : AppCompatActivity() {
                 else -> throw Exception("unknown tab")
             }
             tab.icon = when (position) {
-                0 -> ResourcesCompat.getDrawable(resources,
-                    R.drawable.note_ic, null)
-                1 -> ResourcesCompat.getDrawable(resources,
-                    R.drawable.favorite_ic, null)
+                0 -> ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.note_ic, null
+                )
+                1 -> ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.favorite_ic, null
+                )
                 else -> throw Exception("unknown tab")
             }
         }.attach()
@@ -125,8 +130,10 @@ class MainActivity : AppCompatActivity() {
         val menu: Menu = nav_view.menu
         for (i in 1..3) {
             val menuItem = menu.add("Runtime item $i")
-            menuItem.icon = ResourcesCompat.getDrawable(resources,
-                R.drawable.note_ic, null)
+            menuItem.icon = ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.note_ic, null
+            )
 
             //create linear layout with textview in middle of it to allign it with menu item
             val linearLayout = LinearLayout(this)
@@ -181,6 +188,13 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onBackPressed() {
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStackImmediate()
+        } else {
+            super.onBackPressed()
+        }
+    }
 
 
 }

@@ -1,4 +1,4 @@
-package com.example.reminderly.ui.reminderActivity
+package com.example.reminderly.ui.reminderFragment
 
 import android.app.Activity
 import android.app.DatePickerDialog
@@ -15,14 +15,14 @@ import android.text.TextPaint
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.util.Log
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
@@ -31,45 +31,62 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.Utils
-import com.example.reminderly.databinding.ActivityReminderBinding
-import com.example.reminderly.ui.mainActivity.MainActivity
+import com.example.reminderly.databinding.ReminderFragmentBinding
+import com.example.reminderly.ui.reminderActivity.ReminderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
-
 const val SPEECH_TO_TEXT_CODE = 1
 const val SELECT_PHONE_NUMBER = 2
 
-class ReminderActivity : AppCompatActivity() {
+class ReminderFragment : Fragment() {
 
-    private lateinit var viewModel: ReminderActivityViewModel
+    private lateinit var viewModel: ReminderViewModel
     private lateinit var viewModelFactory: ReminderViewModelFactory
-    private lateinit var binding: ActivityReminderBinding
+    private lateinit var binding: ReminderFragmentBinding
     private val disposable = CompositeDisposable()
 
+    companion object {
+        fun newInstance() = ReminderFragment()
+    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(
-            this,
-            R.layout.activity_reminder
-        )
 
-        val reminderDatabaseDao = ReminderDatabase.getInstance(this).reminderDatabaseDao
-        viewModelFactory = ReminderViewModelFactory(application, reminderDatabaseDao)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        setHasOptionsMenu(true)
+        binding=DataBindingUtil.inflate(inflater,R.layout.reminder_fragment, container, false)
+        return binding.root
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+
+        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
+        viewModelFactory =
+            ReminderViewModelFactory(
+                requireActivity().application,
+                reminderDatabaseDao
+            )
         viewModel =
-            ViewModelProvider(this, viewModelFactory).get(ReminderActivityViewModel::class.java)
+            ViewModelProvider(this, viewModelFactory).get(ReminderViewModel::class.java)
 
-        setupToolbar()
+
+        binding.backButton.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
+
 
         initViewsDefaults()
 
         handleSaveButton()
 
-
     }
+
 
     private fun initViewsDefaults() {
         binding.dateText.text = com.example.reminderly.Utils.DateUtils.getCurrentDateFormatted()
@@ -103,10 +120,12 @@ class ReminderActivity : AppCompatActivity() {
         )
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
 
-        if (intent.resolveActivity(packageManager) != null) {
-            startActivityForResult(intent, SPEECH_TO_TEXT_CODE)
+        if (intent.resolveActivity(requireActivity().packageManager) != null) {
+            startActivityForResult(intent,
+                SPEECH_TO_TEXT_CODE
+            )
         } else {
-            Toast.makeText(this, getString(R.string.feature_not_supported), Toast.LENGTH_SHORT)
+            Toast.makeText(requireContext(), getString(R.string.feature_not_supported), Toast.LENGTH_SHORT)
                 .show()
         }
     }
@@ -120,7 +139,7 @@ class ReminderActivity : AppCompatActivity() {
             ), getString(R.string.weeks)
         )
 
-        val dialog = MaterialDialog(this).show {
+        val dialog = MaterialDialog(requireContext()).show {
             customView(R.layout.notify_in_advance_dialog)
             positiveButton(R.string.confirm) {
                 //will execute on confirm press
@@ -158,7 +177,7 @@ class ReminderActivity : AppCompatActivity() {
 
 
     private fun handleNotifyTypeImageClick() {
-        MaterialDialog(this).show {
+        MaterialDialog(requireContext()).show {
             listItemsSingleChoice(
                 R.array.notify_type_items,
                 initialSelection = 0
@@ -175,7 +194,7 @@ class ReminderActivity : AppCompatActivity() {
     }
 
     private fun handlePriorityImageClick() {
-        MaterialDialog(this).show {
+        MaterialDialog(requireContext()).show {
             listItemsSingleChoice(
                 R.array.priority_items,
                 initialSelection = 0
@@ -192,7 +211,7 @@ class ReminderActivity : AppCompatActivity() {
     }
 
     private fun handleRepeatImageClick() {
-        MaterialDialog(this).show {
+        MaterialDialog(requireContext()).show {
             listItemsSingleChoice(
                 R.array.repeat_items,
                 initialSelection = 0
@@ -227,7 +246,7 @@ class ReminderActivity : AppCompatActivity() {
 
         //open date picker
         TimePickerDialog(
-            this@ReminderActivity, timeSetListener,
+            requireContext(), timeSetListener,
             // set DatePickerDialog to point to today's date when it loads up
             cal.get(Calendar.HOUR_OF_DAY),
             cal.get(Calendar.MINUTE),
@@ -257,7 +276,7 @@ class ReminderActivity : AppCompatActivity() {
 
         //open date picker
         DatePickerDialog(
-            this@ReminderActivity, dateSetListener,
+            requireContext(), dateSetListener,
             // set DatePickerDialog to point to today's date when it loads up
             cal.get(Calendar.YEAR),
             cal.get(Calendar.MONTH),
@@ -270,7 +289,7 @@ class ReminderActivity : AppCompatActivity() {
     private fun handleSaveButton() {
         binding.saveFab.setOnClickListener {
             if (binding.reminderEditText.text.isBlank()) {
-                Toast.makeText(this, getString(R.string.text_empty), Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.text_empty), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -282,37 +301,19 @@ class ReminderActivity : AppCompatActivity() {
                 .subscribe(
                     {   //completed
                         viewModel.resetReminder()
-                        startActivity(Intent(this@ReminderActivity,MainActivity::class.java))
-                        finish()
+                        requireActivity().onBackPressed()
                     },
                     {   //error
-                        error->
-                        Toast.makeText(this, getString(R.string.error_saving_reminder), Toast.LENGTH_SHORT).show()
+                            error->
+                        Toast.makeText(requireContext(), getString(R.string.error_saving_reminder), Toast.LENGTH_SHORT).show()
                     }
                 ))
 
         }
     }
 
-    private fun setupToolbar() {
-        val toolbar = binding.toolbar as Toolbar
-        setSupportActionBar(toolbar)
-        supportActionBar?.title = ""
 
-        //add menu icon to toolbar (don't forget to override on option item selected for android.R.id.home to open drawer)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -323,7 +324,7 @@ class ReminderActivity : AppCompatActivity() {
             SPEECH_TO_TEXT_CODE -> {
                 if (data == null) {
                     Toast.makeText(
-                        this,
+                        requireContext(),
                         getString(R.string.something_went_wrong),
                         Toast.LENGTH_SHORT
                     )
@@ -334,13 +335,13 @@ class ReminderActivity : AppCompatActivity() {
                 Log.d("DebugTag", "onActivityResult: $result")
                 if (result[0] != null) confirmText(result[0])
             }
-            SELECT_PHONE_NUMBER -> {
+         SELECT_PHONE_NUMBER -> {
                 val contactUri = data?.data ?: return
                 val projection = arrayOf(
                     ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                     ContactsContract.CommonDataKinds.Phone.NUMBER
                 )
-                val cursor = contentResolver.query(
+                val cursor = requireContext().contentResolver.query(
                     contactUri, projection,
                     null, null, null
                 )
@@ -357,7 +358,7 @@ class ReminderActivity : AppCompatActivity() {
                     convertStringToClickable(name, number)
                 } else {
                     Toast.makeText(
-                        this,
+                        requireContext(),
                         getString(R.string.fetch_contact_failure),
                         Toast.LENGTH_SHORT
                     )
@@ -408,7 +409,7 @@ class ReminderActivity : AppCompatActivity() {
         //remove focus from reminder textview
         binding.reminderEditText.clearFocus()
 
-        val dialog = MaterialDialog(this).show {
+        val dialog = MaterialDialog(requireContext()).show {
             customView(R.layout.speech_to_text_dialog)
             positiveButton(R.string.confirm) {
                 //will execute on confirm press
@@ -431,5 +432,8 @@ class ReminderActivity : AppCompatActivity() {
         super.onStop()
         disposable.clear()
     }
-}
 
+
+
+
+}
