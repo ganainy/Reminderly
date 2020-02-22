@@ -6,6 +6,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
@@ -34,7 +35,7 @@ import org.greenrobot.eventbus.EventBus
 import java.util.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), DrawerLocker {
 
     private lateinit var badgeView: TextView
     private val disposable = CompositeDisposable()
@@ -45,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModelFactory: MainActivityViewModelFactory
 
 
-    companion object{
+    companion object {
         val overdueReminders = mutableListOf<Reminder>()
         val todayReminders = mutableListOf<Reminder>()
         val upcomingReminders = mutableListOf<Reminder>()
@@ -81,41 +82,75 @@ class MainActivity : AppCompatActivity() {
             }
 
 
-        //use view model
+        /**get all active reminders(not done) from db and show menu item for each type of active reminders
+         * (overdue-today-upcoming) */
         disposable.add(
             viewModel.getAllReminders().subscribeOn(Schedulers.io()).observeOn(
                 AndroidSchedulers.mainThread()
             ).subscribe({ reminderList ->
-                if (reminderList.isNotEmpty()) {
 
-                    overdueReminders.clear()
-                    todayReminders.clear()
-                    upcomingReminders.clear()
+                overdueReminders.clear()
+                todayReminders.clear()
+                upcomingReminders.clear()
 
 
-                    for (reminder in reminderList) {
-                        when {
-                            android.text.format.DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
-                                todayReminders.add(reminder)
-                            }
-                            reminder.createdAt.timeInMillis < Calendar.getInstance().timeInMillis -> {
-                                overdueReminders.add(reminder)
-                            }
-                            reminder.createdAt.timeInMillis > Calendar.getInstance().timeInMillis -> {
-                                upcomingReminders.add(reminder)
-                            }
+                for (reminder in reminderList) {
+                    when {
+                        android.text.format.DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
+                            todayReminders.add(reminder)
+                        }
+                        reminder.createdAt.timeInMillis < Calendar.getInstance().timeInMillis -> {
+                            overdueReminders.add(reminder)
+                        }
+                        reminder.createdAt.timeInMillis > Calendar.getInstance().timeInMillis -> {
+                            upcomingReminders.add(reminder)
                         }
                     }
-
-                    /**if there is overdue/today/upcoming reminders add them as tab in drawer menu
-                     * with their count*/
-                    addItemsToMenu(overdueReminders, todayReminders, upcomingReminders)
-
-                    /**pass reminders to reminder list fragment*/
-                    EventBus.getDefault().post( ReminderEvent(overdueReminders, todayReminders, upcomingReminders))
-
                 }
-            }, { error -> })
+
+
+                /**if there is overdue/today/upcoming reminders add them as tab in drawer menu
+                 * with their count or hide menu tab if no reminders */
+                showMenuItem(overdueReminders, R.id.overdue)
+                showMenuItem(todayReminders, R.id.today)
+                showMenuItem(upcomingReminders, R.id.upcoming)
+
+
+                /**pass reminders to reminder list fragment*/
+                EventBus.getDefault()
+                    .post(ReminderEvent(overdueReminders, todayReminders, upcomingReminders))
+
+            }, { error ->
+                Toast.makeText(
+                    this,
+                    getString(R.string.error_retreiving_reminder),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            })
+        )
+
+
+        /**get done reminders from db and show menu item if there is done reminders  */
+        disposable.add(
+            viewModel.getDoneReminders().subscribeOn(Schedulers.io()).observeOn(
+                AndroidSchedulers.mainThread()
+            ).subscribe({ doneReminderList ->
+
+
+                if (doneReminderList.isNotEmpty()) {
+                    showMenuItem(doneReminderList, R.id.done)
+                }
+
+
+            }, { error ->
+                Toast.makeText(
+                    this,
+                    getString(R.string.error_retreiving_reminder),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            })
         )
 
 
@@ -191,18 +226,8 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    private fun addItemsToMenu(
-        overdueReminders: MutableList<Reminder>,
-        todayReminders: MutableList<Reminder>,
-        upcomingReminders: MutableList<Reminder>
-    ) {
 
-        addMenuItem(overdueReminders, R.id.overdue)
-        addMenuItem(todayReminders, R.id.today)
-        addMenuItem(upcomingReminders, R.id.upcoming)
-    }
-
-    private fun addMenuItem(
+    private fun showMenuItem(
         reminders: MutableList<Reminder>,
         menu_item_id: Int
     ) {
@@ -272,4 +297,17 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
         disposable.clear()
     }
+
+
+    /**this method called from fragments to lock/unlock drawer*/
+    override fun setDrawerEnabled(enabled: Boolean) {
+        val lockMode = if (enabled) DrawerLayout.LOCK_MODE_UNLOCKED
+        else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        drawer_layout.setDrawerLockMode(lockMode)
+    }
+}
+
+
+interface DrawerLocker {
+    fun setDrawerEnabled(enabled: Boolean)
 }

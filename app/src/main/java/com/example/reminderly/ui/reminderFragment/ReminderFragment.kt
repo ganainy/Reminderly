@@ -32,6 +32,7 @@ import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.Utils
 import com.example.reminderly.databinding.ReminderFragmentBinding
+import com.example.reminderly.ui.mainActivity.DrawerLocker
 import com.example.reminderly.ui.reminderActivity.ReminderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -430,9 +431,15 @@ class ReminderFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         disposable.clear()
+        (requireActivity() as DrawerLocker).setDrawerEnabled(true)
+
     }
 
 
+    override fun onStart() {
+        super.onStart()
+        (requireActivity() as DrawerLocker).setDrawerEnabled(false)
 
+    }
 
 }

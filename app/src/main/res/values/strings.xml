@@ -54,5 +54,8 @@
     <string name="overdue_reminders">تذكيرات فائتة</string>
     <string name="today_reminders">تذكيرات اليوم</string>
     <string name="upcoming_reminders">تذكيرات مستقبلية</string>
+    <string name="marked_as_done">تم التسجيل كتذكير منتهي</string>
+    <string name="error_retreiving_reminder">خطأ اثناء استرجاع التذكيرات</string>
+    <string name="done_reminders">تذكيرات تم تنفيذها</string>
 
 </resources>

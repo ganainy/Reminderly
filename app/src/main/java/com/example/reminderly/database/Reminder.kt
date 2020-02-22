@@ -23,6 +23,7 @@ data class Reminder(
     var notifyAdvAmount: Int = 0,
     var notifyAdvUnit: Int = 0,
     var isFavorite: Boolean = false,
+    var isDone: Boolean = false,
     @Ignore //used to add fake items to reminder list to be shown as Headers
     var header: Int = 0
 
@@ -38,6 +39,7 @@ data class Reminder(
         reminderType = 0
         notifyAdvAmount = 0
         notifyAdvUnit = 0
+        isDone=false
         isFavorite = false
     }
 

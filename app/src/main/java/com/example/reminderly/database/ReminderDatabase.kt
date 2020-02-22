@@ -32,7 +32,7 @@ import com.example.reminderly.database.converters.ClickableStringsConverter
  * This pattern is pretty much the same for any database,
  * so you can reuse it.
  */
-@Database(entities = [Reminder::class], version = 2, exportSchema = false)
+@Database(entities = [Reminder::class], version = 3, exportSchema = false)
 @TypeConverters(
     ClickableStringsConverter::class,
     CalendarConverter::class)

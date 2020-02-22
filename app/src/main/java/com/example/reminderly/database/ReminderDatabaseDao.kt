@@ -44,12 +44,15 @@ interface ReminderDatabaseDao {
     @Query("SELECT * FROM reminder_table WHERE id=:id")
     fun getReminderByID(id: Int): Reminder
 
-    @Query("DELETE FROM reminder_table where id==:id")
+    @Query("DELETE FROM reminder_table WHERE id==:id")
     fun deleteReminderById(id: String?)
 
 
-    @Query("SELECT * FROM reminder_table ")
+    @Query("SELECT * FROM reminder_table WHERE isDone==0")
     fun getAllReminders(): Observable<MutableList<Reminder>>
+
+    @Query("SELECT * FROM reminder_table WHERE isDone==1")
+    fun getDoneReminders(): Observable<MutableList<Reminder>>
 
     @Query("SELECT * FROM reminder_table WHERE isFavorite==1")
     fun getFavoriteReminders():MutableList<Reminder>?

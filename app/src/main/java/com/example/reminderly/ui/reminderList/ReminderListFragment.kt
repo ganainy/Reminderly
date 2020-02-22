@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -20,7 +21,7 @@ import com.example.ourchat.ui.chat.ReminderClickListener
 import com.example.reminderly.R
 import com.example.reminderly.Utils.EventBus.ReminderEvent
 import com.example.reminderly.database.Reminder
-import com.example.reminderly.databinding.AllFragmentBinding
+import com.example.reminderly.databinding.ReminderListFragmentBinding
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -33,7 +34,7 @@ class ReminderListFragment : Fragment() {
 
     private val disposable = CompositeDisposable()
     private var recyclerIntialized = false
-    private lateinit var binding: AllFragmentBinding
+    private lateinit var binding: ReminderListFragmentBinding
     private val adapter by lazy {
         ReminderAdapter(requireContext(), object : ReminderClickListener {
             override fun onReminderClick(reminder: Reminder) {
@@ -41,6 +42,8 @@ class ReminderListFragment : Fragment() {
             }
 
             override fun onFavoriteClick(reminder: Reminder) {
+                reminder.isFavorite =
+                    !reminder.isFavorite //change favorite value then update in database
                 disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { /*task completed*/ })
@@ -66,13 +69,31 @@ class ReminderListFragment : Fragment() {
 
         MaterialDialog(requireContext(), BottomSheet()).show {
             gridItems(items) { _, index, item ->
-               //todo handle sheet item clicks
+                //todo handle sheet item clicks
+                when (index) {
+                    0 -> {
+                        /**make reminder done and update in db && show toast*/
+                        reminder.isDone = true
+                        disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe {
+                                Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.marked_as_done),
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                            })
+                    }
+
+                }
             }
         }
     }
 
     companion object {
         fun newInstance() = ReminderListFragment()
+
     }
 
     private lateinit var viewModel: ReminderListViewModel
@@ -82,7 +103,7 @@ class ReminderListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.all_fragment, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.reminder_list_fragment, container, false)
         return binding.root
     }
 
@@ -103,38 +124,51 @@ class ReminderListFragment : Fragment() {
     /**
      * Once main activity get any reminder update this event will trigger and it will show reminders in recycler*/
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onReminderEvent( event: ReminderEvent) {
-      if (event.overdueReminders.isEmpty() && event.todayReminders.isEmpty() &&event.upcomingReminders.isEmpty() ){
-          binding.noRemindersGroup.visibility = View.VISIBLE
-      }else{
-          val reminderListWithHeaders= mutableListOf<Reminder>()
-          if (event.overdueReminders.isNotEmpty()) {
-              reminderListWithHeaders.add(Reminder(header = 1))//add empty reminder with header value that will be used as header in recycler
-              for (reminder in event.overdueReminders){
-              reminderListWithHeaders.add(reminder)}
-          }
-          if (event.todayReminders.isNotEmpty()) {
-              reminderListWithHeaders.add(Reminder(header = 2))//add empty reminder with header value that will be used as header in recycler
-              for (reminder in event.todayReminders){
-                  reminderListWithHeaders.add(reminder)}
-          }
-          if (event.upcomingReminders.isNotEmpty()) {
-              reminderListWithHeaders.add(Reminder(header = 3))//add empty reminder with header value that will be used as header in recycler
-              for (reminder in event.upcomingReminders){
-                  reminderListWithHeaders.add(reminder)}
-          }
-          initRecycler()
-          adapter.submitList(reminderListWithHeaders)
-      }
+    fun onReminderEvent(event: ReminderEvent) {
+
+        /**if all reminders are empty show empty layout,else show recycler with header above each type of reminder*/
+        if (event.overdueReminders.isEmpty() && event.todayReminders.isEmpty() && event.upcomingReminders.isEmpty()) {
+
+            binding.noRemindersGroup.visibility = View.VISIBLE
+            binding.reminderReycler.visibility=View.GONE
+
+        } else {
+
+            binding.noRemindersGroup.visibility = View.GONE
+            binding.reminderReycler.visibility=View.VISIBLE
+
+            val reminderListWithHeaders = mutableListOf<Reminder>()
+
+            if (event.overdueReminders.isNotEmpty()) {
+                reminderListWithHeaders.add(Reminder(header = 1))//add empty reminder with header value that will be used as header in recycler
+                for (reminder in event.overdueReminders) {
+                    reminderListWithHeaders.add(reminder)
+                }
+            }
+            if (event.todayReminders.isNotEmpty()) {
+                reminderListWithHeaders.add(Reminder(header = 2))//add empty reminder with header value that will be used as header in recycler
+                for (reminder in event.todayReminders) {
+                    reminderListWithHeaders.add(reminder)
+                }
+            }
+            if (event.upcomingReminders.isNotEmpty()) {
+                reminderListWithHeaders.add(Reminder(header = 3))//add empty reminder with header value that will be used as header in recycler
+                for (reminder in event.upcomingReminders) {
+                    reminderListWithHeaders.add(reminder)
+                }
+            }
+
+            initRecycler()
+            adapter.submitList(reminderListWithHeaders)
+
+        }
     }
-
-
 
 
     private fun initRecycler() {
         if (recyclerIntialized) return
 
-        recyclerIntialized=true
+        recyclerIntialized = true
         binding.reminderReycler.setHasFixedSize(true)
         binding.reminderReycler.adapter = adapter
         //Change layout manager depending on orientation
@@ -167,12 +201,11 @@ class ReminderListFragment : Fragment() {
     }
 
 
-
     override fun onStart() {
         super.onStart()
         EventBus.getDefault().register(this)
-    }
 
+    }
 
 
 }

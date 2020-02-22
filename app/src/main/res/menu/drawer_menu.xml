@@ -9,6 +9,13 @@
         <item
             android:checked="false"
             android:visible="false"
+            android:id="@+id/done"
+            app:actionLayout="@layout/badge_layout"
+            android:icon="@drawable/ic_done_grey"
+            android:title="@string/done_reminders" />
+        <item
+            android:checked="false"
+            android:visible="false"
             android:id="@+id/overdue"
             app:actionLayout="@layout/badge_layout"
             android:icon="@drawable/note_ic_grey"
