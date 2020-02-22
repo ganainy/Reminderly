@@ -32,7 +32,7 @@ interface ReminderDatabaseDao {
     fun insert(reminder: Reminder): Completable
 
     @Update
-    fun update(reminder: Reminder)
+    fun update(reminder: Reminder) :Completable
 
     @Delete
     fun delete(reminder: Reminder)

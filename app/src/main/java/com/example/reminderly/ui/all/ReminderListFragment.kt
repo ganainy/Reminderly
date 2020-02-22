@@ -3,7 +3,6 @@ package com.example.reminderly.ui.all
 import android.content.res.Configuration
 import android.os.Bundle
 import android.text.format.DateUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +12,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.bottomsheets.BasicGridItem
+import com.afollestad.materialdialogs.bottomsheets.BottomSheet
+import com.afollestad.materialdialogs.bottomsheets.gridItems
 import com.example.footy.database.ReminderDatabase
 import com.example.ourchat.ui.chat.ReminderAdapter
 import com.example.ourchat.ui.chat.ReminderClickListener
@@ -24,7 +27,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.*
 
-class AllFragment : Fragment() {
+class ReminderListFragment : Fragment() {
 
     private val disposable = CompositeDisposable()
     private val recyclerIntialized = false
@@ -32,17 +35,46 @@ class AllFragment : Fragment() {
     private val adapter by lazy {
         ReminderAdapter(requireContext(), object : ReminderClickListener {
             override fun onReminderClick(reminder: Reminder) {
-                Log.d("DebugTag", "onReminderClick: " + reminder)
+                //todo open reminder
+            }
+
+            override fun onFavoriteClick(reminder: Reminder) {
+                disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { /*task completed*/ })
+            }
+
+            override fun onMenuClick(reminder: Reminder) {
+
+                showOptionsSheet(reminder)
             }
 
         })
     }
 
-    companion object {
-        fun newInstance() = AllFragment()
+    private fun showOptionsSheet(reminder: Reminder) {
+        val items = listOf(
+            BasicGridItem(R.drawable.ic_check_grey, getString(R.string.done)),
+            BasicGridItem(R.drawable.ic_access_time_grey, getString(R.string.postpone)),
+            BasicGridItem(R.drawable.ic_edit_grey, getString(R.string.edit)),
+            BasicGridItem(R.drawable.ic_content_copy_grey, getString(R.string.copy)),
+            BasicGridItem(R.drawable.ic_share_grey, getString(R.string.share)),
+            BasicGridItem(R.drawable.ic_delete_grey, getString(R.string.delete))
+        )
+
+        MaterialDialog(requireContext(), BottomSheet()).show {
+            gridItems(items) { _, index, item ->
+               //todo handle sheet item clicks
+            }
+        }
     }
 
-    private lateinit var viewModel: AllViewModel
+    companion object {
+        fun newInstance() = ReminderListFragment()
+    }
+
+    private lateinit var viewModel: ReminderListViewModel
+    private lateinit var viewModelFactory: ReminderListViewModelFactory
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,19 +86,22 @@ class AllFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(AllViewModel::class.java)
-        // TODO: Use the ViewModel
-    }
-
-
-    override fun onStart() {
-        super.onStart()
-
-        Log.d("DebugTag", "onStart: $recyclerIntialized")
 
         val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
+
+        viewModelFactory =
+            ReminderListViewModelFactory(requireActivity().application, reminderDatabaseDao)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(ReminderListViewModel::class.java)
+
+
+        getAllReminders()
+
+
+    }
+
+    private fun getAllReminders() {
         disposable.add(
-            reminderDatabaseDao.getAllReminders().subscribeOn(Schedulers.io()).observeOn(
+            viewModel.getAllReminders().subscribeOn(Schedulers.io()).observeOn(
                 AndroidSchedulers.mainThread()
             ).subscribe({ reminderList ->
                 if (reminderList.isNotEmpty()) {
@@ -77,7 +112,9 @@ class AllFragment : Fragment() {
                     initRecycler()
                     adapter.submitList(reminderListWithHeaders)
 
-                }else{  binding.noRemindersGroup.visibility = View.VISIBLE}
+                } else {
+                    binding.noRemindersGroup.visibility = View.VISIBLE
+                }
             }, { error ->
                 Toast.makeText(
                     requireContext(),
@@ -87,6 +124,12 @@ class AllFragment : Fragment() {
                     .show()
             })
         )
+    }
+
+
+    override fun onStart() {
+        super.onStart()
+
 
     }
 
@@ -116,12 +159,12 @@ class AllFragment : Fragment() {
     }
 
     private fun initRecycler() {
-        if (recyclerIntialized)return
+        if (recyclerIntialized) return
 
         binding.reminderReycler.setHasFixedSize(true)
         binding.reminderReycler.adapter = adapter
         //Change layout manager depending on orientation
-        if(resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE){
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             val gridLayoutManager = GridLayoutManager(requireContext(), 2)
             gridLayoutManager.spanSizeLookup = (object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
@@ -133,9 +176,9 @@ class AllFragment : Fragment() {
 
             })
 
-                    binding.reminderReycler.layoutManager=gridLayoutManager
-        }else{
-            binding.reminderReycler.layoutManager=LinearLayoutManager(requireContext())
+            binding.reminderReycler.layoutManager = gridLayoutManager
+        } else {
+            binding.reminderReycler.layoutManager = LinearLayoutManager(requireContext())
         }
 
 
@@ -146,8 +189,6 @@ class AllFragment : Fragment() {
         super.onStop()
         disposable.clear()
     }
-
-
 
 
 }

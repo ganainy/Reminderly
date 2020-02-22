@@ -133,6 +133,8 @@ class ReminderAdapter(
 
 interface ReminderClickListener {
     fun onReminderClick(reminder: Reminder)
+    fun onFavoriteClick(reminder: Reminder)
+    fun onMenuClick(reminder: Reminder)
 }
 
 

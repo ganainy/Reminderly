@@ -74,8 +74,9 @@ dependencies {
     //custom calendar view to mark certain dates
     implementation 'com.github.kizitonwose:CalendarView:0.3.2'
 
-    //material dialogs
+    //material dialogs & bottomsheets
     implementation 'com.afollestad.material-dialogs:core:3.2.1'
+    implementation 'com.afollestad.material-dialogs:bottomsheets:3.2.1'
 
     //rx java
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
