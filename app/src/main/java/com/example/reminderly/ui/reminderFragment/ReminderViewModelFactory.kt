@@ -20,20 +20,23 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.footy.database.ReminderDatabaseDao
+import com.example.reminderly.database.Reminder
 import com.example.reminderly.ui.reminderActivity.ReminderViewModel
 
 /**
  * Simple ViewModel factory that provides the MarsProperty and context to the ViewModel.
  */
 class ReminderViewModelFactory(
-    private val application: Application,
+    private val app: Application,
+    private val reminder: Reminder,
     private val database: ReminderDatabaseDao
 ) : ViewModelProvider.Factory {
     @Suppress("unchecked_cast")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ReminderViewModel::class.java)) {
             return ReminderViewModel(
-                application,
+                app,
+                reminder,
                 database
             ) as T
         }

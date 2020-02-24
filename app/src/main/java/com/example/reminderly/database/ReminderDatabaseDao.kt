@@ -28,7 +28,7 @@ import io.reactivex.Observable
 interface ReminderDatabaseDao {
 
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(reminder: Reminder): Completable
 
     @Update

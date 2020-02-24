@@ -43,7 +43,7 @@
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.example.reminderly.MovableFloatingActionButton
         android:id="@+id/addReminderFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -4,16 +4,10 @@ import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
-import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.speech.RecognizerIntent
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextPaint
-import android.text.method.LinkMovementMethod
-import android.text.style.ClickableSpan
+import android.text.util.Linkify
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -31,8 +25,9 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.MyUtils
+import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ReminderFragmentBinding
-import com.example.reminderly.ui.mainActivity.DrawerLocker
+import com.example.reminderly.ui.mainActivity.ICommunication
 import com.example.reminderly.ui.reminderActivity.ReminderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -50,7 +45,15 @@ class ReminderFragment : Fragment() {
     private val disposable = CompositeDisposable()
 
     companion object {
-        fun newInstance() = ReminderFragment()
+
+        fun newInstance(reminder: Reminder): ReminderFragment {
+            val fragment = ReminderFragment()
+            val args = Bundle()
+            args.putParcelable("reminder", reminder)
+            fragment.arguments = args
+
+            return fragment
+        }
     }
 
 
@@ -59,7 +62,7 @@ class ReminderFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         setHasOptionsMenu(true)
-        binding=DataBindingUtil.inflate(inflater,R.layout.reminder_fragment, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.reminder_fragment, container, false)
         return binding.root
     }
 
@@ -67,26 +70,38 @@ class ReminderFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
 
-        initViewModel()
+        /**navigating from reminders list fragment*/
+        if (arguments?.get("reminder") != null) {
+            val reminder = arguments?.get("reminder") as Reminder
+            initViewModel(reminder)
+            initViewsFromReminder(reminder)
+        } else {
+            initViewModel(Reminder())
+            initViewsDefaults()
+        }
 
-        initViewsDefaults()
+
+        setupListeners()
 
 
 
     }
 
-    private fun initViewModel() {
-        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
-        viewModelFactory =
-            ReminderViewModelFactory(requireActivity().application, reminderDatabaseDao)
-        viewModel = ViewModelProvider(this, viewModelFactory).get(ReminderViewModel::class.java)
+    private fun initViewsFromReminder(reminder: Reminder) {
+        binding.reminderEditText.setText(reminder.text)
+        binding.dateText.text = MyUtils.formatDate(Date(reminder.createdAt.timeInMillis))
+        binding.timeText.text = MyUtils.formatTime(Date(reminder.createdAt.timeInMillis))
+        binding.repeatText.text = MyUtils.convertRepeat(reminder.repeat)
+        binding.priorityText.text = MyUtils.convertPriority(reminder.priority)
+        binding.reminderTypeText.text = MyUtils.convertReminderType(reminder.priority)
+        binding.notifyInAdvanceText.text =
+            MyUtils.convertNotifyAdv(reminder.notifyAdvAmount, reminder.notifyAdvUnit)
+        /**make numbers in edit text clickable & navigate to phone pad on click*/
+        Linkify.addLinks(binding.reminderEditText, Linkify.PHONE_NUMBERS)
     }
 
 
-    private fun initViewsDefaults() {
-        binding.dateText.text = com.example.reminderly.Utils.MyUtils.getCurrentDateFormatted()
-        binding.timeText.text = com.example.reminderly.Utils.MyUtils.getCurrentTimeFormatted()
-
+    private fun setupListeners() {
         binding.dateImage.setOnClickListener { handleDateImageClick() }
         binding.timeImage.setOnClickListener { handleTimeImageClick() }
         binding.repeatImage.setOnClickListener { handleRepeatImageClick() }
@@ -95,7 +110,6 @@ class ReminderFragment : Fragment() {
         binding.notifyInAdvanceImage.setOnClickListener { handleNotifyInAdvanceImageClick() }
 
         binding.micImage.setOnClickListener { openSpeechToTextDialog() }
-
         binding.contactsImage.setOnClickListener { pickNumberFromContacts() }
 
 
@@ -111,6 +125,21 @@ class ReminderFragment : Fragment() {
             changeKeyboardVisibility()
         }
     }
+
+    private fun initViewModel(reminder: Reminder) {
+        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
+        viewModelFactory =
+            ReminderViewModelFactory(requireActivity().application, reminder, reminderDatabaseDao)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(ReminderViewModel::class.java)
+    }
+
+    private fun initViewsDefaults() {
+        binding.dateText.text = MyUtils.getCurrentDateFormatted()
+        binding.timeText.text = MyUtils.getCurrentTimeFormatted()
+
+
+    }
+
 
     private fun changeKeyboardVisibility() {
         val hideKeyboard = MyUtils.hideKeyboard(requireContext(), binding.keyboardImage)
@@ -129,7 +158,7 @@ class ReminderFragment : Fragment() {
 
 
     private fun openSpeechToTextDialog() {
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         intent.putExtra(
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
@@ -137,11 +166,16 @@ class ReminderFragment : Fragment() {
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
 
         if (intent.resolveActivity(requireActivity().packageManager) != null) {
-            startActivityForResult(intent,
+            startActivityForResult(
+                intent,
                 SPEECH_TO_TEXT_CODE
             )
         } else {
-            Toast.makeText(requireContext(), getString(R.string.feature_not_supported), Toast.LENGTH_SHORT)
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.feature_not_supported),
+                Toast.LENGTH_SHORT
+            )
                 .show()
         }
     }
@@ -280,8 +314,7 @@ class ReminderFragment : Fragment() {
                 cal.set(Calendar.MONTH, monthOfYear)
                 cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 //update date text view with selected date
-                binding.dateText.text =
-                    com.example.reminderly.Utils.MyUtils.formatDate(cal.time)
+                binding.dateText.text = MyUtils.formatDate(cal.time)
                 viewModel.updateReminderDate(
                     year = cal.get(Calendar.YEAR),
                     month = cal.get(Calendar.MONTH),
@@ -303,32 +336,37 @@ class ReminderFragment : Fragment() {
 
 
     private fun handleSaveButton() {
+        //todo fix saved reminder don't show unless restart activity
 
-            if (binding.reminderEditText.text.isBlank()) {
-                Toast.makeText(requireContext(), getString(R.string.text_empty), Toast.LENGTH_SHORT).show()
-                return
-            }
+        if (binding.reminderEditText.text.isBlank()) {
+            Toast.makeText(requireContext(), getString(R.string.text_empty), Toast.LENGTH_SHORT)
+                .show()
+            return
+        }
 
-            viewModel.updateText(binding.reminderEditText.text.toString())
+        viewModel.updateText(binding.reminderEditText.text.toString())
 
-            disposable.add(viewModel.saveReminder()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                    {   //completed
-                        viewModel.resetReminder()
-                        requireActivity().onBackPressed()
-                    },
-                    {   //error
-                            error->
-                        Toast.makeText(requireContext(), getString(R.string.error_saving_reminder), Toast.LENGTH_SHORT).show()
-                    }
-                ))
+        disposable.add(viewModel.saveReminder()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    //completed
+                    viewModel.resetReminder()
+                    requireActivity().onBackPressed()
+                },
+                {   //error
+                        error ->
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.error_saving_reminder),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            ))
 
 
     }
-
-
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -351,7 +389,7 @@ class ReminderFragment : Fragment() {
                 Log.d("DebugTag", "onActivityResult: $result")
                 if (result[0] != null) confirmText(result[0])
             }
-         SELECT_PHONE_NUMBER -> {
+            SELECT_PHONE_NUMBER -> {
                 val contactUri = data?.data ?: return
                 val projection = arrayOf(
                     ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
@@ -371,7 +409,17 @@ class ReminderFragment : Fragment() {
                     val number = cursor.getString(numberIndex)
 
                     // do something with name and phone
-                    convertStringToClickable(name, number)
+                    if (binding.reminderEditText.text.isNotBlank())
+                        binding.reminderEditText.append("\n")
+                    binding.reminderEditText.append(
+                        resources.getString(
+                            R.string.phone_string,
+                            name,
+                            number
+                        )
+                    )
+                    binding.reminderEditText.append("\n")
+                    Linkify.addLinks(binding.reminderEditText, Linkify.PHONE_NUMBERS)
                 } else {
                     Toast.makeText(
                         requireContext(),
@@ -385,38 +433,6 @@ class ReminderFragment : Fragment() {
         }
 
 
-    }
-
-    private fun convertStringToClickable(name: String?, number: String?) {
-        //make phone number clickable and add it to reminder text
-        val text = "اتصل ب $name على الرقم $number"
-        val ss = SpannableString(text)
-
-        val clickableSpan = object : ClickableSpan() {
-            override fun onClick(widget: View) {
-                openDialPadWithNumber(number)
-            }
-
-            override fun updateDrawState(ds: TextPaint) {
-                super.updateDrawState(ds)
-                ds.color = Color.BLUE
-            }
-        }
-        ss.setSpan(clickableSpan, 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        viewModel.updateReminderClickableString(text)
-
-        if (binding.reminderEditText.text.isNotBlank()) binding.reminderEditText.append("\n")
-        binding.reminderEditText.append(ss)
-        binding.reminderEditText.append("\n")
-        binding.reminderEditText.movementMethod = LinkMovementMethod.getInstance()
-    }
-
-    private fun openDialPadWithNumber(phone: String?) {
-        //copy phone to device dial when phone is clicked
-        val intent = Intent(Intent.ACTION_DIAL)
-        intent.data = Uri.parse("tel:$phone")
-        startActivity(intent)
     }
 
 
@@ -447,15 +463,15 @@ class ReminderFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         disposable.clear()
-        (requireActivity() as DrawerLocker).setDrawerEnabled(true)
-        MyUtils.hideKeyboard(requireContext(),binding.saveFab)
+        (requireActivity() as ICommunication).setDrawerEnabled(true)
+        MyUtils.hideKeyboard(requireContext(), binding.saveFab)
 
     }
 
 
     override fun onStart() {
         super.onStart()
-        (requireActivity() as DrawerLocker).setDrawerEnabled(false)
+        (requireActivity() as ICommunication).setDrawerEnabled(false)
 
     }
 

@@ -2,6 +2,7 @@ package com.example.reminderly.ui.reminderListFragment
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +27,7 @@ import com.example.reminderly.R
 import com.example.reminderly.Utils.EventBus.ReminderEvent
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ReminderListFragmentBinding
+import com.example.reminderly.ui.mainActivity.ICommunication
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -43,7 +45,7 @@ class ReminderListFragment : Fragment() {
     private val adapter by lazy {
         ReminderAdapter(requireContext(), object : ReminderClickListener {
             override fun onReminderClick(reminder: Reminder) {
-                //todo open reminder
+                editReminder(reminder)
             }
 
             override fun onFavoriteClick(reminder: Reminder) {
@@ -82,10 +84,17 @@ class ReminderListFragment : Fragment() {
                     1 -> {
                         postponeReminder(reminder)
                     }
+                    2 -> {
+                        editReminder(reminder)
+                    }
 
                 }
             }
         }
+    }
+
+    private fun editReminder(reminder: Reminder) {
+        (requireActivity() as ICommunication).showReminderFragment(reminder)
     }
 
     private fun postponeReminder(reminder: Reminder) {
@@ -274,6 +283,8 @@ class ReminderListFragment : Fragment() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onReminderEvent(event: ReminderEvent) {
 
+        Log.d("DebugTag", "onReminderEvent: ")
+
         /**if all reminders are empty show empty layout,else show recycler with header above each type of reminder*/
         if (event.overdueReminders.isEmpty() && event.todayReminders.isEmpty() && event.upcomingReminders.isEmpty()) {
 
@@ -308,6 +319,7 @@ class ReminderListFragment : Fragment() {
 
             initRecycler()
             adapter.submitList(reminderListWithHeaders)
+            adapter.notifyDataSetChanged() //todo find other way to reflect reminder change on recycler
 
         }
     }

@@ -11,17 +11,13 @@ import java.util.*
 
 class ReminderViewModel(
     val app: Application,
-    private val database: ReminderDatabaseDao
+    val reminder: Reminder,
+    val database: ReminderDatabaseDao
 ) : AndroidViewModel(app) {
 
 
-
-    private val defaultReminder by lazy {
-        Reminder()
-    }
-
     fun updateReminderDate(year:Int,month:Int,day:Int){
-        defaultReminder.createdAt.apply {
+        reminder.createdAt.apply {
             set(Calendar.YEAR, year)
             set(Calendar.MONTH, month)
             set(Calendar.DAY_OF_MONTH, day)
@@ -30,7 +26,7 @@ class ReminderViewModel(
     }
 
     fun updateReminderTime(hour:Int,minute:Int){
-        defaultReminder.createdAt.apply {
+        reminder.createdAt.apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
         }
@@ -40,24 +36,24 @@ class ReminderViewModel(
     }
 
     fun updateReminderRepeat(index: Int) {
-        defaultReminder.repeat=index
+        reminder.repeat=index
     }
 
     fun updateReminderPriority(index: Int) {
-        defaultReminder.priority= index
+        reminder.priority= index
     }
 
     fun updateReminderNotificationType(index: Int) {
-        defaultReminder.reminderType= index
+        reminder.reminderType= index
 
     }
 
     fun updateReminderNotifyAdvAmount(num: Int) {
-        defaultReminder.notifyAdvAmount=num
+        reminder.notifyAdvAmount=num
     }
 
     fun updateReminderNotifyAdvUnit(durationUnit: String) {
-        defaultReminder.notifyAdvUnit= when(durationUnit){
+        reminder.notifyAdvUnit= when(durationUnit){
             app.getString(R.string.minutes)-> 0
             app.getString(R.string.hours)-> 1
             app.getString(R.string.days)-> 2
@@ -68,24 +64,20 @@ class ReminderViewModel(
 
 
 
-    fun updateReminderClickableString(clickableText: String) {
-        defaultReminder.clickableStrings.add(clickableText)
-        Log.d("DebugTag", "updateReminderClickableString: "+defaultReminder.clickableStrings)
-    }
-
 
     fun updateText(text: String) {
+        Log.d("DebugTag", "updateText: $text")
         //set reminder text and save it
-        defaultReminder.text=text
+        reminder.text=text
     }
 
     fun saveReminder() : Completable{
-        return database.insert(defaultReminder)
+        return database.insert(reminder)
     }
 
     fun resetReminder(){
         //reset default reminder so its params won't be used for future reminders
-        defaultReminder.resetToDefaults()
+        reminder.resetToDefaults()
     }
 
 

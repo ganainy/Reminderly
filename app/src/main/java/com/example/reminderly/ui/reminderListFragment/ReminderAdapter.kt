@@ -38,13 +38,6 @@ class ReminderAdapter(
     companion object {
         private const val TYPE_REMINDER = 0
         private const val TYPE_HEADER = 1
-
-
-        private var overdueHeader = false
-        private var todayHeader = false
-        private var upcomingHeader = false
-        private var headerText = "init"
-
     }
 
 

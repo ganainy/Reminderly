@@ -15,7 +15,6 @@ data class Reminder(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
     var text: String = "",
-    var clickableStrings: MutableList<String> = mutableListOf(),
     var createdAt: Calendar = Calendar.getInstance(),
     var repeat: Int = 0,
     var priority: Int = 0,
@@ -32,7 +31,6 @@ data class Reminder(
 
     fun resetToDefaults() {
         text = ""
-        clickableStrings = mutableListOf()
         createdAt = Calendar.getInstance()
         repeat = 0
         priority = 0

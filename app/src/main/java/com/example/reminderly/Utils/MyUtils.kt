@@ -86,6 +86,57 @@ class MyUtils {
             return builder.toString()
         }
 
+        fun convertRepeat(repeat: Int): String {
+            return when(repeat){
+                0->"مرة واحده"
+                1->"كل ساعة"
+                2->"كل يوم"
+                3->"كل اسبوع"
+                4->"كل شهر"
+                5->"كل عام"
+                else-> throw Exception("unknown repeat")
+            }
+
+        }
+
+        fun convertPriority(repeat: Int): String {
+            return when(repeat){
+                0->"عادي"
+                1->"متوسط"
+                2->"هام"
+                else-> throw Exception("unknown repeat")
+            }
+
+        }
+
+        fun convertReminderType(repeat: Int): String {
+            return when(repeat){
+                0->"تنيه بإستخدام الاشعارات"
+                1->"تنبيه بإستخدام الجرس"
+                else-> throw Exception("unknown repeat")
+            }
+
+        }
+
+        fun convertNotifyAdv(notifyAdvAmount: Int, notifyAdvUnit: Int): CharSequence? {
+
+            if (notifyAdvAmount+notifyAdvUnit==0)return "التنبيه المسبق غير مفعل"
+
+            val builder=java.lang.StringBuilder(convertToArabicNumber(notifyAdvAmount.toString()))
+
+            builder.append(when(notifyAdvUnit){
+                0->" دقائق "
+                1->" ساعات"
+                2->" أيام"
+                3->" اسابيع"
+                else-> throw Exception("unknown repeat")
+            })
+
+           return builder
+
+        }
+
+
     }
 
 

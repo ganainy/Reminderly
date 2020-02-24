@@ -65,4 +65,7 @@
     <string name="atleast_one_minute">خطأ: يجب ان تكون مدة التأجيل على الاقل دقيقة واحدة</string>
     <string name="must_be_upcoming_date">خطأ: يجب أن يكون تاريخ التذكير بعد التأجيل اكبر من الوقت الحالي</string>
 
+    <string name="phone_string">تذكر الاتصال ب %1$s على الرقم  %2$s </string>
+
+
 </resources>

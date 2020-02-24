@@ -36,7 +36,7 @@ import org.greenrobot.eventbus.EventBus
 import java.util.*
 
 
-class MainActivity : AppCompatActivity(), DrawerLocker {
+class MainActivity : AppCompatActivity(), ICommunication {
 
     private lateinit var badgeView: TextView
     private val disposable = CompositeDisposable()
@@ -75,11 +75,7 @@ class MainActivity : AppCompatActivity(), DrawerLocker {
         binding.appContent.findViewById<FloatingActionButton>(R.id.addReminderFab)
             .setOnClickListener {
 
-                val ft = supportFragmentManager.beginTransaction()
-                ft.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
-                ft.add(R.id.fragmentContainer, ReminderFragment(), "reminderFragment")
-                ft.addToBackStack(null)
-                ft.commit()
+                openReminderFragment()
             }
 
 
@@ -89,6 +85,8 @@ class MainActivity : AppCompatActivity(), DrawerLocker {
             viewModel.getAllReminders().subscribeOn(Schedulers.io()).observeOn(
                 AndroidSchedulers.mainThread()
             ).subscribe({ reminderList ->
+
+
 
                 overdueReminders.clear()
                 todayReminders.clear()
@@ -155,6 +153,22 @@ class MainActivity : AppCompatActivity(), DrawerLocker {
         )
 
 
+    }
+
+    private fun openReminderFragment(reminder: Reminder?=null) {
+        /**pass reminder with fragment creation depending if null or not*/
+        val ft = supportFragmentManager.beginTransaction()
+        ft.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
+        if (reminder != null)
+            ft.add(
+                R.id.fragmentContainer,
+                ReminderFragment.newInstance(reminder),
+                "reminderFragment"
+            )
+        else
+            ft.add(R.id.fragmentContainer, ReminderFragment(), "reminderFragment")
+        ft.addToBackStack(null)
+        ft.commit()
     }
 
     private fun setupToolbar() {
@@ -306,9 +320,18 @@ class MainActivity : AppCompatActivity(), DrawerLocker {
         else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
         drawer_layout.setDrawerLockMode(lockMode)
     }
+
+    /**this method called from fragment to open and edit certain reminder*/
+    override fun showReminderFragment(reminder: Reminder) {
+        openReminderFragment(reminder)
+    }
 }
 
 
-interface DrawerLocker {
+interface ICommunication {
     fun setDrawerEnabled(enabled: Boolean)
+    fun showReminderFragment(reminder: Reminder)
 }
+
+
+
