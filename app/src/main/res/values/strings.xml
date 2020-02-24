@@ -57,5 +57,12 @@
     <string name="marked_as_done">تم التسجيل كتذكير منتهي</string>
     <string name="error_retreiving_reminder">خطأ اثناء استرجاع التذكيرات</string>
     <string name="done_reminders">تذكيرات تم تنفيذها</string>
+    <string name="reminder_postponed">تم تأجيل التذكير</string>
+    <string name="postpone_time">تأجيل التذكير لمدة..</string>
+    <string name="select_time">تأجيل لمدة..</string>
+    <string name="tomorrow">غدا</string>
+    <string name="minute">دقيقة</string>
+    <string name="atleast_one_minute">خطأ: يجب ان تكون مدة التأجيل على الاقل دقيقة واحدة</string>
+    <string name="must_be_upcoming_date">خطأ: يجب أن يكون تاريخ التذكير بعد التأجيل اكبر من الوقت الحالي</string>
 
 </resources>

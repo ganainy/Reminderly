@@ -9,12 +9,12 @@ import java.util.*
 
 @BindingAdapter("setDateFromCalendar")
 fun setDateFromCalendar(textView: TextView, calendar: Calendar) {
-    textView.text = DateUtils.getDateFromCalendar(calendar)
+    textView.text = MyUtils.getDateFromCalendar(calendar)
 }
 
 @BindingAdapter("setTimeFromCalendar")
 fun setTimeFromCalendar(textView: TextView, calendar: Calendar) {
-    textView.text = DateUtils.getTimeFromCalendar(calendar)
+    textView.text = MyUtils.getTimeFromCalendar(calendar)
 }
 
 @BindingAdapter("setRepeatType")

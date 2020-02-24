@@ -2,6 +2,7 @@ package com.example.reminderly.ui.mainActivity
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -18,8 +19,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
-import com.example.reminderly.Utils.DateUtils
 import com.example.reminderly.Utils.EventBus.ReminderEvent
+import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
 import com.example.reminderly.ui.calendarActivity.CalendarActivity
@@ -96,7 +97,7 @@ class MainActivity : AppCompatActivity(), DrawerLocker {
 
                 for (reminder in reminderList) {
                     when {
-                        android.text.format.DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
+                        DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
                             todayReminders.add(reminder)
                         }
                         reminder.createdAt.timeInMillis < Calendar.getInstance().timeInMillis -> {
@@ -215,7 +216,7 @@ class MainActivity : AppCompatActivity(), DrawerLocker {
 
         //set date in navigation drawer header
         binding.navView.getHeaderView(0).findViewById<TextView>(R.id.dateTextView).text =
-            DateUtils.getCurrentDateFormatted()
+            MyUtils.getCurrentDateFormatted()
 
         //open calendar on calendar image click
         binding.navView.getHeaderView(0).findViewById<ImageView>(R.id.calendarImageView)

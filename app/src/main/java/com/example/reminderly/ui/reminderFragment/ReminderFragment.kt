@@ -30,7 +30,7 @@ import com.afollestad.materialdialogs.customview.getCustomView
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
-import com.example.reminderly.Utils.Utils
+import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.databinding.ReminderFragmentBinding
 import com.example.reminderly.ui.mainActivity.DrawerLocker
 import com.example.reminderly.ui.reminderActivity.ReminderViewModel
@@ -71,7 +71,7 @@ class ReminderFragment : Fragment() {
 
         initViewsDefaults()
 
-        handleSaveButton()
+
 
     }
 
@@ -84,8 +84,8 @@ class ReminderFragment : Fragment() {
 
 
     private fun initViewsDefaults() {
-        binding.dateText.text = com.example.reminderly.Utils.DateUtils.getCurrentDateFormatted()
-        binding.timeText.text = com.example.reminderly.Utils.DateUtils.getCurrentTimeFormatted()
+        binding.dateText.text = com.example.reminderly.Utils.MyUtils.getCurrentDateFormatted()
+        binding.timeText.text = com.example.reminderly.Utils.MyUtils.getCurrentTimeFormatted()
 
         binding.dateImage.setOnClickListener { handleDateImageClick() }
         binding.timeImage.setOnClickListener { handleTimeImageClick() }
@@ -101,6 +101,22 @@ class ReminderFragment : Fragment() {
 
         binding.backButton.setOnClickListener {
             requireActivity().onBackPressed()
+        }
+
+        binding.saveFab.setOnClickListener {
+            handleSaveButton()
+        }
+
+        binding.keyboardImage.setOnClickListener {
+            changeKeyboardVisibility()
+        }
+    }
+
+    private fun changeKeyboardVisibility() {
+        val hideKeyboard = MyUtils.hideKeyboard(requireContext(), binding.keyboardImage)
+        if (hideKeyboard == null || !hideKeyboard) {
+            //keyboard was already hidden so we need to show it
+            MyUtils.showKeyboard(requireContext())
         }
     }
 
@@ -144,7 +160,7 @@ class ReminderFragment : Fragment() {
             positiveButton(R.string.confirm) {
                 //will execute on confirm press
                 binding.notifyInAdvanceText.text =
-                    "${Utils.convertToArabicNumber(num.toString())} $duration"
+                    "${MyUtils.convertToArabicNumber(num.toString())} $duration"
                 viewModel.updateReminderNotifyAdvAmount(num)
                 viewModel.updateReminderNotifyAdvUnit(duration)
             }
@@ -236,7 +252,7 @@ class ReminderFragment : Fragment() {
                 cal.set(Calendar.MINUTE, min)
                 //update time text view with selected date
                 binding.timeText.text =
-                    com.example.reminderly.Utils.DateUtils.formatTime(cal.time)
+                    com.example.reminderly.Utils.MyUtils.formatTime(cal.time)
                 viewModel.updateReminderTime(
                     hour = cal.get(Calendar.HOUR_OF_DAY),
                     minute = cal.get(Calendar.MINUTE)
@@ -265,7 +281,7 @@ class ReminderFragment : Fragment() {
                 cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 //update date text view with selected date
                 binding.dateText.text =
-                    com.example.reminderly.Utils.DateUtils.formatDate(cal.time)
+                    com.example.reminderly.Utils.MyUtils.formatDate(cal.time)
                 viewModel.updateReminderDate(
                     year = cal.get(Calendar.YEAR),
                     month = cal.get(Calendar.MONTH),
@@ -287,10 +303,10 @@ class ReminderFragment : Fragment() {
 
 
     private fun handleSaveButton() {
-        binding.saveFab.setOnClickListener {
+
             if (binding.reminderEditText.text.isBlank()) {
                 Toast.makeText(requireContext(), getString(R.string.text_empty), Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+                return
             }
 
             viewModel.updateText(binding.reminderEditText.text.toString())
@@ -309,7 +325,7 @@ class ReminderFragment : Fragment() {
                     }
                 ))
 
-        }
+
     }
 
 
@@ -432,6 +448,7 @@ class ReminderFragment : Fragment() {
         super.onStop()
         disposable.clear()
         (requireActivity() as DrawerLocker).setDrawerEnabled(true)
+        MyUtils.hideKeyboard(requireContext(),binding.saveFab)
 
     }
 

@@ -1,4 +1,4 @@
-package com.example.reminderly.ui.favorites
+package com.example.reminderly.ui.favoritesFragment
 
 import android.os.Bundle
 import android.view.LayoutInflater

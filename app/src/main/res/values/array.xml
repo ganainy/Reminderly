@@ -17,4 +17,13 @@
         <item>تنبيه بإستخدام الاشعارات</item>
         <item>تنبيه بإستخدام الجرس</item>
     </string-array>
+
+    <string-array name="postpone_items">
+        <item>5 دقائق</item>
+        <item>15 دقيقة</item>
+        <item>30 دقيقة</item>
+        <item>ساعة</item>
+        <item>غير ذلك</item>
+    </string-array>
+
 </resources>

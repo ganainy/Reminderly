@@ -1,4 +1,4 @@
-package com.example.reminderly.ui.favorites
+package com.example.reminderly.ui.favoritesFragment
 
 import androidx.lifecycle.ViewModel
 

@@ -1,10 +1,11 @@
-package com.example.reminderly.ui.reminderList
+package com.example.reminderly.ui.reminderListFragment
 
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -15,6 +16,9 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.bottomsheets.BasicGridItem
 import com.afollestad.materialdialogs.bottomsheets.BottomSheet
 import com.afollestad.materialdialogs.bottomsheets.gridItems
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.customview.getCustomView
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.footy.database.ReminderDatabase
 import com.example.ourchat.ui.chat.ReminderAdapter
 import com.example.ourchat.ui.chat.ReminderClickListener
@@ -28,6 +32,7 @@ import io.reactivex.schedulers.Schedulers
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.util.*
 
 
 class ReminderListFragment : Fragment() {
@@ -69,26 +74,168 @@ class ReminderListFragment : Fragment() {
 
         MaterialDialog(requireContext(), BottomSheet()).show {
             gridItems(items) { _, index, item ->
-                //todo handle sheet item clicks
                 when (index) {
                     0 -> {
                         /**make reminder done and update in db && show toast*/
-                        reminder.isDone = true
-                        disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe {
-                                Toast.makeText(
-                                    requireContext(),
-                                    getString(R.string.marked_as_done),
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
-                            })
+                        handleDoneClick(reminder)
+                    }
+                    1 -> {
+                        postponeReminder(reminder)
                     }
 
                 }
             }
         }
+    }
+
+    private fun postponeReminder(reminder: Reminder) {
+
+        MaterialDialog(requireContext()).show {
+            listItemsSingleChoice(
+                R.array.postpone_items,
+                initialSelection = 0
+            ) { dialog, index, text ->
+                // Invoked when the user selects an item
+                when (index) {
+                    0 -> {
+                        postpone(reminder,5)
+                    }
+                    1 -> {
+                        postpone(reminder,15)
+                    }
+                    2 -> {
+                        postpone(reminder,30)
+                    }
+                    3 -> {
+                        postpone(reminder,60)
+                    }
+                    4 -> showCustomPostponeDialog(reminder)
+                }
+
+            }
+            positiveButton(R.string.confirm)
+            negativeButton(R.string.cancel)
+            title(0, getString(R.string.postpone_time))
+
+        }
+
+    }
+
+    private fun showCustomPostponeDialog(reminder: Reminder) {
+
+        //those variables to reflect the change in pickers
+        var minute = 0
+        var hour = 0
+        var day = 0
+
+
+        val dialog = MaterialDialog(requireContext()).show {
+            customView(R.layout.custom_postpone_dialog)
+            positiveButton(R.string.confirm) {
+                /**On confirm click will first check if user postponed at least one min */
+                if (minute + hour + day == 0) {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.atleast_one_minute),
+                        Toast.LENGTH_LONG
+                    )
+                        .show()
+                    return@positiveButton
+                }
+
+
+                postpone(reminder,minute,hour,day)
+
+
+            }
+            negativeButton(R.string.cancel)
+            title(0, getString(R.string.select_time))
+        }
+
+        //get value of minutePicker
+        dialog.getCustomView().findViewById<NumberPicker>(R.id.minutePicker).apply {
+            maxValue = 59
+            minValue = 0
+            setOnValueChangedListener { picker, oldVal, newVal ->
+                minute = newVal
+            }
+        }
+
+        //get value of hourPicker
+        dialog.getCustomView().findViewById<NumberPicker>(R.id.hourPicker).apply {
+            maxValue = 23
+            minValue = 0
+            setOnValueChangedListener { picker, oldVal, newVal ->
+                hour = newVal
+            }
+        }
+
+        //get value of datePicker
+        dialog.getCustomView().findViewById<NumberPicker>(R.id.dayPicker).apply {
+            minValue = 0
+            maxValue = 30
+            setOnValueChangedListener { picker, oldVal, newVal ->
+                day = newVal
+            }
+        }
+
+
+    }
+
+
+    private fun postpone(reminder: Reminder,minute:Int,hour:Int=0,day:Int=0) {
+
+        /** will check that the new reminder date is bigger than current date; because its useless
+         *  to postpone reminder to a previous date*/
+
+        reminder.createdAt.apply {
+            add(Calendar.MINUTE, minute)
+            add(Calendar.HOUR_OF_DAY, hour)
+            add(Calendar.DAY_OF_MONTH, day)
+        }
+
+
+        if (reminder.createdAt.before(Calendar.getInstance())) {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.must_be_upcoming_date),
+                Toast.LENGTH_LONG
+            )
+                .show()
+            /*reminder should return to original value since update won't be saved*/
+            reminder.createdAt.apply {
+                add(Calendar.MINUTE, -minute)
+                add(Calendar.HOUR_OF_DAY, -hour)
+                add(Calendar.DAY_OF_MONTH, -day)
+            }
+            return
+        }
+
+        disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.reminder_postponed),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            })
+    }
+
+
+    private fun handleDoneClick(reminder: Reminder) {
+        reminder.isDone = true
+        disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.marked_as_done),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            })
     }
 
     companion object {
@@ -103,7 +250,8 @@ class ReminderListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.reminder_list_fragment, container, false)
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.reminder_list_fragment, container, false)
         return binding.root
     }
 
@@ -130,12 +278,12 @@ class ReminderListFragment : Fragment() {
         if (event.overdueReminders.isEmpty() && event.todayReminders.isEmpty() && event.upcomingReminders.isEmpty()) {
 
             binding.noRemindersGroup.visibility = View.VISIBLE
-            binding.reminderReycler.visibility=View.GONE
+            binding.reminderReycler.visibility = View.GONE
 
         } else {
 
             binding.noRemindersGroup.visibility = View.GONE
-            binding.reminderReycler.visibility=View.VISIBLE
+            binding.reminderReycler.visibility = View.VISIBLE
 
             val reminderListWithHeaders = mutableListOf<Reminder>()
 
@@ -174,6 +322,7 @@ class ReminderListFragment : Fragment() {
         //Change layout manager depending on orientation
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             val gridLayoutManager = GridLayoutManager(requireContext(), 2)
+            //change span size of headers so header shows in row
             gridLayoutManager.spanSizeLookup = (object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
                     return when (adapter.getItemViewType(position)) {

@@ -3,8 +3,8 @@ package com.example.reminderly.ui.mainActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.reminderly.ui.favorites.FavoritesFragment
-import com.example.reminderly.ui.reminderList.ReminderListFragment
+import com.example.reminderly.ui.favoritesFragment.FavoritesFragment
+import com.example.reminderly.ui.reminderListFragment.ReminderListFragment
 
 class FragmentViewPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
 
