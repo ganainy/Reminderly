@@ -12,4 +12,8 @@ class ReminderListViewModel(app:Application,val database:ReminderDatabaseDao) : 
       return database.update(reminder)
     }
 
+    fun deleteReminder(reminder: Reminder): Completable {
+        return database.delete(reminder)
+    }
+
 }

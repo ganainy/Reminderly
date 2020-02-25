@@ -35,7 +35,7 @@ interface ReminderDatabaseDao {
     fun update(reminder: Reminder) :Completable
 
     @Delete
-    fun delete(reminder: Reminder)
+    fun delete(reminder: Reminder):Completable
 
     @Query("DELETE FROM reminder_table")
     fun clearAll()

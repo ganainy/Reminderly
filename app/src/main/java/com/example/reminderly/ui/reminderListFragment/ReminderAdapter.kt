@@ -88,6 +88,7 @@ class ReminderAdapter(
         fun bind(clickListener: ReminderClickListener, item: Reminder) {
             binding.reminder = item
             binding.clickListener=clickListener
+            binding.adapterPosition=adapterPosition
         }
 
         companion object {
@@ -126,7 +127,7 @@ class ReminderAdapter(
 
 interface ReminderClickListener {
     fun onReminderClick(reminder: Reminder)
-    fun onFavoriteClick(reminder: Reminder)
+    fun onFavoriteClick(reminder: Reminder,position: Int)
     fun onMenuClick(reminder: Reminder)
 }
 

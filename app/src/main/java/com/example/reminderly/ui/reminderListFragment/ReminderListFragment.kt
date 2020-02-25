@@ -1,5 +1,9 @@
 package com.example.reminderly.ui.reminderListFragment
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -42,27 +46,7 @@ class ReminderListFragment : Fragment() {
     private val disposable = CompositeDisposable()
     private var recyclerIntialized = false
     private lateinit var binding: ReminderListFragmentBinding
-    private val adapter by lazy {
-        ReminderAdapter(requireContext(), object : ReminderClickListener {
-            override fun onReminderClick(reminder: Reminder) {
-                editReminder(reminder)
-            }
-
-            override fun onFavoriteClick(reminder: Reminder) {
-                reminder.isFavorite =
-                    !reminder.isFavorite //change favorite value then update in database
-                disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { /*task completed*/ })
-            }
-
-            override fun onMenuClick(reminder: Reminder) {
-
-                showOptionsSheet(reminder)
-            }
-
-        })
-    }
+    private lateinit var adapter: ReminderAdapter
 
     private fun showOptionsSheet(reminder: Reminder) {
         val items = listOf(
@@ -87,10 +71,54 @@ class ReminderListFragment : Fragment() {
                     2 -> {
                         editReminder(reminder)
                     }
+                    3 -> {
+                        copyToClipboard(reminder)
+                    }
+                    4->{
+                        shareReminder(reminder)
+                    }
+                    5->{
+                        deleteReminder(reminder)
+                    }
 
                 }
             }
         }
+    }
+
+    private fun deleteReminder(reminder: Reminder) {
+        disposable.add(viewModel.deleteReminder(reminder).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe( { Toast.makeText(context,getString(R.string.reminder_deleted),Toast.LENGTH_SHORT).show() },{
+                error->
+                (Toast.makeText(context,getString(R.string.reminder_delete_failed),Toast.LENGTH_SHORT).show())
+                Log.d("DebugTag", "deleteReminder: "+error.message)
+            }))
+
+    }
+
+    private fun shareReminder(reminder: Reminder) {
+        val sendIntent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, reminder.text)
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
+    }
+
+    private fun MaterialDialog.copyToClipboard(reminder: Reminder) {
+        val clipboard =
+            requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("label", reminder.text)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(
+            context,
+            getString(R.string.copied_to_clipboard),
+            Toast.LENGTH_SHORT
+        )
+            .show()
     }
 
     private fun editReminder(reminder: Reminder) {
@@ -107,16 +135,16 @@ class ReminderListFragment : Fragment() {
                 // Invoked when the user selects an item
                 when (index) {
                     0 -> {
-                        postpone(reminder,5)
+                        postpone(reminder, 5)
                     }
                     1 -> {
-                        postpone(reminder,15)
+                        postpone(reminder, 15)
                     }
                     2 -> {
-                        postpone(reminder,30)
+                        postpone(reminder, 30)
                     }
                     3 -> {
-                        postpone(reminder,60)
+                        postpone(reminder, 60)
                     }
                     4 -> showCustomPostponeDialog(reminder)
                 }
@@ -153,7 +181,7 @@ class ReminderListFragment : Fragment() {
                 }
 
 
-                postpone(reminder,minute,hour,day)
+                postpone(reminder, minute, hour, day)
 
 
             }
@@ -192,7 +220,7 @@ class ReminderListFragment : Fragment() {
     }
 
 
-    private fun postpone(reminder: Reminder,minute:Int,hour:Int=0,day:Int=0) {
+    private fun postpone(reminder: Reminder, minute: Int, hour: Int = 0, day: Int = 0) {
 
         /** will check that the new reminder date is bigger than current date; because its useless
          *  to postpone reminder to a previous date*/
@@ -319,7 +347,6 @@ class ReminderListFragment : Fragment() {
 
             initRecycler()
             adapter.submitList(reminderListWithHeaders)
-            adapter.notifyDataSetChanged() //todo find other way to reflect reminder change on recycler
 
         }
     }
@@ -329,6 +356,31 @@ class ReminderListFragment : Fragment() {
         if (recyclerIntialized) return
 
         recyclerIntialized = true
+
+
+        adapter = ReminderAdapter(requireContext(), object : ReminderClickListener {
+            override fun onReminderClick(reminder: Reminder) {
+                editReminder(reminder)
+            }
+
+            override fun onFavoriteClick(reminder: Reminder, position: Int) {
+                reminder.isFavorite =
+                    !reminder.isFavorite //change favorite value then update in database
+                disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { /*task completed*/ })
+
+                adapter.notifyItemChanged(position)
+            }
+
+            override fun onMenuClick(reminder: Reminder) {
+
+                showOptionsSheet(reminder)
+            }
+
+        })
+
+
         binding.reminderReycler.setHasFixedSize(true)
         binding.reminderReycler.adapter = adapter
         //Change layout manager depending on orientation

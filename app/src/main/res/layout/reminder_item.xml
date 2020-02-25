@@ -13,6 +13,10 @@
         <variable
             name="clickListener"
             type="com.example.ourchat.ui.chat.ReminderClickListener" />
+
+        <variable
+            name="adapterPosition"
+            type="Integer" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -172,7 +176,7 @@
                 android:layout_marginEnd="4dp"
                 android:padding="8dp"
                 android:background="?android:selectableItemBackground"
-                android:onClick="@{() -> clickListener.onFavoriteClick(reminder)}"
+                android:onClick="@{() -> clickListener.onFavoriteClick(reminder,adapterPosition)}"
                 app:layout_constraintBottom_toBottomOf="@+id/repeatText"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"

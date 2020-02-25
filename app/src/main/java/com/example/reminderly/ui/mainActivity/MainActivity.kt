@@ -94,14 +94,15 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
 
                 for (reminder in reminderList) {
+                    val currentCalendar = Calendar.getInstance()
                     when {
                         DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
                             todayReminders.add(reminder)
                         }
-                        reminder.createdAt.timeInMillis < Calendar.getInstance().timeInMillis -> {
+                        reminder.createdAt.before(currentCalendar)  -> {
                             overdueReminders.add(reminder)
                         }
-                        reminder.createdAt.timeInMillis > Calendar.getInstance().timeInMillis -> {
+                        else -> {
                             upcomingReminders.add(reminder)
                         }
                     }

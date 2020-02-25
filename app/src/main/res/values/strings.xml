@@ -66,6 +66,9 @@
     <string name="must_be_upcoming_date">خطأ: يجب أن يكون تاريخ التذكير بعد التأجيل اكبر من الوقت الحالي</string>
 
     <string name="phone_string">تذكر الاتصال ب %1$s على الرقم  %2$s </string>
+    <string name="copied_to_clipboard">تم نسخ عنوان التذكير الى حافظة الهاتف</string>
+    <string name="reminder_deleted">تم حدف التذكير</string>
+    <string name="reminder_delete_failed">خطأ اثناء حذف التذكير</string>
 
 
 </resources>
