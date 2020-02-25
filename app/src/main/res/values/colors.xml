@@ -4,8 +4,7 @@
   <color name="primaryLightColor">#82e9de</color>
   <color name="primaryDarkColor">#00867d</color>
   <color name="primaryTextColor">#1A1A1A</color>
-  <color name="secondaryTextColor">#646464</color>
-  <color name="fragmentBackground">#BBBABA</color>
+    <color name="fragmentBackground">#BBBABA</color>
   <color name="white">#FFFFFF</color>
   <color name="grey">#8F8F8F</color>
 
@@ -14,14 +13,6 @@
   <color name="example_1_white_light">#4DFFFFFF</color>
   <color name="example_1_white">#D9FFFFFF</color>
   <color name="black">#000</color>
-
-
-
-  <color name="red">#FD4040</color>
-  <color name="yellow">#FFC107</color>
-  <color name="green">#4CAF50</color>
-
-
 
 
 </resources>

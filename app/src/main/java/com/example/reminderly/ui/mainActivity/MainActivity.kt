@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
+import com.example.reminderly.Utils.EventBus.FavoriteReminderEvent
 import com.example.reminderly.Utils.EventBus.ReminderEvent
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
@@ -81,57 +82,38 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
         /**get all active reminders(not done) from db and show menu item for each type of active reminders
          * (overdue-today-upcoming) */
+        observeReminders()
+
+
+        /**get done reminders from db and show menu item if there is done reminders  */
+        observeDoneReminders()
+
+        /**get favorite reminders from db and pass them to favorites fragment  */
+        observeFavoriteReminders()
+
+    }
+
+    private fun observeFavoriteReminders() {
         disposable.add(
-            viewModel.getAllReminders().subscribeOn(Schedulers.io()).observeOn(
+            viewModel.getFavoriteReminders().subscribeOn(Schedulers.io()).observeOn(
                 AndroidSchedulers.mainThread()
-            ).subscribe({ reminderList ->
+            ).subscribe({ favoriteReminderList ->
 
-
-
-                overdueReminders.clear()
-                todayReminders.clear()
-                upcomingReminders.clear()
-
-
-                for (reminder in reminderList) {
-                    val currentCalendar = Calendar.getInstance()
-                    when {
-                        DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
-                            todayReminders.add(reminder)
-                        }
-                        reminder.createdAt.before(currentCalendar)  -> {
-                            overdueReminders.add(reminder)
-                        }
-                        else -> {
-                            upcomingReminders.add(reminder)
-                        }
-                    }
-                }
-
-
-                /**if there is overdue/today/upcoming reminders add them as tab in drawer menu
-                 * with their count or hide menu tab if no reminders */
-                showMenuItem(overdueReminders, R.id.overdue)
-                showMenuItem(todayReminders, R.id.today)
-                showMenuItem(upcomingReminders, R.id.upcoming)
-
-
-                /**pass reminders to reminder list fragment*/
-                EventBus.getDefault()
-                    .post(ReminderEvent(overdueReminders, todayReminders, upcomingReminders))
+                /**pass favorite reminders to favorite reminder fragment*/
+                EventBus.getDefault().postSticky(FavoriteReminderEvent(favoriteReminderList))
 
             }, { error ->
                 Toast.makeText(
                     this,
-                    getString(R.string.error_retreiving_reminder),
+                    getString(R.string.error_retreiving_favorite_reminder),
                     Toast.LENGTH_SHORT
                 )
                     .show()
             })
         )
+    }
 
-
-        /**get done reminders from db and show menu item if there is done reminders  */
+    private fun observeDoneReminders() {
         disposable.add(
             viewModel.getDoneReminders().subscribeOn(Schedulers.io()).observeOn(
                 AndroidSchedulers.mainThread()
@@ -152,8 +134,56 @@ class MainActivity : AppCompatActivity(), ICommunication {
                     .show()
             })
         )
+    }
+
+    private fun observeReminders() {
+        disposable.add(
+            viewModel.getAllReminders().subscribeOn(Schedulers.io()).observeOn(
+                AndroidSchedulers.mainThread()
+            ).subscribe({ reminderList ->
 
 
+                overdueReminders.clear()
+                todayReminders.clear()
+                upcomingReminders.clear()
+
+
+                for (reminder in reminderList) {
+                    val currentCalendar = Calendar.getInstance()
+                    when {
+                        DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
+                            todayReminders.add(reminder)
+                        }
+                        reminder.createdAt.before(currentCalendar) -> {
+                            overdueReminders.add(reminder)
+                        }
+                        else -> {
+                            upcomingReminders.add(reminder)
+                        }
+                    }
+                }
+
+
+                /**if there is overdue/today/upcoming reminders add them as tab in drawer menu
+                 * with their count or hide menu tab if no reminders */
+                showMenuItem(overdueReminders, R.id.overdue)
+                showMenuItem(todayReminders, R.id.today)
+                showMenuItem(upcomingReminders, R.id.upcoming)
+
+
+                /**pass reminders to reminder list fragment*/
+                EventBus.getDefault()
+                    .postSticky(ReminderEvent(overdueReminders, todayReminders, upcomingReminders))
+
+            }, { error ->
+                Toast.makeText(
+                    this,
+                    getString(R.string.error_retreiving_reminder),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            })
+        )
     }
 
     private fun openReminderFragment(reminder: Reminder?=null) {
@@ -267,6 +297,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
 
     }
+
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

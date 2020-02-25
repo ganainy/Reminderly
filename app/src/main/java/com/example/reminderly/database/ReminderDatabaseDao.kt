@@ -55,7 +55,7 @@ interface ReminderDatabaseDao {
     fun getDoneReminders(): Observable<MutableList<Reminder>>
 
     @Query("SELECT * FROM reminder_table WHERE isFavorite==1")
-    fun getFavoriteReminders():MutableList<Reminder>?
+    fun getFavoriteReminders():Observable<MutableList<Reminder>>
 
 }
 

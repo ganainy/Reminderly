@@ -15,5 +15,9 @@ class MainActivityViewModel(val database: ReminderDatabaseDao):ViewModel() {
         return database.getDoneReminders()
     }
 
+    fun getFavoriteReminders(): Observable<MutableList<Reminder>> {
+        return database.getFavoriteReminders()
+    }
+
 
 }

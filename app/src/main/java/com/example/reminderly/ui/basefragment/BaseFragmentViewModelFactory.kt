@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package com.example.reminderly.ui.reminderListFragment
+package com.example.reminderly.ui.basefragment
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
@@ -24,14 +24,14 @@ import com.example.footy.database.ReminderDatabaseDao
 /**
  * Simple ViewModel factory that provides the MarsProperty and context to the ViewModel.
  */
-class ReminderListViewModelFactory(
+class BaseFragmentViewModelFactory(
     private val application: Application,
     private val database: ReminderDatabaseDao
 ) : ViewModelProvider.Factory {
     @Suppress("unchecked_cast")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ReminderListViewModel::class.java)) {
-            return ReminderListViewModel(
+        if (modelClass.isAssignableFrom(BaseFragmentViewModel::class.java)) {
+            return BaseFragmentViewModel(
                 application,
                 database
             ) as T

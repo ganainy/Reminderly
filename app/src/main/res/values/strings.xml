@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Reminderly</string>
-    <string name="reminders">التذكيرات</string>
     <string name="all_reminders">جميع التذكيرات</string>
     <string name="favorite_reminders">التذكيرات المفضله</string>
     <string name="no_active_reminders">لا يوجد تذكيرات نشطة حاليا</string>
@@ -36,7 +35,6 @@
     <string name="text_empty">لا يمكن حفظ تذكير فارغ</string>
     <string name="something_went_wrong">حدث خطأ اثناء استعاده البيانات</string>
     <string name="error_saving_reminder">خطأ اثناء حفظ التذكير</string>
-    <string name="reminder_saved">تم حفظ التذكير</string>
     <string name="overdue">تذكيرات فائتة</string>
     <string name="today">تذكيرات اليوم</string>
     <string name="upcoming">تذكيرات مستقبلية</string>
@@ -60,8 +58,6 @@
     <string name="reminder_postponed">تم تأجيل التذكير</string>
     <string name="postpone_time">تأجيل التذكير لمدة..</string>
     <string name="select_time">تأجيل لمدة..</string>
-    <string name="tomorrow">غدا</string>
-    <string name="minute">دقيقة</string>
     <string name="atleast_one_minute">خطأ: يجب ان تكون مدة التأجيل على الاقل دقيقة واحدة</string>
     <string name="must_be_upcoming_date">خطأ: يجب أن يكون تاريخ التذكير بعد التأجيل اكبر من الوقت الحالي</string>
 
@@ -69,6 +65,10 @@
     <string name="copied_to_clipboard">تم نسخ عنوان التذكير الى حافظة الهاتف</string>
     <string name="reminder_deleted">تم حدف التذكير</string>
     <string name="reminder_delete_failed">خطأ اثناء حذف التذكير</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="error_retreiving_favorite_reminder">خطأ اثناء استرجاع التذكيرات المفضلة</string>
 
 
 </resources>
