@@ -2,23 +2,29 @@ package com.example.reminderly.ui.favoritesFragment
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
-import com.example.reminderly.Utils.EventBus.FavoriteReminderEvent
 import com.example.reminderly.databinding.FavoritesFragmentBinding
 import com.example.reminderly.ui.basefragment.BaseFragment
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
 class FavoritesFragment : BaseFragment() {
 
     private var recyclerIntialized = false
+    private val disposable = CompositeDisposable()
+    private lateinit var viewModel: FavoriteFragmentViewModel
+    private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
 
     companion object {
         fun newInstance() = FavoritesFragment()
@@ -34,29 +40,60 @@ class FavoritesFragment : BaseFragment() {
         return binding.root
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
 
-    @Subscribe(sticky = true,threadMode = ThreadMode.MAIN)
-    fun onFavoriteReminderEvent(event: FavoriteReminderEvent) {
+        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
 
-        Log.d("DebugTag", "onFavoriteReminderEvent: ${event.favoriteReminders.size}")
-        /**if all favorite reminders are empty show empty layout,else show recycler*/
-        if (event.favoriteReminders.isEmpty()) {
+        viewModelFactory =
+            ProvideDatabaseViewModelFactory(
+                requireActivity().application,
+                reminderDatabaseDao
+            )
 
-            binding.noRemindersGroup.visibility = View.VISIBLE
-            binding.reminderReycler.visibility = View.GONE
+        viewModel = ViewModelProvider(this, viewModelFactory).get(FavoriteFragmentViewModel::class.java)
 
-        } else {
+        /**get favorite reminders from db and pass them to favorites fragment  */
+        observeFavoriteReminders()
 
-            binding.noRemindersGroup.visibility = View.GONE
-            binding.reminderReycler.visibility = View.VISIBLE
-
-
-            initRecycler()
-            adapter.submitList(event.favoriteReminders)
-
-        }
     }
 
+
+
+    private fun observeFavoriteReminders() {
+        disposable.add(
+            viewModel.getFavoriteReminders().subscribeOn(Schedulers.io()).observeOn(
+                AndroidSchedulers.mainThread()
+            ).subscribe({ favoriteReminderList ->
+
+                /**if all favorite reminders are empty show empty layout,else show recycler*/
+                if (favoriteReminderList.isEmpty()) {
+
+                    binding.noRemindersGroup.visibility = View.VISIBLE
+                    binding.reminderReycler.visibility = View.GONE
+
+                } else {
+
+                    binding.noRemindersGroup.visibility = View.GONE
+                    binding.reminderReycler.visibility = View.VISIBLE
+
+
+                    initRecycler()
+                    adapter.submitList(favoriteReminderList)
+
+                }
+
+
+            }, { error ->
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.error_retreiving_favorite_reminder),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            })
+        )
+    }
 
     private fun initRecycler() {
         if (recyclerIntialized) return

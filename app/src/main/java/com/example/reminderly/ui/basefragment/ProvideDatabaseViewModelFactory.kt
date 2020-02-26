@@ -22,20 +22,20 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.footy.database.ReminderDatabaseDao
 
 /**
- * Simple ViewModel factory that provides the MarsProperty and context to the ViewModel.
+ * Simple ViewModel factory that provides the database and context to the ViewModel.
  */
-class BaseFragmentViewModelFactory(
+class ProvideDatabaseViewModelFactory(
     private val application: Application,
     private val database: ReminderDatabaseDao
 ) : ViewModelProvider.Factory {
     @Suppress("unchecked_cast")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(BaseFragmentViewModel::class.java)) {
-            return BaseFragmentViewModel(
-                application,
-                database
-            ) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+       try {
+           return modelClass.getConstructor(Application::class.java,ReminderDatabaseDao::class.java).newInstance(application,database)
+       }catch (e:InstantiationException){
+           throw Exception("InstantiationException, cannot create instance of $modelClass")
+       }catch (e:IllegalAccessException){
+           throw Exception("IllegalAccessException, cannot create instance of $modelClass")
+       }
     }
 }

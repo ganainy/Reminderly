@@ -2,7 +2,6 @@ package com.example.reminderly.ui.mainActivity
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.format.DateUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -19,8 +18,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
-import com.example.reminderly.Utils.EventBus.FavoriteReminderEvent
-import com.example.reminderly.Utils.EventBus.ReminderEvent
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
@@ -33,8 +30,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_content.*
-import org.greenrobot.eventbus.EventBus
-import java.util.*
 
 
 class MainActivity : AppCompatActivity(), ICommunication {
@@ -48,11 +43,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private lateinit var viewModelFactory: MainActivityViewModelFactory
 
 
-    companion object {
-        val overdueReminders = mutableListOf<Reminder>()
-        val todayReminders = mutableListOf<Reminder>()
-        val upcomingReminders = mutableListOf<Reminder>()
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,38 +71,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
             }
 
 
-        /**get all active reminders(not done) from db and show menu item for each type of active reminders
-         * (overdue-today-upcoming) */
-        observeReminders()
-
-
-        /**get done reminders from db and show menu item if there is done reminders  */
-        observeDoneReminders()
-
-        /**get favorite reminders from db and pass them to favorites fragment  */
-        observeFavoriteReminders()
-
     }
 
-    private fun observeFavoriteReminders() {
-        disposable.add(
-            viewModel.getFavoriteReminders().subscribeOn(Schedulers.io()).observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe({ favoriteReminderList ->
-
-                /**pass favorite reminders to favorite reminder fragment*/
-                EventBus.getDefault().postSticky(FavoriteReminderEvent(favoriteReminderList))
-
-            }, { error ->
-                Toast.makeText(
-                    this,
-                    getString(R.string.error_retreiving_favorite_reminder),
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-            })
-        )
-    }
 
     private fun observeDoneReminders() {
         disposable.add(
@@ -136,57 +97,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
         )
     }
 
-    private fun observeReminders() {
-        disposable.add(
-            viewModel.getAllReminders().subscribeOn(Schedulers.io()).observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe({ reminderList ->
 
-
-                overdueReminders.clear()
-                todayReminders.clear()
-                upcomingReminders.clear()
-
-
-                for (reminder in reminderList) {
-                    val currentCalendar = Calendar.getInstance()
-                    when {
-                        DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
-                            todayReminders.add(reminder)
-                        }
-                        reminder.createdAt.before(currentCalendar) -> {
-                            overdueReminders.add(reminder)
-                        }
-                        else -> {
-                            upcomingReminders.add(reminder)
-                        }
-                    }
-                }
-
-
-                /**if there is overdue/today/upcoming reminders add them as tab in drawer menu
-                 * with their count or hide menu tab if no reminders */
-                showMenuItem(overdueReminders, R.id.overdue)
-                showMenuItem(todayReminders, R.id.today)
-                showMenuItem(upcomingReminders, R.id.upcoming)
-
-
-                /**pass reminders to reminder list fragment*/
-                EventBus.getDefault()
-                    .postSticky(ReminderEvent(overdueReminders, todayReminders, upcomingReminders))
-
-            }, { error ->
-                Toast.makeText(
-                    this,
-                    getString(R.string.error_retreiving_reminder),
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-            })
-        )
-    }
-
-    private fun openReminderFragment(reminder: Reminder?=null) {
+    private fun openReminderFragment(reminder: Reminder? = null) {
         /**pass reminder with fragment creation depending if null or not*/
         val ft = supportFragmentManager.beginTransaction()
         ft.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
@@ -299,7 +211,6 @@ class MainActivity : AppCompatActivity(), ICommunication {
     }
 
 
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toobar_menu, menu)
 
@@ -332,6 +243,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
     }
 
     override fun onBackPressed() {
+        /**if there is fragment added on activity close it before closing whole activity*/
         if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStackImmediate()
         } else {
@@ -339,6 +251,83 @@ class MainActivity : AppCompatActivity(), ICommunication {
         }
     }
 
+
+    override fun onStart() {
+        super.onStart()
+
+
+        /**get done/upcoming/overdue/today reminders from db and show menu item if there is reminders  */
+        observeDoneReminders()
+        observeUpcomingReminders()
+        observeOverdueReminders()
+        observeTodayReminders()
+
+    }
+
+    private fun observeOverdueReminders() {
+        disposable.add(
+            viewModel.getOverdueReminders().subscribeOn(Schedulers.io()).observeOn(
+                AndroidSchedulers.mainThread()
+            ).subscribe({ overdueReminders ->
+
+                if (overdueReminders.isNotEmpty()) {
+                    showMenuItem(overdueReminders, R.id.overdue)
+                }
+
+            }, { error ->
+                Toast.makeText(
+                    this,
+                    getString(R.string.error_retreiving_reminder),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            })
+        )
+    }
+
+    private fun observeTodayReminders() {
+        disposable.add(
+            viewModel.getTodayReminders().subscribeOn(Schedulers.io()).observeOn(
+                AndroidSchedulers.mainThread()
+            ).subscribe({ todayReminders ->
+
+                if (todayReminders.isNotEmpty()) {
+                    showMenuItem(todayReminders, R.id.today)
+                }
+
+
+            }, { error ->
+                Toast.makeText(
+                    this,
+                    getString(R.string.error_retreiving_reminder),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            })
+        )
+    }
+
+    private fun observeUpcomingReminders() {
+        disposable.add(
+            viewModel.getUpcomingReminders().subscribeOn(Schedulers.io()).observeOn(
+                AndroidSchedulers.mainThread()
+            ).subscribe({ upcomingReminderList ->
+
+                if (upcomingReminderList.isNotEmpty()) {
+                    showMenuItem(upcomingReminderList, R.id.upcoming)
+                }
+
+
+            }, { error ->
+                Toast.makeText(
+                    this,
+                    getString(R.string.error_retreiving_reminder),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            })
+        )
+    }
 
     override fun onStop() {
         super.onStop()
@@ -360,6 +349,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
 }
 
 
+/**interface for communication between activity and child fragments*/
 interface ICommunication {
     fun setDrawerEnabled(enabled: Boolean)
     fun showReminderFragment(reminder: Reminder)

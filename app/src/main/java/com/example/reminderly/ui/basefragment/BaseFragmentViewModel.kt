@@ -16,4 +16,6 @@ class BaseFragmentViewModel(app:Application, val database:ReminderDatabaseDao) :
         return database.delete(reminder)
     }
 
+
+
 }

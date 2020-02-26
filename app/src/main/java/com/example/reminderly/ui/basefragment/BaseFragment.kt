@@ -29,7 +29,6 @@ import com.example.reminderly.ui.mainActivity.ICommunication
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import org.greenrobot.eventbus.EventBus
 import java.util.*
 
 
@@ -38,7 +37,7 @@ open class BaseFragment : Fragment() {
     lateinit var adapter: ReminderAdapter
     private val disposable = CompositeDisposable()
     private lateinit var viewModel: BaseFragmentViewModel
-    private lateinit var viewModelFactory: BaseFragmentViewModelFactory
+    private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,7 +57,7 @@ open class BaseFragment : Fragment() {
         val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
 
         viewModelFactory =
-            BaseFragmentViewModelFactory(
+            ProvideDatabaseViewModelFactory(
                 requireActivity().application,
                 reminderDatabaseDao
             )
@@ -320,7 +319,6 @@ open class BaseFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        EventBus.getDefault().unregister(this)
         disposable.clear()
 
     }
@@ -328,7 +326,7 @@ open class BaseFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        EventBus.getDefault().register(this)
+
 
     }
 
