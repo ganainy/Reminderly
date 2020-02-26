@@ -93,7 +93,7 @@ class ReminderFragment : Fragment() {
         binding.timeText.text = MyUtils.formatTime(Date(reminder.createdAt.timeInMillis))
         binding.repeatText.text = MyUtils.convertRepeat(reminder.repeat)
         binding.priorityText.text = MyUtils.convertPriority(reminder.priority)
-        binding.reminderTypeText.text = MyUtils.convertReminderType(reminder.priority)
+        binding.reminderTypeText.text = MyUtils.convertReminderType(reminder.reminderType)
         binding.notifyInAdvanceText.text =
             MyUtils.convertNotifyAdv(reminder.notifyAdvAmount, reminder.notifyAdvUnit)
         /**make numbers in edit text clickable & navigate to phone pad on click*/

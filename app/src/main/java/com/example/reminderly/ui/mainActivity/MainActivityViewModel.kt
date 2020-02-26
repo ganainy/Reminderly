@@ -1,12 +1,14 @@
 package com.example.reminderly.ui.mainActivity
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import com.example.reminderly.database.Reminder
+import com.example.reminderly.ui.category_reminders.CategoryType
 import io.reactivex.Observable
 import java.util.*
 
-class MainActivityViewModel(val database: ReminderDatabaseDao):ViewModel() {
+class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):ViewModel() {
 
     /**millis of the begging of next today so we can get any reminders after that (upcoming reminders)*/
     private val nextDayMillis:Long
@@ -47,9 +49,14 @@ class MainActivityViewModel(val database: ReminderDatabaseDao):ViewModel() {
         return database.getTodayReminders(todayMillis,nextDayMillis)
     }
 
-
-
-
+    fun getCategoryReminders(categoryType: CategoryType): Observable<MutableList<Reminder>> {
+      return  when(categoryType){
+            CategoryType.TODAY ->{getTodayReminders()}
+            CategoryType.OVERDUE ->{getOverdueReminders()}
+            CategoryType.UPCOMING ->{getUpcomingReminders()}
+            CategoryType.DONE ->{getDoneReminders()}
+        }
+    }
 
 
 }

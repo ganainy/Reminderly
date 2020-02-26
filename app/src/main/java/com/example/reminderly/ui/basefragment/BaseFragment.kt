@@ -324,12 +324,6 @@ open class BaseFragment : Fragment() {
     }
 
 
-    override fun onStart() {
-        super.onStart()
-
-
-    }
-
 
 
 

@@ -21,7 +21,10 @@ import com.example.reminderly.R
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
+import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
 import com.example.reminderly.ui.calendarActivity.CalendarActivity
+import com.example.reminderly.ui.category_reminders.CategoryFragment
+import com.example.reminderly.ui.category_reminders.CategoryType
 import com.example.reminderly.ui.reminderFragment.ReminderFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayoutMediator
@@ -40,9 +43,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private lateinit var fragmentViewPagerAdapter: FragmentViewPagerAdapter
     private lateinit var viewPager: ViewPager2
     private lateinit var viewModel: MainActivityViewModel
-    private lateinit var viewModelFactory: MainActivityViewModelFactory
-
-
+    private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,9 +82,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
             ).subscribe({ doneReminderList ->
 
 
-                if (doneReminderList.isNotEmpty()) {
-                    showMenuItem(doneReminderList, R.id.done)
-                }
+                    showMenuItem(doneReminderList.size.toString(), R.id.done,CategoryType.DONE)
 
 
             }, { error ->
@@ -125,7 +124,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private fun initViewModel() {
         val reminderDatabaseDao = ReminderDatabase.getInstance(this).reminderDatabaseDao
         viewModelFactory =
-            MainActivityViewModelFactory(
+            ProvideDatabaseViewModelFactory(
+                application,
                 reminderDatabaseDao
             )
         viewModel =
@@ -185,25 +185,33 @@ class MainActivity : AppCompatActivity(), ICommunication {
     }
 
 
+    /**shows menu item with badge count of reminders in that certain reminders' category*/
     private fun showMenuItem(
-        reminders: MutableList<Reminder>,
-        menu_item_id: Int
+        remindersLength: String,
+        menu_item_id: Int,
+        categoryType: CategoryType
     ) {
         val menuItem = nav_view.menu.findItem(menu_item_id)
 
-        if (reminders.isNotEmpty()) {
+        if (remindersLength.isNotEmpty()) {
             menuItem.isVisible = true
             badgeView = menuItem?.actionView?.findViewById(R.id.countTextView)!!
-            badgeView.text = reminders.size.toString()
+            badgeView.text = remindersLength
         } else {
             menuItem.isVisible = false
         }
 
 
-
-
+        /**show separate fragment for that reminder category on menu item click*/
         menuItem.setOnMenuItemClickListener {
-            //todo open fragmnent to show reminders
+            val ft = supportFragmentManager.beginTransaction()
+            ft.add(
+                R.id.fragmentContainer,
+                CategoryFragment.newInstance(categoryType),
+                "categoryFragment"
+            )
+            ft.addToBackStack(null)
+            ft.commit()
             true
         }
 
@@ -270,9 +278,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 AndroidSchedulers.mainThread()
             ).subscribe({ overdueReminders ->
 
-                if (overdueReminders.isNotEmpty()) {
-                    showMenuItem(overdueReminders, R.id.overdue)
-                }
+                    showMenuItem(overdueReminders.size.toString(), R.id.overdue, CategoryType.OVERDUE)
 
             }, { error ->
                 Toast.makeText(
@@ -292,7 +298,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
             ).subscribe({ todayReminders ->
 
                 if (todayReminders.isNotEmpty()) {
-                    showMenuItem(todayReminders, R.id.today)
+                    showMenuItem(todayReminders.size.toString(), R.id.today, CategoryType.TODAY)
                 }
 
 
@@ -314,7 +320,11 @@ class MainActivity : AppCompatActivity(), ICommunication {
             ).subscribe({ upcomingReminderList ->
 
                 if (upcomingReminderList.isNotEmpty()) {
-                    showMenuItem(upcomingReminderList, R.id.upcoming)
+                    showMenuItem(
+                        upcomingReminderList.size.toString(),
+                        R.id.upcoming,
+                        CategoryType.UPCOMING
+                    )
                 }
 
 

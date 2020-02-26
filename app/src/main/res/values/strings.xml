@@ -69,6 +69,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="error_retreiving_favorite_reminder">خطأ اثناء استرجاع التذكيرات المفضلة</string>
+    <string name="no_reminders">لا يوجد تذكيرات</string>
 
 
 </resources>
