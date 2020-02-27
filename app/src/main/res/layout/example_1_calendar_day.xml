@@ -24,7 +24,7 @@
         android:layout_height="18dp"
         android:background="@drawable/yellow_round_bg"
         android:gravity="center"
-        tools:text="+9"
+        android:text="0"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

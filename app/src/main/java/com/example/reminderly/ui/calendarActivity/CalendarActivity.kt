@@ -2,6 +2,7 @@ package com.example.reminderly.ui.calendarActivity
 
 import android.animation.ValueAnimator
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
@@ -44,6 +45,7 @@ import java.util.*
 
 class CalendarActivity : AppCompatActivity() {
 
+    private val formattedDateList = mutableListOf<String>()
     private lateinit var binding: ActivityCalendarBinding
 
     private val disposable = CompositeDisposable()
@@ -93,38 +95,28 @@ class CalendarActivity : AppCompatActivity() {
             val textView = view.exOneDayText
             val remindersCountText = view.remindersCountText
 
-            init {
-
-                //todo close calendar & open new reminder on day click instead of below code
-                view.setOnClickListener {
-                    if (day.owner == DayOwner.THIS_MONTH) {
-                        if (selectedDates.contains(day.date)) {
-                            selectedDates.remove(day.date)
-                        } else {
-                            selectedDates.add(day.date)
-                        }
-                        exOneCalendar.notifyDayChanged(day)
-                    }
-                }
-            }
         }
 
         exOneCalendar.dayBinder = object : DayBinder<DayViewContainer> {
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, day: CalendarDay) {
-                //todo use remindersCountText to display reminders in day count by comparing day: CalendarDay with reminder day to see if each day has reminder
+
                 container.day = day
 
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-
-
-                for (reminder in activeReminderList){
-                    val formattedDate = dateFormat.format(reminder.createdAt.time)
+                /**compare reminder dates(which i got from db and converted to date on this format
+                 * yyyy-MM-dd) with this day date(also formatted yyyy-MM-dd) and show yellow marker and
+                 * increase badge count with 1 for each reminder on same day (initially 0)*/
+                for (formattedDate in formattedDateList){
 
                     if (formattedDate == day.date.toString()) {
                         container.remindersCountText.visibility = View.VISIBLE
-                        container.remindersCountText.text = "99"
+                        container.remindersCountText.text = (container.remindersCountText.text.toString().toInt()+1).toString()
                     }
+                }
+
+                container.view.setOnClickListener {
+                    Log.d("DebugTag", "bind: "+ container.day.date)
+                    //todo show reminders list or open new reminder based on if this date has reminders or not
                 }
 
 
@@ -296,6 +288,17 @@ override fun onStop() {
             ).subscribe({ activeReminderList ->
 
                 setupCalendar(activeReminderList)
+
+
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+                for (reminder in activeReminderList){
+                    val formattedDate = dateFormat.format(reminder.createdAt.time)
+                        formattedDateList.add(formattedDate)
+                }
+                setupCalendar(activeReminderList)
+
+
 
 
             }, { error ->
