@@ -243,8 +243,13 @@ class MainActivity : AppCompatActivity(), ICommunication {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                binding.drawerLayout.openDrawer(GravityCompat.START)
-                return true
+                /**this home menu item might be back arrow(in fragments) or menu icon to open drawer
+                 * (in activity) so we determine functionality of it here*/
+                if (supportFragmentManager.backStackEntryCount > 0) {
+                    super.onBackPressed()
+                } else {
+                    binding.drawerLayout.openDrawer(GravityCompat.START)
+                }
             }
         }
         return super.onOptionsItemSelected(item)

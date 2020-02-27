@@ -44,6 +44,7 @@ class CategoryFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
         binding= DataBindingUtil.inflate(inflater,R.layout.category_fragment, container, false)
         return binding.root
     }
@@ -56,17 +57,15 @@ class CategoryFragment : BaseFragment() {
         /**reminders passed from activity*/
         val categoryType = arguments?.getSerializable("reminder")  as CategoryType
 
-        setTitle(categoryType)
+        setupToolbar(categoryType)
 
         initViewModel()
 
         getReminders(categoryType)
 
-        binding.backButton.setOnClickListener { requireActivity().onBackPressed() }
-
     }
 
-    private fun setTitle(categoryType: CategoryType) {
+    private fun setupToolbar(categoryType: CategoryType) {
         (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
         binding.toolbar.title= when(categoryType){
             CategoryType.TODAY ->{getString(R.string.today_reminders)}
@@ -74,6 +73,10 @@ class CategoryFragment : BaseFragment() {
             CategoryType.UPCOMING ->{getString(R.string.upcoming_reminders)}
             CategoryType.DONE ->{getString(R.string.done_reminders)}
         }
+
+        (requireActivity() as AppCompatActivity).supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white)
+        (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
     }
 
     private fun initViewModel() {
@@ -90,7 +93,6 @@ class CategoryFragment : BaseFragment() {
                 viewModelFactory
             ).get(MainActivityViewModel::class.java)
     }
-
 
 
     /**get all reminder in certain category(done/upcoming/today/overdue)*/

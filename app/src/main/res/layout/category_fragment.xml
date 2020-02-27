@@ -18,19 +18,7 @@
             android:layout_width="match_parent"
             app:titleTextColor="@color/white"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/primaryColor">
-
-
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_arrow_back_white"
-                    android:background="?android:selectableItemBackground"
-                    android:id="@+id/backButton" />
-
-
-        </androidx.appcompat.widget.Toolbar>
-
+            android:background="@color/primaryColor"/>
 
         <ImageView
             android:id="@+id/imageView"
