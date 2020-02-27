@@ -9,7 +9,7 @@ import io.reactivex.Observable
 class ReminderListFragmentViewModel(app:Application, val database:ReminderDatabaseDao) : ViewModel() {
 
     fun getAllReminders() : Observable<MutableList<Reminder>> {
-        return database.getAllReminders()
+        return database.getActiveReminders()
     }
 
 

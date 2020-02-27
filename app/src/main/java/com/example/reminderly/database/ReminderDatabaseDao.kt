@@ -49,7 +49,7 @@ interface ReminderDatabaseDao {
 
 
     @Query("SELECT * FROM reminder_table WHERE isDone==0")
-    fun getAllReminders(): Observable<MutableList<Reminder>>
+    fun getActiveReminders(): Observable<MutableList<Reminder>>
 
     @Query("SELECT * FROM reminder_table WHERE isDone==1")
     fun getDoneReminders(): Observable<MutableList<Reminder>>
