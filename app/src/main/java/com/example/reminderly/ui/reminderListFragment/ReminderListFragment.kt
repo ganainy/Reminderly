@@ -65,9 +65,6 @@ class ReminderListFragment : BaseFragment() {
         viewModel = ViewModelProvider(this, viewModelFactory).get(ReminderListFragmentViewModel::class.java)
 
 
-        /**get all active reminders(not done) from db and show menu item for each type of active reminders
-         * (overdue-today-upcoming) */
-        observeReminders()
     }
     /**
      *show reminders in recycler*/
@@ -149,7 +146,7 @@ class ReminderListFragment : BaseFragment() {
 
             }, { error ->
                 Toast.makeText(
-                    requireContext(),
+                    requireActivity(),
                     getString(R.string.error_retreiving_reminder),
                     Toast.LENGTH_SHORT
                 )
@@ -170,7 +167,7 @@ class ReminderListFragment : BaseFragment() {
         binding.reminderReycler.adapter = adapter
         //Change layout manager depending on orientation
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            val gridLayoutManager = GridLayoutManager(requireContext(), 2)
+            val gridLayoutManager = GridLayoutManager(requireActivity(), 2)
             //change span size of headers so header shows in row
             gridLayoutManager.spanSizeLookup = (object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
@@ -196,5 +193,11 @@ class ReminderListFragment : BaseFragment() {
         disposable.clear()
     }
 
+    override fun onStart() {
+        super.onStart()
+        /**get all active reminders(not done) from db and show menu item for each type of active reminders
+         * (overdue-today-upcoming) */
+        observeReminders()
+    }
 
 }

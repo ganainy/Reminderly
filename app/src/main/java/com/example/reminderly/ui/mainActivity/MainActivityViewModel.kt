@@ -46,7 +46,7 @@ class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):V
     }
 
     fun getTodayReminders(): Observable<MutableList<Reminder>> {
-        return database.getTodayReminders(todayMillis,nextDayMillis)
+        return database.getDayReminders(todayMillis,nextDayMillis)
     }
 
     fun getCategoryReminders(categoryType: CategoryType): Observable<MutableList<Reminder>> {
@@ -55,7 +55,12 @@ class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):V
             CategoryType.OVERDUE ->{getOverdueReminders()}
             CategoryType.UPCOMING ->{getUpcomingReminders()}
             CategoryType.DONE ->{getDoneReminders()}
+          else -> throw Exception("did you pass certain date category by mistake?")
         }
+    }
+
+    fun getRemindersAtDate(dateStart: Calendar, dateEnd: Calendar): Observable<MutableList<Reminder>> {
+        return database.getDayReminders(dateStart.timeInMillis,dateEnd.timeInMillis)
     }
 
 

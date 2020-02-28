@@ -86,7 +86,7 @@ class FavoritesFragment : BaseFragment() {
 
             }, { error ->
                 Toast.makeText(
-                    requireContext(),
+                    requireActivity(),
                     getString(R.string.error_retreiving_favorite_reminder),
                     Toast.LENGTH_SHORT
                 )
@@ -106,7 +106,7 @@ class FavoritesFragment : BaseFragment() {
         binding.reminderReycler.adapter = adapter
         //Change layout manager depending on orientation
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            val gridLayoutManager = GridLayoutManager(requireContext(), 2)
+            val gridLayoutManager = GridLayoutManager(requireActivity(), 2)
             //change span size of headers so header shows in row
             gridLayoutManager.spanSizeLookup = (object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {

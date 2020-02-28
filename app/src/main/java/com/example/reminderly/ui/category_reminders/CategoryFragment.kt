@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
+import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.databinding.CategoryFragmentBinding
 import com.example.reminderly.ui.basefragment.BaseFragment
 import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
@@ -22,19 +23,24 @@ import com.example.reminderly.ui.mainActivity.MainActivityViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import java.util.*
 
 class CategoryFragment : BaseFragment() {
 
     private val disposable = CompositeDisposable()
     private lateinit var binding: CategoryFragmentBinding
-    private var recyclerIntialized = false
+    private var recyclerInitialized = false
     private lateinit var viewModel: MainActivityViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
 
     companion object {
-        fun newInstance(categoryType: CategoryType): CategoryFragment {
+        fun newInstance(
+            categoryType: CategoryType,
+            calendar: Calendar?
+        ): CategoryFragment {
             val fragment = CategoryFragment()
-            fragment.arguments = bundleOf("reminder" to categoryType)
+            fragment.arguments = bundleOf("categoryType" to categoryType,
+                "calendar" to calendar)
             return fragment
         }
     }
@@ -55,13 +61,71 @@ class CategoryFragment : BaseFragment() {
 
 
         /**reminders passed from activity*/
-        val categoryType = arguments?.getSerializable("reminder")  as CategoryType
+        val categoryType = arguments?.getSerializable("categoryType")  as CategoryType
 
         setupToolbar(categoryType)
 
         initViewModel()
 
-        getReminders(categoryType)
+        /**get reminders on single date(if caller is calendar activity) or get reminders of certain
+         * category(if caller is main activity)*/
+        if (categoryType==CategoryType.DATE) {
+            getRemindersWithDate(arguments?.getSerializable("calendar")  as Calendar)
+        } else {
+            getReminders(categoryType)
+        }
+
+    }
+
+    /**Get all calendars from the start of the passed calendar day to end of it*/
+    private fun getRemindersWithDate(dateStart: Calendar) {
+
+
+        val dateEnd=Calendar.getInstance().apply {
+            set(Calendar.YEAR,dateStart.get(Calendar.YEAR))
+            set(Calendar.MONTH,dateStart.get(Calendar.MONTH))
+            set(Calendar.DAY_OF_MONTH,dateStart.get(Calendar.DAY_OF_MONTH)+1)
+            set(Calendar.HOUR_OF_DAY,dateStart.get(Calendar.HOUR_OF_DAY))
+            set(Calendar.MINUTE,dateStart.get(Calendar.MINUTE))
+            set(Calendar.SECOND,dateStart.get(Calendar.SECOND))
+        }
+
+
+
+        disposable.add(
+            viewModel.getRemindersAtDate(dateStart,dateEnd).subscribeOn(Schedulers.io()).observeOn(
+                AndroidSchedulers.mainThread()
+            ).subscribe({ dateReminders ->
+
+                if (dateReminders.isEmpty()) {
+
+                    binding.noRemindersGroup.visibility = View.VISIBLE
+                    binding.reminderReycler.visibility = View.GONE
+
+                } else {
+
+                    /**show title with reminders date*/
+                    binding.toolbar.title=resources.getString(R.string.date_reminders,(
+                            MyUtils.formatDate(dateReminders[0].createdAt.time)))
+
+                    binding.noRemindersGroup.visibility = View.GONE
+                    binding.reminderReycler.visibility = View.VISIBLE
+
+
+                    initRecycler()
+                    adapter.submitList(dateReminders)
+                }
+
+            }, { error ->
+                Toast.makeText(
+                    requireActivity(),
+                    getString(R.string.error_retreiving_reminder),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            })
+        )
+
 
     }
 
@@ -72,6 +136,7 @@ class CategoryFragment : BaseFragment() {
             CategoryType.OVERDUE ->{getString(R.string.overdue_reminders)}
             CategoryType.UPCOMING ->{getString(R.string.upcoming_reminders)}
             CategoryType.DONE ->{getString(R.string.done_reminders)}
+            CategoryType.DATE ->{""}
         }
 
         (requireActivity() as AppCompatActivity).supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white)
@@ -112,6 +177,7 @@ class CategoryFragment : BaseFragment() {
 
                 } else {
 
+
                     binding.noRemindersGroup.visibility = View.GONE
                     binding.reminderReycler.visibility = View.VISIBLE
 
@@ -123,7 +189,7 @@ class CategoryFragment : BaseFragment() {
 
             }, { error ->
                 Toast.makeText(
-                    requireContext(),
+                    requireActivity(),
                     getString(R.string.error_retreiving_reminder),
                     Toast.LENGTH_SHORT
                 )
@@ -139,9 +205,9 @@ class CategoryFragment : BaseFragment() {
 
 
     private fun initRecycler() {
-        if (recyclerIntialized) return
+        if (recyclerInitialized) return
 
-        recyclerIntialized = true
+        recyclerInitialized = true
 
         initAdapter()
 
@@ -149,7 +215,7 @@ class CategoryFragment : BaseFragment() {
         binding.reminderReycler.adapter = adapter
         //Change layout manager depending on orientation
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            val gridLayoutManager = GridLayoutManager(requireContext(), 2)
+            val gridLayoutManager = GridLayoutManager(requireActivity(), 2)
             //change span size of headers so header shows in row
             gridLayoutManager.spanSizeLookup = (object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
@@ -172,7 +238,15 @@ class CategoryFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
-        (requireActivity() as ICommunication).setDrawerEnabled(false)
+            /**this will be invoked to lock drawer only if parent of this fragment is main*/
+            (requireActivity() as? ICommunication)?.setDrawerEnabled(false)
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+        /**this will be invoked to un-lock drawer only if parent of this fragment is main*/
+        (requireActivity() as? ICommunication)?.setDrawerEnabled(true)
     }
 
 }

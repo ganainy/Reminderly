@@ -3,6 +3,8 @@ package com.example.reminderly.Utils
 import android.content.Context
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import com.example.reminderly.database.Reminder
+import com.prolificinteractive.materialcalendarview.CalendarDay
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -49,8 +51,31 @@ class MyUtils {
             return timeFormat.format(calendar.time)
         }
 
+        //convert list of Calendar to list of CalendarDay
+        fun getCalendarDays(activeReminderList: MutableList<Reminder>): MutableList<CalendarDay> {
+            val calendarDays= mutableListOf<CalendarDay>()
+            for (reminder in activeReminderList){
+                calendarDays.add(CalendarDay.from(reminder.createdAt.get(Calendar.YEAR),
+                    reminder.createdAt.get(Calendar.MONTH)+1,
+                    reminder.createdAt.get(Calendar.DAY_OF_MONTH)))
+            }
+            return calendarDays
+        }
 
+        fun calendarDayToCalendar(calendarDay: CalendarDay):Calendar{
+            return Calendar.getInstance().apply {
+                set(Calendar.YEAR,calendarDay.year)
+                set(Calendar.MONTH,calendarDay.month-1)
+                set(Calendar.DAY_OF_MONTH,calendarDay.day)
+                set(Calendar.HOUR_OF_DAY,0)
+                set(Calendar.MINUTE,0)
+                set(Calendar.SECOND,0)
+            }
+        }
 
+        fun calendarToCalendarDay(calendar: Calendar):CalendarDay{
+            return CalendarDay.from(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH)+1,calendar.get(Calendar.DAY_OF_MONTH))
+        }
         /**-------------------------------------keyboard----------------------------------*/
 
 
@@ -135,6 +160,8 @@ class MyUtils {
            return builder
 
         }
+
+
 
 
     }

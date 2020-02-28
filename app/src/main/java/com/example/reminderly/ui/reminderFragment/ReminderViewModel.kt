@@ -1,7 +1,6 @@
 package com.example.reminderly.ui.reminderActivity
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import com.example.reminderly.R
@@ -66,7 +65,6 @@ class ReminderViewModel(
 
 
     fun updateText(text: String) {
-        Log.d("DebugTag", "updateText: $text")
         //set reminder text and save it
         reminder.text=text
     }

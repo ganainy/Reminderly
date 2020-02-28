@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import android.speech.RecognizerIntent
 import android.text.util.Linkify
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -142,7 +141,7 @@ class ReminderFragment : Fragment() {
 
 
     private fun changeKeyboardVisibility() {
-        val hideKeyboard = MyUtils.hideKeyboard(requireContext(), binding.keyboardImage)
+        val hideKeyboard = MyUtils.hideKeyboard(requireActivity(), binding.keyboardImage)
         if (hideKeyboard == null || !hideKeyboard) {
             //keyboard was already hidden so we need to show it
             MyUtils.showKeyboard(requireContext())
@@ -172,7 +171,7 @@ class ReminderFragment : Fragment() {
             )
         } else {
             Toast.makeText(
-                requireContext(),
+                requireActivity(),
                 getString(R.string.feature_not_supported),
                 Toast.LENGTH_SHORT
             )
@@ -296,7 +295,7 @@ class ReminderFragment : Fragment() {
 
         //open date picker
         TimePickerDialog(
-            requireContext(), timeSetListener,
+            requireActivity(), timeSetListener,
             // set DatePickerDialog to point to today's date when it loads up
             cal.get(Calendar.HOUR_OF_DAY),
             cal.get(Calendar.MINUTE),
@@ -325,7 +324,7 @@ class ReminderFragment : Fragment() {
 
         //open date picker
         DatePickerDialog(
-            requireContext(), dateSetListener,
+            requireActivity(), dateSetListener,
             // set DatePickerDialog to point to today's date when it loads up
             cal.get(Calendar.YEAR),
             cal.get(Calendar.MONTH),
@@ -336,10 +335,9 @@ class ReminderFragment : Fragment() {
 
 
     private fun handleSaveButton() {
-        //todo fix saved reminder don't show unless restart activity
 
         if (binding.reminderEditText.text.isBlank()) {
-            Toast.makeText(requireContext(), getString(R.string.text_empty), Toast.LENGTH_SHORT)
+            Toast.makeText(requireActivity(), getString(R.string.text_empty), Toast.LENGTH_SHORT)
                 .show()
             return
         }
@@ -358,7 +356,7 @@ class ReminderFragment : Fragment() {
                 {   //error
                         error ->
                     Toast.makeText(
-                        requireContext(),
+                        requireActivity(),
                         getString(R.string.error_saving_reminder),
                         Toast.LENGTH_SHORT
                     ).show()
@@ -378,7 +376,7 @@ class ReminderFragment : Fragment() {
             SPEECH_TO_TEXT_CODE -> {
                 if (data == null) {
                     Toast.makeText(
-                        requireContext(),
+                        requireActivity(),
                         getString(R.string.something_went_wrong),
                         Toast.LENGTH_SHORT
                     )
@@ -386,7 +384,6 @@ class ReminderFragment : Fragment() {
                     return
                 }
                 val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                Log.d("DebugTag", "onActivityResult: $result")
                 if (result[0] != null) confirmText(result[0])
             }
             SELECT_PHONE_NUMBER -> {
@@ -395,7 +392,7 @@ class ReminderFragment : Fragment() {
                     ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                     ContactsContract.CommonDataKinds.Phone.NUMBER
                 )
-                val cursor = requireContext().contentResolver.query(
+                val cursor = requireActivity().contentResolver.query(
                     contactUri, projection,
                     null, null, null
                 )
@@ -422,7 +419,7 @@ class ReminderFragment : Fragment() {
                     Linkify.addLinks(binding.reminderEditText, Linkify.PHONE_NUMBERS)
                 } else {
                     Toast.makeText(
-                        requireContext(),
+                        requireActivity(),
                         getString(R.string.fetch_contact_failure),
                         Toast.LENGTH_SHORT
                     )
@@ -463,15 +460,21 @@ class ReminderFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         disposable.clear()
-        (requireActivity() as ICommunication).setDrawerEnabled(true)
-        MyUtils.hideKeyboard(requireContext(), binding.saveFab)
+
+        /**this will be invoked to un-lock drawer only if parent of this fragment is main*/
+        (requireActivity() as? ICommunication)?.setDrawerEnabled(true)
+
+
+        MyUtils.hideKeyboard(requireActivity(), binding.saveFab)
 
     }
 
 
     override fun onStart() {
         super.onStart()
-        (requireActivity() as ICommunication).setDrawerEnabled(false)
+
+        /**this will be invoked to lock drawer only if parent of this fragment is main*/
+            (requireActivity() as? ICommunication)?.setDrawerEnabled(false)
 
     }
 

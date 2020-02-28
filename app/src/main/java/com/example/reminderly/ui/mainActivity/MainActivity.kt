@@ -96,9 +96,9 @@ class MainActivity : AppCompatActivity(), ICommunication {
         )
     }
 
-
+    /**pass reminder with fragment creation depending if null(if creating new reminder) or not-null
+     * (if editing existing reminder)*/
     private fun openReminderFragment(reminder: Reminder? = null) {
-        /**pass reminder with fragment creation depending if null or not*/
         val ft = supportFragmentManager.beginTransaction()
         ft.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
         if (reminder != null)
@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
             val ft = supportFragmentManager.beginTransaction()
             ft.add(
                 R.id.fragmentContainer,
-                CategoryFragment.newInstance(categoryType),
+                CategoryFragment.newInstance(categoryType, null),
                 "categoryFragment"
             )
             ft.addToBackStack(null)
@@ -361,6 +361,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
     override fun showReminderFragment(reminder: Reminder) {
         openReminderFragment(reminder)
     }
+
 }
 
 

@@ -72,7 +72,7 @@ dependencies {
     implementation "androidx.viewpager2:viewpager2:1.0.0"
 
     //custom calendar view to mark certain dates
-    implementation 'com.github.kizitonwose:CalendarView:0.3.2'
+    implementation 'com.github.prolificinteractive:material-calendarview:2.0.1'
 
     //material dialogs & bottomsheets
     implementation 'com.afollestad.material-dialogs:core:3.2.1'

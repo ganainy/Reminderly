@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -66,7 +65,7 @@ open class BaseFragment : Fragment() {
     }
 
     fun initAdapter() {
-        adapter = ReminderAdapter(requireContext(), object : ReminderClickListener {
+        adapter = ReminderAdapter(requireActivity(), object : ReminderClickListener {
             override fun onReminderClick(reminder: Reminder) {
                 editReminder(reminder)
             }
@@ -99,7 +98,7 @@ open class BaseFragment : Fragment() {
             BasicGridItem(R.drawable.ic_delete_grey, getString(R.string.delete))
         )
 
-        MaterialDialog(requireContext(), BottomSheet()).show {
+        MaterialDialog(requireActivity(), BottomSheet()).show {
             gridItems(items) { _, index, item ->
                 when (index) {
                     0 -> {
@@ -133,7 +132,6 @@ open class BaseFragment : Fragment() {
             .subscribe( { Toast.makeText(context,getString(R.string.reminder_deleted), Toast.LENGTH_SHORT).show() },{
                     error->
                 (Toast.makeText(context,getString(R.string.reminder_delete_failed), Toast.LENGTH_SHORT).show())
-                Log.d("DebugTag", "deleteReminder: "+error.message)
             }))
 
     }
@@ -163,7 +161,7 @@ open class BaseFragment : Fragment() {
     }
 
     private fun editReminder(reminder: Reminder) {
-        (requireActivity() as ICommunication).showReminderFragment(reminder)
+        (requireActivity() as? ICommunication)?.showReminderFragment(reminder)
     }
 
     private fun postponeReminder(reminder: Reminder) {
@@ -213,7 +211,7 @@ open class BaseFragment : Fragment() {
                 /**On confirm click will first check if user postponed at least one min */
                 if (minute + hour + day == 0) {
                     Toast.makeText(
-                        requireContext(),
+                        requireActivity(),
                         getString(R.string.atleast_one_minute),
                         Toast.LENGTH_LONG
                     )
@@ -275,7 +273,7 @@ open class BaseFragment : Fragment() {
 
         if (reminder.createdAt.before(Calendar.getInstance())) {
             Toast.makeText(
-                requireContext(),
+                requireActivity(),
                 getString(R.string.must_be_upcoming_date),
                 Toast.LENGTH_LONG
             )
@@ -293,7 +291,7 @@ open class BaseFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 Toast.makeText(
-                    requireContext(),
+                    requireActivity(),
                     getString(R.string.reminder_postponed),
                     Toast.LENGTH_SHORT
                 )
@@ -308,7 +306,7 @@ open class BaseFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 Toast.makeText(
-                    requireContext(),
+                    requireActivity(),
                     getString(R.string.marked_as_done),
                     Toast.LENGTH_SHORT
                 )

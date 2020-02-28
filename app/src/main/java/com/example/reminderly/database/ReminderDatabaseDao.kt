@@ -65,7 +65,7 @@ interface ReminderDatabaseDao {
     fun getOverdueReminders(todayMillis: Long): Observable<MutableList<Reminder>>
 
     @Query("SELECT * FROM reminder_table WHERE (createdAt>:todayMillis AND createdAt<:nextDayMillis AND isDone==0)")
-    fun getTodayReminders(todayMillis: Long,nextDayMillis:Long): Observable<MutableList<Reminder>>
+    fun getDayReminders(todayMillis: Long, nextDayMillis:Long): Observable<MutableList<Reminder>>
 
 }
 
