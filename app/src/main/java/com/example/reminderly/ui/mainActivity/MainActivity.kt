@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
             ).subscribe({ doneReminderList ->
 
 
-                    showMenuItem(doneReminderList.size.toString(), R.id.done,CategoryType.DONE)
+                    showMenuItem(doneReminderList.size, R.id.done,CategoryType.DONE)
 
 
             }, { error ->
@@ -187,16 +187,16 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
     /**shows menu item with badge count of reminders in that certain reminders' category*/
     private fun showMenuItem(
-        remindersLength: String,
+        remindersLength: Int,
         menu_item_id: Int,
         categoryType: CategoryType
     ) {
         val menuItem = nav_view.menu.findItem(menu_item_id)
 
-        if (remindersLength.isNotEmpty()) {
+        if (remindersLength!=0) {
             menuItem.isVisible = true
             badgeView = menuItem?.actionView?.findViewById(R.id.countTextView)!!
-            badgeView.text = remindersLength
+            badgeView.text = remindersLength.toString()
         } else {
             menuItem.isVisible = false
         }
@@ -283,7 +283,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 AndroidSchedulers.mainThread()
             ).subscribe({ overdueReminders ->
 
-                    showMenuItem(overdueReminders.size.toString(), R.id.overdue, CategoryType.OVERDUE)
+                    showMenuItem(overdueReminders.size, R.id.overdue, CategoryType.OVERDUE)
 
             }, { error ->
                 Toast.makeText(
@@ -302,9 +302,9 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 AndroidSchedulers.mainThread()
             ).subscribe({ todayReminders ->
 
-                if (todayReminders.isNotEmpty()) {
-                    showMenuItem(todayReminders.size.toString(), R.id.today, CategoryType.TODAY)
-                }
+
+                    showMenuItem(todayReminders.size, R.id.today, CategoryType.TODAY)
+
 
 
             }, { error ->
@@ -324,13 +324,12 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 AndroidSchedulers.mainThread()
             ).subscribe({ upcomingReminderList ->
 
-                if (upcomingReminderList.isNotEmpty()) {
                     showMenuItem(
-                        upcomingReminderList.size.toString(),
+                        upcomingReminderList.size,
                         R.id.upcoming,
                         CategoryType.UPCOMING
                     )
-                }
+
 
 
             }, { error ->

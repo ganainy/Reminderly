@@ -64,7 +64,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/reminderText"
                 app:setPriority="@{reminder.priority}"
-                app:srcCompat="@drawable/green_round_bg" />
+                app:srcCompat="@drawable/lighter_green_round_bg" />
 
             <ImageView
                 android:id="@+id/imageView2"

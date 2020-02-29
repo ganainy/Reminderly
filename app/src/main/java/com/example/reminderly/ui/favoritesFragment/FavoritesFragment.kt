@@ -127,4 +127,9 @@ class FavoritesFragment : BaseFragment() {
     }
 
 
+    override fun onStop() {
+        super.onStop()
+        disposable.clear()
+    }
+
 }

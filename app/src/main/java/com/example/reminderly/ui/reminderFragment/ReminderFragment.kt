@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import android.speech.RecognizerIntent
 import android.text.util.Linkify
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,7 +37,8 @@ import java.util.*
 const val SPEECH_TO_TEXT_CODE = 1
 const val SELECT_PHONE_NUMBER = 2
 
-class ReminderFragment : Fragment() {
+class ReminderFragment : Fragment(), View.OnClickListener
+{
 
     private lateinit var viewModel: ReminderViewModel
     private lateinit var viewModelFactory: ReminderViewModelFactory
@@ -72,6 +74,7 @@ class ReminderFragment : Fragment() {
         /**navigating from reminders list fragment*/
         if (arguments?.get("reminder") != null) {
             val reminder = arguments?.get("reminder") as Reminder
+            Log.d("DebugTag", "onActivityCreated: ${reminder.createdAt}")
             initViewModel(reminder)
             initViewsFromReminder(reminder)
         } else {
@@ -81,7 +84,6 @@ class ReminderFragment : Fragment() {
 
 
         setupListeners()
-
 
 
     }
@@ -97,32 +99,48 @@ class ReminderFragment : Fragment() {
             MyUtils.convertNotifyAdv(reminder.notifyAdvAmount, reminder.notifyAdvUnit)
         /**make numbers in edit text clickable & navigate to phone pad on click*/
         Linkify.addLinks(binding.reminderEditText, Linkify.PHONE_NUMBERS)
+
+        setupPriorityBackgroundColor(reminder.priority)
+
+    }
+
+    /**setup priority image bg color depending on its value*/
+    private fun setupPriorityBackgroundColor(priority: Int) {
+        binding.priorityImage.background = when (priority) {
+            0 -> {
+                resources.getDrawable(R.drawable.darker_green_round_bg, null)
+            }
+            1 -> {
+                resources.getDrawable(R.drawable.yellow_round_bg, null)
+            }
+            2 -> {
+                resources.getDrawable(R.drawable.red_round_bg, null)
+            }
+            else -> {
+                throw Exception("unknown priority value")
+            }
+        }
     }
 
 
     private fun setupListeners() {
-        binding.dateImage.setOnClickListener { handleDateImageClick() }
-        binding.timeImage.setOnClickListener { handleTimeImageClick() }
-        binding.repeatImage.setOnClickListener { handleRepeatImageClick() }
-        binding.priorityImage.setOnClickListener { handlePriorityImageClick() }
-        binding.notificationTypeImage.setOnClickListener { handleNotifyTypeImageClick() }
-        binding.notifyInAdvanceImage.setOnClickListener { handleNotifyInAdvanceImageClick() }
-
-        binding.micImage.setOnClickListener { openSpeechToTextDialog() }
-        binding.contactsImage.setOnClickListener { pickNumberFromContacts() }
-
-
-        binding.backButton.setOnClickListener {
-            requireActivity().onBackPressed()
-        }
-
-        binding.saveFab.setOnClickListener {
-            handleSaveButton()
-        }
-
-        binding.keyboardImage.setOnClickListener {
-            changeKeyboardVisibility()
-        }
+        binding.dateImage.setOnClickListener(this)
+        binding.dateText.setOnClickListener(this)
+        binding.timeImage.setOnClickListener(this)
+        binding.timeText.setOnClickListener(this)
+        binding.repeatImage.setOnClickListener(this)
+        binding.repeatText.setOnClickListener(this)
+        binding.priorityImage.setOnClickListener(this)
+        binding.priorityText.setOnClickListener(this)
+        binding.reminderTypeImage.setOnClickListener(this)
+        binding.reminderTypeText.setOnClickListener(this)
+        binding.notifyInAdvanceImage.setOnClickListener(this)
+        binding.notifyInAdvanceText.setOnClickListener(this)
+        binding.micImage.setOnClickListener(this)
+        binding.contactsImage.setOnClickListener(this)
+        binding.backButton.setOnClickListener(this)
+        binding.saveFab.setOnClickListener(this)
+        binding.keyboardImage.setOnClickListener(this)
     }
 
     private fun initViewModel(reminder: Reminder) {
@@ -251,6 +269,7 @@ class ReminderFragment : Fragment() {
                 // Invoked when the user selects an item
                 viewModel.updateReminderPriority(index)
                 binding.priorityText.text = text
+                setupPriorityBackgroundColor(index)
             }
             positiveButton(R.string.confirm)
             negativeButton(R.string.cancel)
@@ -336,11 +355,16 @@ class ReminderFragment : Fragment() {
 
     private fun handleSaveButton() {
 
-        if (binding.reminderEditText.text.isBlank()) {
-            Toast.makeText(requireActivity(), getString(R.string.text_empty), Toast.LENGTH_SHORT)
-                .show()
-            return
-        }
+   if (binding.reminderEditText.text.isBlank()){
+       Toast.makeText(
+           requireActivity(),
+           getString(R.string.text_empty),
+           Toast.LENGTH_SHORT
+       )
+           .show()
+       return
+   }
+
 
         viewModel.updateText(binding.reminderEditText.text.toString())
 
@@ -472,10 +496,49 @@ class ReminderFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-
         /**this will be invoked to lock drawer only if parent of this fragment is main*/
-            (requireActivity() as? ICommunication)?.setDrawerEnabled(false)
+        (requireActivity() as? ICommunication)?.setDrawerEnabled(false)
 
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.dateImage, R.id.dateText -> {
+                handleDateImageClick()
+            }
+            R.id.timeImage, R.id.timeText -> {
+                handleTimeImageClick()
+            }
+            R.id.repeatImage, R.id.repeatText -> {
+                handleRepeatImageClick()
+            }
+            R.id.priorityImage, R.id.priorityText -> {
+                handlePriorityImageClick()
+            }
+            R.id.reminderTypeImage, R.id.reminderTypeText -> {
+                handleNotifyTypeImageClick()
+            }
+            R.id.notifyInAdvanceImage, R.id.notifyInAdvanceText -> {
+                handleNotifyInAdvanceImageClick()
+            }
+            R.id.micImage -> {
+                openSpeechToTextDialog()
+            }
+            R.id.contactsImage -> {
+                pickNumberFromContacts()
+            }
+            R.id.backButton -> {
+                requireActivity().onBackPressed()
+            }
+            R.id.saveFab -> {
+                handleSaveButton()
+            }
+            R.id.keyboardImage -> {
+                changeKeyboardVisibility()
+            }
+            else->{}
+
+        }
     }
 
 }

@@ -161,6 +161,10 @@ class CalendarActivity : AppCompatActivity() ,ICommunication{
       }
     }
 
+    override fun onStop() {
+        super.onStop()
+        disposable.clear()
+    }
 }
 
 

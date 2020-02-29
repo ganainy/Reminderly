@@ -197,13 +197,13 @@
                 android:background="@drawable/darker_green_round_bg"
                 android:padding="8dp"
                 android:src="@drawable/ic_arrow_upward_white"
-                app:layout_constraintBottom_toTopOf="@+id/notificationTypeImage"
+                app:layout_constraintBottom_toTopOf="@+id/reminderTypeImage"
                 app:layout_constraintEnd_toStartOf="@+id/priorityText"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/repeatImage" />
 
             <ImageButton
-                android:id="@+id/notificationTypeImage"
+                android:id="@+id/reminderTypeImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -230,7 +230,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/notifyInAdvanceText"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/notificationTypeImage" />
+                app:layout_constraintTop_toBottomOf="@+id/reminderTypeImage" />
 
             <TextView
                 android:id="@+id/dateText"
@@ -309,11 +309,11 @@
                 android:ellipsize="end"
                 android:gravity="end"
                 android:maxLines="1"
-                app:layout_constraintBottom_toBottomOf="@+id/notificationTypeImage"
+                app:layout_constraintBottom_toBottomOf="@+id/reminderTypeImage"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toEndOf="@+id/notificationTypeImage"
-                app:layout_constraintTop_toTopOf="@+id/notificationTypeImage"
+                app:layout_constraintStart_toEndOf="@+id/reminderTypeImage"
+                app:layout_constraintTop_toTopOf="@+id/reminderTypeImage"
                 android:text="@string/notify_using_notification" />
 
             <TextView

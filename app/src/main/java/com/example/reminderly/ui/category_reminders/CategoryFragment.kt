@@ -2,6 +2,7 @@ package com.example.reminderly.ui.category_reminders
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -59,7 +60,6 @@ class CategoryFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
 
 
-
         /**reminders passed from activity*/
         val categoryType = arguments?.getSerializable("categoryType")  as CategoryType
 
@@ -81,14 +81,17 @@ class CategoryFragment : BaseFragment() {
     private fun getRemindersWithDate(dateStart: Calendar) {
 
 
+
         val dateEnd=Calendar.getInstance().apply {
             set(Calendar.YEAR,dateStart.get(Calendar.YEAR))
             set(Calendar.MONTH,dateStart.get(Calendar.MONTH))
-            set(Calendar.DAY_OF_MONTH,dateStart.get(Calendar.DAY_OF_MONTH)+1)
-            set(Calendar.HOUR_OF_DAY,dateStart.get(Calendar.HOUR_OF_DAY))
-            set(Calendar.MINUTE,dateStart.get(Calendar.MINUTE))
-            set(Calendar.SECOND,dateStart.get(Calendar.SECOND))
+            set(Calendar.DAY_OF_MONTH,dateStart.get(Calendar.DAY_OF_MONTH))
+            set(Calendar.HOUR_OF_DAY,23)
+            set(Calendar.MINUTE,59)
+            set(Calendar.SECOND,59)
+            set(Calendar.MILLISECOND,999)
         }
+
 
 
 
@@ -96,6 +99,10 @@ class CategoryFragment : BaseFragment() {
             viewModel.getRemindersAtDate(dateStart,dateEnd).subscribeOn(Schedulers.io()).observeOn(
                 AndroidSchedulers.mainThread()
             ).subscribe({ dateReminders ->
+
+                Log.d("DebugTag", "getRemindersWithDate: $dateStart")
+                Log.d("DebugTag", "getRemindersWithDate: $dateEnd")
+                Log.d("DebugTag", "getRemindersWithDate: ${dateReminders.size}")
 
                 if (dateReminders.isEmpty()) {
 
@@ -247,7 +254,9 @@ class CategoryFragment : BaseFragment() {
         super.onStop()
         /**this will be invoked to un-lock drawer only if parent of this fragment is main*/
         (requireActivity() as? ICommunication)?.setDrawerEnabled(true)
+        disposable.clear()
     }
+
 
 }
 

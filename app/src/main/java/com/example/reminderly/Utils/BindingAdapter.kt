@@ -42,7 +42,7 @@ fun setFavorite(imageView: ImageView, favorite: Boolean) {
 @BindingAdapter("setPriority")
 fun setPriority(imageView: ImageView, priority: Int) {
    imageView.setImageDrawable(when(priority){
-       0->imageView.resources.getDrawable(R.drawable.green_round_bg,null)
+       0->imageView.resources.getDrawable(R.drawable.lighter_green_round_bg,null)
        1->imageView.resources.getDrawable(R.drawable.yellow_round_bg,null)
        2->imageView.resources.getDrawable(R.drawable.red_round_bg,null)
        else -> throw Exception("unknown Priority")

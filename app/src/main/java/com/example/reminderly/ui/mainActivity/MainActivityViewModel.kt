@@ -1,6 +1,7 @@
 package com.example.reminderly.ui.mainActivity
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import com.example.reminderly.database.Reminder
@@ -63,5 +64,9 @@ class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):V
         return database.getDayReminders(dateStart.timeInMillis,dateEnd.timeInMillis)
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        Log.d("DebugTag", "onCleared: ")
+    }
 
 }
