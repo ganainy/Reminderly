@@ -8,7 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
@@ -26,6 +25,7 @@ import com.example.reminderly.ui.calendarActivity.CalendarActivity
 import com.example.reminderly.ui.category_reminders.CategoryFragment
 import com.example.reminderly.ui.category_reminders.CategoryType
 import com.example.reminderly.ui.reminderFragment.ReminderFragment
+import com.example.reminderly.ui.search_fragment.SearchFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayoutMediator
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -223,20 +223,6 @@ class MainActivity : AppCompatActivity(), ICommunication {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toobar_menu, menu)
 
-        val searchItem = menu?.findItem(R.id.search)
-        val searchView = searchItem?.actionView as SearchView
-
-        searchView.setOnQueryTextListener(object : android.widget.SearchView.OnQueryTextListener,
-            SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                //todo use this to search through reminders
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return false
-            }
-        })
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -252,8 +238,22 @@ class MainActivity : AppCompatActivity(), ICommunication {
                     binding.drawerLayout.openDrawer(GravityCompat.START)
                 }
             }
+            R.id.search ->{
+                openSearchFragment()
+            }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun openSearchFragment() {
+        val ft = supportFragmentManager.beginTransaction()
+        ft.add(
+            R.id.fragmentContainer,
+           SearchFragment(),
+            "searchFragment"
+        )
+        ft.addToBackStack(null)
+        ft.commit()
     }
 
     override fun onBackPressed() {

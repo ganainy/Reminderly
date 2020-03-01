@@ -72,8 +72,7 @@
 
 
     <string name="date_reminders"> تذكيرات %1$s</string>
-
-
+    <string name="no_reminder_search">لا يوجد تذكيرات تناسب بحثك</string>
 
 
 </resources>
