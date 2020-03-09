@@ -79,6 +79,7 @@
     <string name="reminders_today">لديك %1$d تذكير اليوم</string>
     <string name="reminderly">تذكيراتي</string>
     <string name="add_other_reminders">اضف تذكيرات اخري</string>
+    <string name="end_reminder">إنهاء التذكير</string>
 
 
 </resources>

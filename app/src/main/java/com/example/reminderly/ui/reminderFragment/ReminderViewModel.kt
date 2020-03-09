@@ -1,22 +1,25 @@
 package com.example.reminderly.ui.reminderActivity
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import com.example.reminderly.R
 import com.example.reminderly.database.Reminder
 import io.reactivex.Completable
+import io.reactivex.Observable
+import io.reactivex.Single
 import java.util.*
 
 class ReminderViewModel(
     val app: Application,
-    val reminder: Reminder,
+    val mReminder: Reminder,
     val database: ReminderDatabaseDao
 ) : AndroidViewModel(app) {
 
 
     fun updateReminderDate(year:Int,month:Int,day:Int){
-        reminder.createdAt.apply {
+        mReminder.createdAt.apply {
             set(Calendar.YEAR, year)
             set(Calendar.MONTH, month)
             set(Calendar.DAY_OF_MONTH, day)
@@ -25,7 +28,7 @@ class ReminderViewModel(
     }
 
     fun updateReminderTime(hour:Int,minute:Int){
-        reminder.createdAt.apply {
+        mReminder.createdAt.apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
         }
@@ -35,24 +38,24 @@ class ReminderViewModel(
     }
 
     fun updateReminderRepeat(index: Int) {
-        reminder.repeat=index
+        mReminder.repeat=index
     }
 
     fun updateReminderPriority(index: Int) {
-        reminder.priority= index
+        mReminder.priority= index
     }
 
     fun updateReminderNotificationType(index: Int) {
-        reminder.reminderType= index
+        mReminder.reminderType= index
 
     }
 
     fun updateReminderNotifyAdvAmount(num: Int) {
-        reminder.notifyAdvAmount=num
+        mReminder.notifyAdvAmount=num
     }
 
     fun updateReminderNotifyAdvUnit(durationUnit: String) {
-        reminder.notifyAdvUnit= when(durationUnit){
+        mReminder.notifyAdvUnit= when(durationUnit){
             app.getString(R.string.minutes)-> 0
             app.getString(R.string.hours)-> 1
             app.getString(R.string.days)-> 2
@@ -66,16 +69,20 @@ class ReminderViewModel(
 
     fun updateText(text: String) {
         //set reminder text and save it
-        reminder.text=text
+        mReminder.text=text
     }
 
-    fun saveReminder() : Completable{
-        return database.insert(reminder)
+    fun saveReminder() : Single<Long> {
+        return database.insert(mReminder)
+    }
+
+    fun getReminder() : Reminder{
+        return mReminder
     }
 
     fun resetReminder(){
         //reset default reminder so its params won't be used for future reminders
-        reminder.resetToDefaults()
+        mReminder.resetToDefaults()
     }
 
 

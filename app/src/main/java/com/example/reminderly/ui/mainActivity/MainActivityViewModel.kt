@@ -66,7 +66,6 @@ class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):V
 
     override fun onCleared() {
         super.onCleared()
-        Log.d("DebugTag", "onCleared: ")
     }
 
 }

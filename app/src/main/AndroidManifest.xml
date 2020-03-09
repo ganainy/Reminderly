@@ -11,9 +11,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver
-            android:name=".broadcast_receivers.NewReminderReceiver"
+            android:name=".broadcast_receivers.DoneReminderReceiver"
             android:enabled="true"
             android:exported="false"></receiver>
+        <receiver
+            android:name=".broadcast_receivers.NewReminderReceiver"
+            android:enabled="true"
+            android:exported="false" />
 
         <activity android:name=".ui.calendarActivity.CalendarActivity" />
         <activity android:name=".ui.reminderActivity.ReminderActivity" />

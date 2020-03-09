@@ -19,7 +19,9 @@ package com.example.footy.database
 import androidx.room.*
 import com.example.reminderly.database.Reminder
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Observable
+import io.reactivex.Single
 
 /**
  * Defines methods for using the SleepNight class with Room.
@@ -29,7 +31,7 @@ interface ReminderDatabaseDao {
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(reminder: Reminder): Completable
+    fun insert(reminder: Reminder): Single<Long>
 
     @Update
     fun update(reminder: Reminder) :Completable
@@ -42,7 +44,7 @@ interface ReminderDatabaseDao {
 
 
     @Query("SELECT * FROM reminder_table WHERE id=:id")
-    fun getReminderByID(id: Int): Reminder
+    fun getReminderByID(id: Long): Maybe<Reminder>
 
     @Query("DELETE FROM reminder_table WHERE id==:id")
     fun deleteReminderById(id: String?)

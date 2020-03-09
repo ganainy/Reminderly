@@ -1,10 +1,10 @@
 package com.example.reminderly.ui.reminderFragment
 
-import android.app.Activity
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
+import android.app.*
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.SystemClock
 import android.provider.ContactsContract
 import android.speech.RecognizerIntent
 import android.text.util.Linkify
@@ -25,6 +25,7 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.MyUtils
+import com.example.reminderly.broadcast_receivers.NewReminderReceiver
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ReminderFragmentBinding
 import com.example.reminderly.ui.mainActivity.ICommunication
@@ -74,7 +75,6 @@ class ReminderFragment : Fragment(), View.OnClickListener
         /**navigating from reminders list fragment*/
         if (arguments?.get("reminder") != null) {
             val reminder = arguments?.get("reminder") as Reminder
-            Log.d("DebugTag", "onActivityCreated: ${reminder.createdAt}")
             initViewModel(reminder)
             initViewsFromReminder(reminder)
         } else {
@@ -363,7 +363,9 @@ class ReminderFragment : Fragment(), View.OnClickListener
        )
            .show()
        return
-   }else if(viewModel.reminder.createdAt.timeInMillis <= Calendar.getInstance().timeInMillis){
+   }
+        //todo remove comment
+        /*else if(viewModel.mReminder.createdAt.timeInMillis <= Calendar.getInstance().timeInMillis){
        Toast.makeText(
            requireActivity(),
            getString(R.string.old_date_error),
@@ -371,7 +373,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
        )
            .show()
        return
-   }
+   }*/
 
 
         viewModel.updateText(binding.reminderEditText.text.toString())
@@ -380,8 +382,9 @@ class ReminderFragment : Fragment(), View.OnClickListener
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                {
+                { reminderId->
                     //completed
+                    addAlarm(reminderId,viewModel.getReminder().text)
                     viewModel.resetReminder()
                     requireActivity().onBackPressed()
                 },
@@ -396,6 +399,17 @@ class ReminderFragment : Fragment(), View.OnClickListener
             ))
 
 
+    }
+
+    /**setup alarm manager to trigger NewReminderReceiver on reminder date*/
+    private fun addAlarm(reminderId: Long, reminderText: String) {
+        val notifyIntent = Intent(context, NewReminderReceiver::class.java)
+        val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        notifyIntent.putExtra("reminderId",reminderId)
+        notifyIntent.putExtra("reminderText",reminderText)
+        val notifyPendingIntent = PendingIntent.getBroadcast(context,SystemClock.elapsedRealtime().toInt(), notifyIntent,
+            PendingIntent.FLAG_ONE_SHOT)
+        alarmManager?.setExact(AlarmManager.RTC_WAKEUP,viewModel.getReminder().createdAt.timeInMillis, notifyPendingIntent)
     }
 
 

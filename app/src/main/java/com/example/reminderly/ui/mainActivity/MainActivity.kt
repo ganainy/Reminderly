@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -42,8 +43,6 @@ import kotlinx.android.synthetic.main.app_content.*
 
 
 private val PERSISTENT_CHANNEL_ID = "primary_notification_channel"
-private val REMINDER_CHANNEL_ID = "reminder_notification_channel"
-private val REMINDER_NOTIFICATION_ID = 1
 private val PERSISTENT_NOTIFICATION_ID = 0
 
 class MainActivity : AppCompatActivity(), ICommunication {
@@ -90,6 +89,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
         if ( intent.hasExtra("newReminder")){//user clicked add reminder from notification
             openReminderFragment()
         }
+        
     }
 
     /**show persistent notification to allow user to add reminder if app is closed*/
@@ -154,51 +154,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
             )
     }
 
-    /**show notification to notify user about a reminder*/
-    private fun getReminderNotificationBuilder(reminder: Reminder): NotificationCompat.Builder? {
-
-        /**new reminder pending intent to pass to notification builder action*/
-        val openReminderIntent = Intent(this, MainActivity::class.java)
-        openReminderIntent.putExtra("reminderId",reminder.id)
-        openReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        val openReminderPendingIntent = PendingIntent.getActivity(
-            this,
-            SystemClock.currentThreadTimeMillis().toInt(), openReminderIntent, PendingIntent.FLAG_ONE_SHOT
-        )
-
-
-        return NotificationCompat.Builder(this, REMINDER_CHANNEL_ID)
-            .setContentText(reminder.text)
-            .setSmallIcon(R.drawable.ic_notification_white)
-            .setContentIntent(openReminderPendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setAutoCancel(true)
-
-    }
-
-    private fun sendReminderNotification(reminder: Reminder) {
-        //TODO call this method to show reminder notification
-        mNotifyManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        if (android.os.Build.VERSION.SDK_INT >=
-            android.os.Build.VERSION_CODES.O) {
-            // Create a NotificationChannel
-            val notificationChannel = NotificationChannel(
-                REMINDER_CHANNEL_ID,
-                "Reminder Notification", NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.RED
-            notificationChannel.enableVibration(true)
-            notificationChannel.description = "Notification for certain reminder"
-            mNotifyManager.createNotificationChannel(notificationChannel)
-        }
-
-        val notificationBuilder = getReminderNotificationBuilder(reminder)
-        mNotifyManager.notify(REMINDER_NOTIFICATION_ID, notificationBuilder?.build())
-
-    }
-
+ 
+ 
 
 
 

@@ -100,9 +100,6 @@ class CategoryFragment : BaseFragment() {
                 AndroidSchedulers.mainThread()
             ).subscribe({ dateReminders ->
 
-                Log.d("DebugTag", "getRemindersWithDate: $dateStart")
-                Log.d("DebugTag", "getRemindersWithDate: $dateEnd")
-                Log.d("DebugTag", "getRemindersWithDate: ${dateReminders.size}")
 
                 if (dateReminders.isEmpty()) {
 
