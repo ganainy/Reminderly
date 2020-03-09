@@ -4,7 +4,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -22,7 +24,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.MyUtils
-import com.example.reminderly.broadcast_receivers.NewReminderReceiver
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
 import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
@@ -40,7 +41,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_content.*
 
 
-private val PRIMARY_CHANNEL_ID = "primary_notification_channel"
+private val PERSISTENT_CHANNEL_ID = "primary_notification_channel"
+private val REMINDER_CHANNEL_ID = "reminder_notification_channel"
+private val REMINDER_NOTIFICATION_ID = 1
 private val PERSISTENT_NOTIFICATION_ID = 0
 
 class MainActivity : AppCompatActivity(), ICommunication {
@@ -88,7 +91,28 @@ class MainActivity : AppCompatActivity(), ICommunication {
             openReminderFragment()
         }
     }
-    private fun getNotificationBuilder(todayNotificationCount: Int): NotificationCompat.Builder? {
+
+    /**show persistent notification to allow user to add reminder if app is closed*/
+    private fun sendPersistentNotification(todayNotificationCount: Int) {
+        mNotifyManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if (android.os.Build.VERSION.SDK_INT >=
+            android.os.Build.VERSION_CODES.O
+        ) {
+            // Create a NotificationChannel
+            val notificationChannel = NotificationChannel(
+                PERSISTENT_CHANNEL_ID,
+                "Reminder Persistent Notification", NotificationManager.IMPORTANCE_LOW
+            )
+            notificationChannel.description = "Notification from Reminderly"
+            mNotifyManager.createNotificationChannel(notificationChannel)
+        }
+
+        val notificationBuilder = getPersistentNotificationBuilder(todayNotificationCount)
+        mNotifyManager.notify(PERSISTENT_NOTIFICATION_ID, notificationBuilder?.build())
+
+    }
+
+    private fun getPersistentNotificationBuilder(todayNotificationCount: Int): NotificationCompat.Builder? {
         val notificationButtonText= when (todayNotificationCount) {
             0 ->getString(R.string.add_reminders)
             else->getString(R.string.add_other_reminders)
@@ -116,7 +140,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
             1, contentIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        return NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID)
+        return NotificationCompat.Builder(this, PERSISTENT_CHANNEL_ID)
             .setContentText(notificationText)
             .setSmallIcon(R.drawable.ic_notification_white)
             .setContentIntent(contentPendingIntent)
@@ -130,26 +154,54 @@ class MainActivity : AppCompatActivity(), ICommunication {
             )
     }
 
+    /**show notification to notify user about a reminder*/
+    private fun getReminderNotificationBuilder(reminder: Reminder): NotificationCompat.Builder? {
+
+        /**new reminder pending intent to pass to notification builder action*/
+        val openReminderIntent = Intent(this, MainActivity::class.java)
+        openReminderIntent.putExtra("reminderId",reminder.id)
+        openReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val openReminderPendingIntent = PendingIntent.getActivity(
+            this,
+            SystemClock.currentThreadTimeMillis().toInt(), openReminderIntent, PendingIntent.FLAG_ONE_SHOT
+        )
 
 
-    private fun sendNotification(todayNotificationCount: Int) {
+        return NotificationCompat.Builder(this, REMINDER_CHANNEL_ID)
+            .setContentText(reminder.text)
+            .setSmallIcon(R.drawable.ic_notification_white)
+            .setContentIntent(openReminderPendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setAutoCancel(true)
+
+    }
+
+    private fun sendReminderNotification(reminder: Reminder) {
+        //TODO call this method to show reminder notification
         mNotifyManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (android.os.Build.VERSION.SDK_INT >=
-            android.os.Build.VERSION_CODES.O
-        ) {
+            android.os.Build.VERSION_CODES.O) {
             // Create a NotificationChannel
             val notificationChannel = NotificationChannel(
-                PRIMARY_CHANNEL_ID,
-                "Reminder Persistent Notification", NotificationManager.IMPORTANCE_LOW
+                REMINDER_CHANNEL_ID,
+                "Reminder Notification", NotificationManager.IMPORTANCE_HIGH
             )
-            notificationChannel.description = "Notification from Reminderly"
+            notificationChannel.enableLights(true)
+            notificationChannel.lightColor = Color.RED
+            notificationChannel.enableVibration(true)
+            notificationChannel.description = "Notification for certain reminder"
             mNotifyManager.createNotificationChannel(notificationChannel)
         }
 
-        val notificationBuilder = getNotificationBuilder(todayNotificationCount)
-        mNotifyManager.notify(PERSISTENT_NOTIFICATION_ID, notificationBuilder?.build())
+        val notificationBuilder = getReminderNotificationBuilder(reminder)
+        mNotifyManager.notify(REMINDER_NOTIFICATION_ID, notificationBuilder?.build())
 
     }
+
+
+
+
 
 
     private fun observeDoneReminders() {
@@ -208,7 +260,6 @@ class MainActivity : AppCompatActivity(), ICommunication {
         viewModel =
             ViewModelProvider(this, viewModelFactory).get(MainActivityViewModel::class.java)
     }
-
 
     private fun setupViewPager() {
 
@@ -382,7 +433,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
                 showMenuItem(todayReminders.size, R.id.today, CategoryType.TODAY)
 
-                sendNotification(todayReminders.size)
+                sendPersistentNotification(todayReminders.size)
 
             }, { error ->
                 Toast.makeText(
