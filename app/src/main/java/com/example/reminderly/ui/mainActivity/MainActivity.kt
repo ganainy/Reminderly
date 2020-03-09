@@ -1,5 +1,8 @@
 package com.example.reminderly.ui.mainActivity
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -9,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
@@ -18,6 +22,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.MyUtils
+import com.example.reminderly.broadcast_receivers.NewReminderReceiver
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
 import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
@@ -35,6 +40,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_content.*
 
 
+private val PRIMARY_CHANNEL_ID = "primary_notification_channel"
+private val PERSISTENT_NOTIFICATION_ID = 0
+
 class MainActivity : AppCompatActivity(), ICommunication {
 
     private lateinit var badgeView: TextView
@@ -44,6 +52,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private lateinit var viewPager: ViewPager2
     private lateinit var viewModel: MainActivityViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
+    private lateinit var mNotifyManager: NotificationManager
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,14 +76,81 @@ class MainActivity : AppCompatActivity(), ICommunication {
         //handle add fab click
         binding.appContent.findViewById<FloatingActionButton>(R.id.addReminderFab)
             .setOnClickListener {
-
                 openReminderFragment()
             }
 
+    }
+
+
+    override fun onResume() {
+        super.onResume()
+        if ( intent.hasExtra("newReminder")){//user clicked add reminder from notification
+            openReminderFragment()
+        }
+    }
+    private fun getNotificationBuilder(todayNotificationCount: Int): NotificationCompat.Builder? {
+        val notificationButtonText= when (todayNotificationCount) {
+            0 ->getString(R.string.add_reminders)
+            else->getString(R.string.add_other_reminders)
+        }
+
+        val notificationText = when (todayNotificationCount) {
+            0 ->getString(R.string.no_reminders_today)
+            else->getString(R.string.reminders_today,todayNotificationCount)
+        }
+
+        /**new reminder pending intent to pass to notification builder action*/
+        val newReminderIntent = Intent(this, MainActivity::class.java)
+        newReminderIntent.putExtra("newReminder","")
+        newReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val newReminderPendingIntent = PendingIntent.getActivity(
+            this,
+            0, newReminderIntent, PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        /**open app pending intent to pass to notification builder contentIntent*/
+        val contentIntent = Intent(this, MainActivity::class.java)
+        contentIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val contentPendingIntent = PendingIntent.getActivity(
+            this,
+            1, contentIntent, PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        return NotificationCompat.Builder(this, PRIMARY_CHANNEL_ID)
+            .setContentText(notificationText)
+            .setSmallIcon(R.drawable.ic_notification_white)
+            .setContentIntent(contentPendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true)
+            .setWhen(0)
+            .addAction(
+                R.drawable.ic_add_white,
+                notificationButtonText,
+                newReminderPendingIntent
+            )
+    }
+
+
+
+    private fun sendNotification(todayNotificationCount: Int) {
+        mNotifyManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if (android.os.Build.VERSION.SDK_INT >=
+            android.os.Build.VERSION_CODES.O
+        ) {
+            // Create a NotificationChannel
+            val notificationChannel = NotificationChannel(
+                PRIMARY_CHANNEL_ID,
+                "Reminder Persistent Notification", NotificationManager.IMPORTANCE_LOW
+            )
+            notificationChannel.description = "Notification from Reminderly"
+            mNotifyManager.createNotificationChannel(notificationChannel)
+        }
+
+        val notificationBuilder = getNotificationBuilder(todayNotificationCount)
+        mNotifyManager.notify(PERSISTENT_NOTIFICATION_ID, notificationBuilder?.build())
 
     }
 
-    //github push
 
     private fun observeDoneReminders() {
         disposable.add(
@@ -83,15 +159,15 @@ class MainActivity : AppCompatActivity(), ICommunication {
             ).subscribe({ doneReminderList ->
 
 
-                    showMenuItem(doneReminderList.size, R.id.done,CategoryType.DONE)
+                showMenuItem(doneReminderList.size, R.id.done, CategoryType.DONE)
 
 
             }, { error ->
                 Toast.makeText(
-                    this,
-                    getString(R.string.error_retreiving_reminder),
-                    Toast.LENGTH_SHORT
-                )
+                        this,
+                        getString(R.string.error_retreiving_reminder),
+                        Toast.LENGTH_SHORT
+                    )
                     .show()
             })
         )
@@ -194,7 +270,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
     ) {
         val menuItem = nav_view.menu.findItem(menu_item_id)
 
-        if (remindersLength!=0) {
+        if (remindersLength != 0) {
             menuItem.isVisible = true
             badgeView = menuItem?.actionView?.findViewById(R.id.countTextView)!!
             badgeView.text = remindersLength.toString()
@@ -238,7 +314,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
                     binding.drawerLayout.openDrawer(GravityCompat.START)
                 }
             }
-            R.id.search ->{
+            R.id.search -> {
                 openSearchFragment()
             }
         }
@@ -249,7 +325,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
         val ft = supportFragmentManager.beginTransaction()
         ft.add(
             R.id.fragmentContainer,
-           SearchFragment(),
+            SearchFragment(),
             "searchFragment"
         )
         ft.addToBackStack(null)
@@ -284,14 +360,14 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 AndroidSchedulers.mainThread()
             ).subscribe({ overdueReminders ->
 
-                    showMenuItem(overdueReminders.size, R.id.overdue, CategoryType.OVERDUE)
+                showMenuItem(overdueReminders.size, R.id.overdue, CategoryType.OVERDUE)
 
             }, { error ->
                 Toast.makeText(
-                    this,
-                    getString(R.string.error_retreiving_reminder),
-                    Toast.LENGTH_SHORT
-                )
+                        this,
+                        getString(R.string.error_retreiving_reminder),
+                        Toast.LENGTH_SHORT
+                    )
                     .show()
             })
         )
@@ -304,16 +380,16 @@ class MainActivity : AppCompatActivity(), ICommunication {
             ).subscribe({ todayReminders ->
 
 
-                    showMenuItem(todayReminders.size, R.id.today, CategoryType.TODAY)
+                showMenuItem(todayReminders.size, R.id.today, CategoryType.TODAY)
 
-
+                sendNotification(todayReminders.size)
 
             }, { error ->
                 Toast.makeText(
-                    this,
-                    getString(R.string.error_retreiving_reminder),
-                    Toast.LENGTH_SHORT
-                )
+                        this,
+                        getString(R.string.error_retreiving_reminder),
+                        Toast.LENGTH_SHORT
+                    )
                     .show()
             })
         )
@@ -325,20 +401,19 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 AndroidSchedulers.mainThread()
             ).subscribe({ upcomingReminderList ->
 
-                    showMenuItem(
-                        upcomingReminderList.size,
-                        R.id.upcoming,
-                        CategoryType.UPCOMING
-                    )
-
+                showMenuItem(
+                    upcomingReminderList.size,
+                    R.id.upcoming,
+                    CategoryType.UPCOMING
+                )
 
 
             }, { error ->
                 Toast.makeText(
-                    this,
-                    getString(R.string.error_retreiving_reminder),
-                    Toast.LENGTH_SHORT
-                )
+                        this,
+                        getString(R.string.error_retreiving_reminder),
+                        Toast.LENGTH_SHORT
+                    )
                     .show()
             })
         )
@@ -348,6 +423,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
         super.onStop()
         disposable.clear()
     }
+
 
 
     /**this method called from fragments to lock/unlock drawer*/
@@ -361,6 +437,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
     override fun showReminderFragment(reminder: Reminder) {
         openReminderFragment(reminder)
     }
+
+
 
 }
 

@@ -73,6 +73,12 @@
 
     <string name="date_reminders"> تذكيرات %1$s</string>
     <string name="no_reminder_search">لا يوجد تذكيرات تناسب بحثك</string>
+    <string name="old_date_error">يجب ان يكون تاريخ التذكير فى المستقبل</string>
+    <string name="add_reminders">أضف تذكيرات</string>
+    <string name="no_reminders_today">ليس لديك اى تذكيرات اليوم</string>
+    <string name="reminders_today">لديك %1$d تذكير اليوم</string>
+    <string name="reminderly">تذكيراتي</string>
+    <string name="add_other_reminders">اضف تذكيرات اخري</string>
 
 
 </resources>

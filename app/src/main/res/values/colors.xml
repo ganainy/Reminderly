@@ -7,7 +7,7 @@
     <color name="fragmentBackground">#BBBABA</color>
   <color name="white">#FFFFFF</color>
   <color name="grey">#8F8F8F</color>
-
+    <color name="transparent_grey">#598F8F8F</color>
 
 
 </resources>

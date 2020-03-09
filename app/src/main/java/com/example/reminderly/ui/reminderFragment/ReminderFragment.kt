@@ -363,6 +363,14 @@ class ReminderFragment : Fragment(), View.OnClickListener
        )
            .show()
        return
+   }else if(viewModel.reminder.createdAt.timeInMillis <= Calendar.getInstance().timeInMillis){
+       Toast.makeText(
+           requireActivity(),
+           getString(R.string.old_date_error),
+           Toast.LENGTH_SHORT
+       )
+           .show()
+       return
    }
 
 
