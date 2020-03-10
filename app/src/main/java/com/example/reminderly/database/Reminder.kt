@@ -23,6 +23,7 @@ data class Reminder(
     var notifyAdvUnit: Int = 0,
     var isFavorite: Boolean = false,
     var isDone: Boolean = false,
+    var requestCode: Int = -1, //used to give each reminder unique pending intent for alarm , unique notification id
     @Ignore //used to add fake items to reminder list to be shown as Headers
     var header: Int = 0
 
@@ -39,6 +40,7 @@ data class Reminder(
         notifyAdvUnit = 0
         isDone=false
         isFavorite = false
+        requestCode=-1
     }
 
 }

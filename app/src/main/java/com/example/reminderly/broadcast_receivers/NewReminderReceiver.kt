@@ -8,10 +8,13 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.SystemClock
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
 
 
 private val REMINDER_CHANNEL_ID = "reminder_notification_channel"
@@ -22,14 +25,12 @@ class NewReminderReceiver : BroadcastReceiver() {
 
     override fun onReceive( context: Context, intent: Intent) {
         val reminderId = intent.getLongExtra("reminderId",-1L)
-        val reminderText = intent.getStringExtra("reminderText")
-        sendReminderNotification(reminderId,reminderText,context)
+        setupNotificationChannel(reminderId,context)
     }
 
     /**show notification to notify user about a reminder*/
-    private fun sendReminderNotification(
+    private fun setupNotificationChannel(
         reminderId: Long,
-        reminderText: String?,
         context: Context
     ) {
         mNotifyManager = context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
@@ -47,43 +48,49 @@ class NewReminderReceiver : BroadcastReceiver() {
             mNotifyManager.createNotificationChannel(notificationChannel)
         }
 
-        /**Create notification with unique id so we can cancel it later*/
-        val notificationId=  SystemClock.currentThreadTimeMillis().toInt()
-        val notificationBuilder = getReminderNotificationBuilder(reminderId,reminderText,notificationId,context)
-        mNotifyManager.notify(notificationId, notificationBuilder?.build())
+        sendReminderNotification(reminderId,context)
 
     }
 
 
-    private fun getReminderNotificationBuilder(
+    /**Create notification with unique id so we can cancel it later*/
+    private fun sendReminderNotification(
         reminderId: Long,
-        reminderText: String?,
-        notificationId: Int,
         context: Context
-    ): NotificationCompat.Builder? {
+    ) {
 
-        /**new reminder pending intent to pass to notification builder action*/
+        //new reminder pending intent to pass to notification builder action
         val endReminderIntent = Intent(context, DoneReminderReceiver::class.java)
         endReminderIntent.putExtra("reminderId",reminderId)
-        endReminderIntent.putExtra("notificationId",notificationId)
         endReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val endReminderPendingIntent = PendingIntent.getBroadcast(
             context,
             SystemClock.currentThreadTimeMillis().toInt(), endReminderIntent, PendingIntent.FLAG_ONE_SHOT
         )
 
+        //get reminder text using reminder id
+        val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
+        reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+            .subscribe(Consumer { reminder ->
+                val notificationBuilder = NotificationCompat.Builder(context, REMINDER_CHANNEL_ID)
+                    .setContentText(reminder.text)
+                    .setSmallIcon(R.drawable.ic_notification_white)
+                    .addAction(
+                        R.drawable.ic_done_white,
+                        context.getString(R.string.end_reminder),
+                        endReminderPendingIntent
+                    )
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setDefaults(NotificationCompat.DEFAULT_ALL)
+                    .setAutoCancel(true)
+                mNotifyManager.notify(reminder.requestCode, notificationBuilder?.build())
 
-        return NotificationCompat.Builder(context, REMINDER_CHANNEL_ID)
-            .setContentText(reminderText)
-            .setSmallIcon(R.drawable.ic_notification_white)
-            .addAction(
-                R.drawable.ic_done_white,
-                context.getString(R.string.end_reminder),
-                endReminderPendingIntent
-            )
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setAutoCancel(true)
+            })
+
+
+
+
+
     }
 
 

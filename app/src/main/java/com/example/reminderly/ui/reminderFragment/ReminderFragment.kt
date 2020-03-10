@@ -8,7 +8,6 @@ import android.os.SystemClock
 import android.provider.ContactsContract
 import android.speech.RecognizerIntent
 import android.text.util.Linkify
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -72,13 +71,12 @@ class ReminderFragment : Fragment(), View.OnClickListener
         super.onActivityCreated(savedInstanceState)
 
 
-        /**navigating from reminders list fragment*/
-        if (arguments?.get("reminder") != null) {
+        if (arguments?.get("reminder") != null) {  //navigating from reminders list fragment
             val reminder = arguments?.get("reminder") as Reminder
             initViewModel(reminder)
             initViewsFromReminder(reminder)
-        } else {
-            initViewModel(Reminder())
+        } else {//creating new reminder
+            initViewModel()
             initViewsDefaults()
         }
 
@@ -143,7 +141,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
         binding.keyboardImage.setOnClickListener(this)
     }
 
-    private fun initViewModel(reminder: Reminder) {
+    private fun initViewModel(reminder: Reminder=Reminder()) {
         val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
         viewModelFactory =
             ReminderViewModelFactory(requireActivity().application, reminder, reminderDatabaseDao)
@@ -374,9 +372,10 @@ class ReminderFragment : Fragment(), View.OnClickListener
            .show()
        return
    }*/
-
+        val pendingIntentRequestCode=SystemClock.elapsedRealtime().toInt()
 
         viewModel.updateText(binding.reminderEditText.text.toString())
+        viewModel.updateReminderRequstCode(pendingIntentRequestCode)
 
         disposable.add(viewModel.saveReminder()
             .subscribeOn(Schedulers.io())
@@ -384,7 +383,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
             .subscribe(
                 { reminderId->
                     //completed
-                    addAlarm(reminderId,viewModel.getReminder().text)
+                    addAlarm(reminderId,pendingIntentRequestCode)
                     viewModel.resetReminder()
                     requireActivity().onBackPressed()
                 },
@@ -402,13 +401,15 @@ class ReminderFragment : Fragment(), View.OnClickListener
     }
 
     /**setup alarm manager to trigger NewReminderReceiver on reminder date*/
-    private fun addAlarm(reminderId: Long, reminderText: String) {
+    private fun addAlarm(
+        reminderId: Long,
+        pendingIntentRequestCode: Int
+    ) {
         val notifyIntent = Intent(context, NewReminderReceiver::class.java)
-        val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
         notifyIntent.putExtra("reminderId",reminderId)
-        notifyIntent.putExtra("reminderText",reminderText)
-        val notifyPendingIntent = PendingIntent.getBroadcast(context,SystemClock.elapsedRealtime().toInt(), notifyIntent,
+        val notifyPendingIntent = PendingIntent.getBroadcast(context,pendingIntentRequestCode, notifyIntent,
             PendingIntent.FLAG_ONE_SHOT)
+        val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
         alarmManager?.setExact(AlarmManager.RTC_WAKEUP,viewModel.getReminder().createdAt.timeInMillis, notifyPendingIntent)
     }
 

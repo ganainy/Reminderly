@@ -44,7 +44,7 @@ interface ReminderDatabaseDao {
 
 
     @Query("SELECT * FROM reminder_table WHERE id=:id")
-    fun getReminderByID(id: Long): Maybe<Reminder>
+    fun getReminderById(id: Long): Maybe<Reminder>
 
     @Query("DELETE FROM reminder_table WHERE id==:id")
     fun deleteReminderById(id: String?)
