@@ -11,17 +11,18 @@ import java.util.*
 
 class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):ViewModel() {
 
-    /**millis of the begging of next today so we can get any reminders after that (upcoming reminders)*/
+    /**millis of the end of today so we can get any reminders after that (upcoming reminders)*/
     private val nextDayMillis:Long
         get() {
           return  Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY,0)
-                set(Calendar.MINUTE,0)
-                set(Calendar.SECOND,0)
-                add(Calendar.DAY_OF_MONTH,1)
+                set(Calendar.HOUR_OF_DAY,23)
+                set(Calendar.MINUTE,59)
+                set(Calendar.SECOND,59)
+              set(Calendar.MILLISECOND,999)
 
             }.timeInMillis
         }
+
 
     /**millis of the begging of today so we can get any reminders before that (overdue reminders)*/
     private val todayMillis:Long
@@ -30,6 +31,7 @@ class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):V
                 set(Calendar.HOUR_OF_DAY,0)
                 set(Calendar.MINUTE,0)
                 set(Calendar.SECOND,0)
+                set(Calendar.MILLISECOND,0)
 
             }.timeInMillis
         }
@@ -64,8 +66,5 @@ class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):V
         return database.getDayReminders(dateStart.timeInMillis,dateEnd.timeInMillis)
     }
 
-    override fun onCleared() {
-        super.onCleared()
-    }
 
 }

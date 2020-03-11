@@ -23,6 +23,7 @@ import com.example.footy.database.ReminderDatabase
 import com.example.ourchat.ui.chat.ReminderAdapter
 import com.example.ourchat.ui.chat.ReminderClickListener
 import com.example.reminderly.R
+import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.ui.mainActivity.ICommunication
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -129,7 +130,10 @@ open class BaseFragment : Fragment() {
     private fun deleteReminder(reminder: Reminder) {
         disposable.add(viewModel.deleteReminder(reminder).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe( { Toast.makeText(context,getString(R.string.reminder_deleted), Toast.LENGTH_SHORT).show() },{
+            .subscribe( { Toast.makeText(context,getString(R.string.reminder_deleted), Toast.LENGTH_SHORT).show()
+                //cancel alarm of this reminder
+                MyUtils.cancelAlarm(reminder.id,context)
+            },{
                     error->
                 (Toast.makeText(context,getString(R.string.reminder_delete_failed), Toast.LENGTH_SHORT).show())
             }))
@@ -290,12 +294,12 @@ open class BaseFragment : Fragment() {
         disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                Toast.makeText(
-                    requireActivity(),
-                    getString(R.string.reminder_postponed),
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+                //cancel old alarm
+                MyUtils.cancelAlarm(reminder.id,context)
+                //get updated reminder date and set new alarm
+                MyUtils.addAlarm(reminder.id,context,reminder.createdAt.timeInMillis)
+
+                Toast.makeText(requireActivity(), getString(R.string.reminder_postponed), Toast.LENGTH_SHORT).show()
             })
     }
 
@@ -305,12 +309,8 @@ open class BaseFragment : Fragment() {
         disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                Toast.makeText(
-                    requireActivity(),
-                    getString(R.string.marked_as_done),
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+                MyUtils.cancelAlarm(reminder.id,context)
+                Toast.makeText(requireActivity(), getString(R.string.marked_as_done), Toast.LENGTH_SHORT).show()
             })
     }
 

@@ -37,6 +37,7 @@ import java.util.*
 const val SPEECH_TO_TEXT_CODE = 1
 const val SELECT_PHONE_NUMBER = 2
 
+/**used to create new reminders or edit existing ones*/
 class ReminderFragment : Fragment(), View.OnClickListener
 {
 
@@ -383,7 +384,10 @@ class ReminderFragment : Fragment(), View.OnClickListener
             .subscribe(
                 { reminderId->
                     //completed
-                    MyUtils.addAlarm(reminderId,context,viewModel.getReminder().createdAt.timeInMillis)
+                    //cancel old existing alarm(this might be the case if iam modifying existing reminder)
+                    MyUtils.cancelAlarm(viewModel.getReminder().id,context)
+                    //get updated reminder date and set new alarm
+                    MyUtils.addAlarm(viewModel.getReminder().id,context,viewModel.getReminder().createdAt.timeInMillis)
                     viewModel.resetReminder()
                     requireActivity().onBackPressed()
                 },
