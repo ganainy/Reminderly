@@ -80,6 +80,7 @@
     <string name="reminderly">تذكيراتي</string>
     <string name="add_other_reminders">اضف تذكيرات اخري</string>
     <string name="end_reminder">إنهاء التذكير</string>
+    <string name="delay_reminder">تأجيل التذكير</string>
 
 
 </resources>

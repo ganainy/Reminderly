@@ -85,9 +85,7 @@ class ReminderViewModel(
         mReminder.resetToDefaults()
     }
 
-    fun updateReminderRequstCode(pendingIntentRequestCode: Int) {
-        mReminder.requestCode=pendingIntentRequestCode
-    }
+
 
 
 }

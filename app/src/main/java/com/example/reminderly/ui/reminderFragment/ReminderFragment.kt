@@ -372,10 +372,10 @@ class ReminderFragment : Fragment(), View.OnClickListener
            .show()
        return
    }*/
-        val pendingIntentRequestCode=SystemClock.elapsedRealtime().toInt()
+
 
         viewModel.updateText(binding.reminderEditText.text.toString())
-        viewModel.updateReminderRequstCode(pendingIntentRequestCode)
+
 
         disposable.add(viewModel.saveReminder()
             .subscribeOn(Schedulers.io())
@@ -383,7 +383,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
             .subscribe(
                 { reminderId->
                     //completed
-                    addAlarm(reminderId,pendingIntentRequestCode)
+                    MyUtils.addAlarm(reminderId,context,viewModel.getReminder().createdAt.timeInMillis)
                     viewModel.resetReminder()
                     requireActivity().onBackPressed()
                 },
@@ -400,18 +400,6 @@ class ReminderFragment : Fragment(), View.OnClickListener
 
     }
 
-    /**setup alarm manager to trigger NewReminderReceiver on reminder date*/
-    private fun addAlarm(
-        reminderId: Long,
-        pendingIntentRequestCode: Int
-    ) {
-        val notifyIntent = Intent(context, NewReminderReceiver::class.java)
-        notifyIntent.putExtra("reminderId",reminderId)
-        val notifyPendingIntent = PendingIntent.getBroadcast(context,pendingIntentRequestCode, notifyIntent,
-            PendingIntent.FLAG_ONE_SHOT)
-        val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-        alarmManager?.setExact(AlarmManager.RTC_WAKEUP,viewModel.getReminder().createdAt.timeInMillis, notifyPendingIntent)
-    }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

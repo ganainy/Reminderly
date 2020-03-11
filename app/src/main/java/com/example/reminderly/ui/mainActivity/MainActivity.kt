@@ -89,6 +89,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
         if ( intent.hasExtra("newReminder")){//user clicked add reminder from notification
             openReminderFragment()
         }
+
         
     }
 

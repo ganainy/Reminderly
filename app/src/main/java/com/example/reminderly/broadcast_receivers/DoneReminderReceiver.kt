@@ -19,17 +19,18 @@ class DoneReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         val reminderId = intent.extras?.get("reminderId") as? Long
-        val mNotifyManager =
-            context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
 
-        /**get reminder by id and set it to done*/
+
         val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
         reminderId?.let { reminderId ->
+            //cancel notification
+            (context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager)
+                .cancel(reminderId.toInt())
+            //get reminder by id and set it to done
             reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io()).observeOn(
                 AndroidSchedulers.mainThread()
             ).subscribe { reminder ->
                 reminder.isDone = true
-                mNotifyManager.cancel(reminder.requestCode)
                 reminderDatabaseDao.update(reminder).subscribeOn(Schedulers.io()).observeOn(
                     AndroidSchedulers.mainThread()
                 ).subscribe(object : CompletableObserver {

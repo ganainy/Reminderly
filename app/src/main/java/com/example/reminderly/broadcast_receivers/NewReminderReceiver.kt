@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
+import com.example.reminderly.ui.postpone_activity.PostponeActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
@@ -58,20 +59,29 @@ class NewReminderReceiver : BroadcastReceiver() {
         reminderId: Long,
         context: Context
     ) {
-
-        //new reminder pending intent to pass to notification builder action
+        
+        //postpone reminder pending to pass to notification builder as action
+        val postponeReminderIntent = Intent(context, PostponeActivity::class.java)
+        postponeReminderIntent.putExtra("reminderId",reminderId)
+        postponeReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val postponeReminderPendingIntent = PendingIntent.getActivity(
+            context,
+            reminderId.toInt(), postponeReminderIntent, PendingIntent.FLAG_ONE_SHOT
+        )
+        
+        //new reminder pending intent to pass to notification builder as action
         val endReminderIntent = Intent(context, DoneReminderReceiver::class.java)
         endReminderIntent.putExtra("reminderId",reminderId)
         endReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val endReminderPendingIntent = PendingIntent.getBroadcast(
             context,
-            SystemClock.currentThreadTimeMillis().toInt(), endReminderIntent, PendingIntent.FLAG_ONE_SHOT
+            reminderId.toInt(), endReminderIntent, PendingIntent.FLAG_ONE_SHOT
         )
 
         //get reminder text using reminder id
         val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
         reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-            .subscribe(Consumer { reminder ->
+            .subscribe { reminder ->
                 val notificationBuilder = NotificationCompat.Builder(context, REMINDER_CHANNEL_ID)
                     .setContentText(reminder.text)
                     .setSmallIcon(R.drawable.ic_notification_white)
@@ -80,12 +90,17 @@ class NewReminderReceiver : BroadcastReceiver() {
                         context.getString(R.string.end_reminder),
                         endReminderPendingIntent
                     )
+                    .addAction(
+                        R.drawable.ic_access_time_white
+                    ,context.getString(R.string.delay_reminder)
+                    ,postponeReminderPendingIntent
+                    )
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setDefaults(NotificationCompat.DEFAULT_ALL)
                     .setAutoCancel(true)
-                mNotifyManager.notify(reminder.requestCode, notificationBuilder?.build())
+                mNotifyManager.notify(reminder.id.toInt(), notificationBuilder?.build())
 
-            })
+            }
 
 
 

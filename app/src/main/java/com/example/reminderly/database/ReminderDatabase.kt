@@ -31,7 +31,7 @@ import com.example.reminderly.database.converters.CalendarConverter
  * This pattern is pretty much the same for any database,
  * so you can reuse it.
  */
-@Database(entities = [Reminder::class], version = 5, exportSchema = false)
+@Database(entities = [Reminder::class], version = 7, exportSchema = false)
 @TypeConverters(CalendarConverter::class)
 abstract class ReminderDatabase : RoomDatabase() {
 

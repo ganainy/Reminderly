@@ -1,8 +1,12 @@
 package com.example.reminderly.Utils
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import com.example.reminderly.broadcast_receivers.NewReminderReceiver
 import com.example.reminderly.database.Reminder
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import java.text.SimpleDateFormat
@@ -163,6 +167,39 @@ class MyUtils {
         }
 
 
+
+
+        /**---------------------------alarm manager----------------------------------------*/
+
+        /**setup alarm manager to trigger NewReminderReceiver on reminder date*/
+         fun addAlarm(
+            reminderId: Long,
+            context: Context?,
+            timeInMillis:Long
+        ) {
+            val notifyIntent = Intent(context, NewReminderReceiver::class.java)
+            notifyIntent.putExtra("reminderId",reminderId)
+            val notifyPendingIntent = PendingIntent.getBroadcast(context,reminderId.toInt(), notifyIntent,
+                PendingIntent.FLAG_ONE_SHOT)
+            val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+            if (android.os.Build.VERSION.SDK_INT >=
+                android.os.Build.VERSION_CODES.M
+            ){
+                alarmManager?.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,timeInMillis, notifyPendingIntent)
+            }else{
+                alarmManager?.setExact(AlarmManager.RTC_WAKEUP,timeInMillis, notifyPendingIntent)
+            }
+        }
+
+        fun cancelAlarm(reminderId: Long,
+                        context: Context?){
+            val notifyIntent = Intent(context, NewReminderReceiver::class.java)
+            notifyIntent.putExtra("reminderId",reminderId)
+            val notifyPendingIntent = PendingIntent.getBroadcast(context,reminderId.toInt(), notifyIntent,
+                PendingIntent.FLAG_ONE_SHOT)
+            val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+            alarmManager?.cancel(notifyPendingIntent)
+        }
 
 
     }
