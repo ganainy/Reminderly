@@ -387,7 +387,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
                     //cancel old existing alarm(this might be the case if iam modifying existing reminder)
                     MyUtils.cancelAlarm(viewModel.getReminder().id,context)
                     //get updated reminder date and set new alarm
-                    MyUtils.addAlarm(viewModel.getReminder().id,context,viewModel.getReminder().createdAt.timeInMillis)
+                    MyUtils.addAlarm(reminderId,context,viewModel.getReminder().createdAt.timeInMillis)
                     viewModel.resetReminder()
                     requireActivity().onBackPressed()
                 },

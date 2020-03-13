@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import com.example.reminderly.broadcast_receivers.NewReminderReceiver
@@ -177,10 +178,12 @@ class MyUtils {
             context: Context?,
             timeInMillis:Long
         ) {
+            Log.d("DebugTag", "addAlarm: ${reminderId} ,,, $timeInMillis")
+
             val notifyIntent = Intent(context, NewReminderReceiver::class.java)
             notifyIntent.putExtra("reminderId",reminderId)
             val notifyPendingIntent = PendingIntent.getBroadcast(context,reminderId.toInt(), notifyIntent,
-                PendingIntent.FLAG_ONE_SHOT)
+                PendingIntent.FLAG_UPDATE_CURRENT)
             val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
             if (android.os.Build.VERSION.SDK_INT >=
                 android.os.Build.VERSION_CODES.M
@@ -188,7 +191,7 @@ class MyUtils {
                 alarmManager?.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,timeInMillis, notifyPendingIntent)
             }else{
                 alarmManager?.setExact(AlarmManager.RTC_WAKEUP,timeInMillis, notifyPendingIntent)
-            }
+          }
         }
 
         fun cancelAlarm(reminderId: Long,
