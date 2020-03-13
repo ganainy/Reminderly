@@ -18,7 +18,6 @@ import com.afollestad.materialdialogs.bottomsheets.BottomSheet
 import com.afollestad.materialdialogs.bottomsheets.gridItems
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
-import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.footy.database.ReminderDatabase
 import com.example.ourchat.ui.chat.ReminderAdapter
 import com.example.ourchat.ui.chat.ReminderClickListener
@@ -29,7 +28,6 @@ import com.example.reminderly.ui.mainActivity.ICommunication
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import java.util.*
 
 
 open class BaseFragment : Fragment() {
@@ -81,15 +79,18 @@ open class BaseFragment : Fragment() {
                 adapter.notifyItemChanged(position)
             }
 
-            override fun onMenuClick(reminder: Reminder) {
+            override fun onMenuClick(reminder: Reminder,position: Int) {
 
-                showOptionsSheet(reminder)
+                showOptionsSheet(reminder,position)
             }
 
         })
     }
 
-    private fun showOptionsSheet(reminder: Reminder) {
+    private fun showOptionsSheet(
+        reminder: Reminder,
+        position: Int
+    ) {
         val items = listOf(
             BasicGridItem(R.drawable.ic_check_grey, getString(R.string.done)),
             BasicGridItem(R.drawable.ic_access_time_grey, getString(R.string.postpone)),
@@ -107,7 +108,7 @@ open class BaseFragment : Fragment() {
                         handleDoneClick(reminder)
                     }
                     1 -> {
-                        postponeReminder(reminder)
+                        postponeReminder(reminder,position)
                     }
                     2 -> {
                         editReminder(reminder)
@@ -168,40 +169,11 @@ open class BaseFragment : Fragment() {
         (requireActivity() as? ICommunication)?.showReminderFragment(reminder)
     }
 
-    private fun postponeReminder(reminder: Reminder) {
 
-        MaterialDialog(requireContext()).show {
-            listItemsSingleChoice(
-                R.array.postpone_items,
-                initialSelection = 0
-            ) { dialog, index, text ->
-                // Invoked when the user selects an item
-                when (index) {
-                    0 -> {
-                        postpone(reminder, 5)
-                    }
-                    1 -> {
-                        postpone(reminder, 15)
-                    }
-                    2 -> {
-                        postpone(reminder, 30)
-                    }
-                    3 -> {
-                        postpone(reminder, 60)
-                    }
-                    4 -> showCustomPostponeDialog(reminder)
-                }
-
-            }
-            positiveButton(R.string.confirm)
-            negativeButton(R.string.cancel)
-            title(0, getString(R.string.postpone_time))
-
-        }
-
-    }
-
-    private fun showCustomPostponeDialog(reminder: Reminder) {
+    private fun postponeReminder(
+        reminder: Reminder,
+        position: Int
+    ) {
 
         //those variables to reflect the change in pickers
         var minute = 0
@@ -212,19 +184,21 @@ open class BaseFragment : Fragment() {
         val dialog = MaterialDialog(requireContext()).show {
             customView(R.layout.custom_postpone_dialog)
             positiveButton(R.string.confirm) {
-                /**On confirm click will first check if user postponed at least one min */
-                if (minute + hour + day == 0) {
-                    Toast.makeText(
-                        requireActivity(),
-                        getString(R.string.atleast_one_minute),
-                        Toast.LENGTH_LONG
-                    )
-                        .show()
-                    return@positiveButton
+
+               val postponedReminder= MyUtils.postponeReminder(reminder,context, day, hour,minute )
+                if (postponedReminder==null){
+                    //postpone failed do nothing
+                }else{
+                    disposable.add(viewModel.updateReminder(postponedReminder).subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            // set alarm
+                            MyUtils.addAlarm(reminder.id,context,reminder.createdAt.timeInMillis,reminder.repeat)
+                            adapter.notifyItemChanged(position)
+
+                            Toast.makeText(requireActivity(), getString(R.string.reminder_postponed), Toast.LENGTH_SHORT).show()
+                        })
                 }
-
-
-                postpone(reminder, minute, hour, day)
 
 
             }
@@ -263,45 +237,6 @@ open class BaseFragment : Fragment() {
     }
 
 
-    private fun postpone(reminder: Reminder, minute: Int, hour: Int = 0, day: Int = 0) {
-
-        /** will check that the new reminder date is bigger than current date; because its useless
-         *  to postpone reminder to a previous date*/
-
-        reminder.createdAt.apply {
-            add(Calendar.MINUTE, minute)
-            add(Calendar.HOUR_OF_DAY, hour)
-            add(Calendar.DAY_OF_MONTH, day)
-        }
-
-
-        if (reminder.createdAt.before(Calendar.getInstance())) {
-            Toast.makeText(
-                requireActivity(),
-                getString(R.string.must_be_upcoming_date),
-                Toast.LENGTH_LONG
-            )
-                .show()
-            /*reminder should return to original value since update won't be saved*/
-            reminder.createdAt.apply {
-                add(Calendar.MINUTE, -minute)
-                add(Calendar.HOUR_OF_DAY, -hour)
-                add(Calendar.DAY_OF_MONTH, -day)
-            }
-            return
-        }
-
-        disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                //cancel old alarm
-                MyUtils.cancelAlarm(reminder.id,context)
-                //get updated reminder date and set new alarm
-                MyUtils.addAlarm(reminder.id,context,reminder.createdAt.timeInMillis)
-
-                Toast.makeText(requireActivity(), getString(R.string.reminder_postponed), Toast.LENGTH_SHORT).show()
-            })
-    }
 
 
     private fun handleDoneClick(reminder: Reminder) {

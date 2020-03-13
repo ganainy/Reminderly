@@ -1,10 +1,8 @@
 package com.example.reminderly.ui.reminderFragment
 
 import android.app.*
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.SystemClock
 import android.provider.ContactsContract
 import android.speech.RecognizerIntent
 import android.text.util.Linkify
@@ -24,7 +22,6 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.MyUtils
-import com.example.reminderly.broadcast_receivers.NewReminderReceiver
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ReminderFragmentBinding
 import com.example.reminderly.ui.mainActivity.ICommunication
@@ -383,11 +380,9 @@ class ReminderFragment : Fragment(), View.OnClickListener
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { reminderId->
-                    //completed
-                    //cancel old existing alarm(this might be the case if iam modifying existing reminder)
-                    MyUtils.cancelAlarm(viewModel.getReminder().id,context)
-                    //get updated reminder date and set new alarm
-                    MyUtils.addAlarm(reminderId,context,viewModel.getReminder().createdAt.timeInMillis)
+                    // set alarm
+                    MyUtils.addAlarm(reminderId,context,viewModel.getReminder().createdAt.timeInMillis,viewModel.getReminder().repeat)
+
                     viewModel.resetReminder()
                     requireActivity().onBackPressed()
                 },

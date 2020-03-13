@@ -32,7 +32,7 @@
     <string name="days">أيام</string>
     <string name="weeks">اسابيع</string>
     <string name="text_empty">لا يمكن حفظ تذكير فارغ</string>
-    <string name="something_went_wrong">حدث خطأ اثناء استعاده البيانات</string>
+    <string name="something_went_wrong">حدث خطأ اثناء العملية</string>
     <string name="error_saving_reminder">خطأ اثناء حفظ التذكير</string>
     <string name="overdue">تذكيرات فائتة</string>
     <string name="today">تذكيرات اليوم</string>
@@ -81,6 +81,7 @@
     <string name="add_other_reminders">اضف تذكيرات اخري</string>
     <string name="end_reminder">إنهاء التذكير</string>
     <string name="delay_reminder">تأجيل التذكير</string>
+    <string name="reminder_in_future_error">*تأكد ان تاريخ التذكير بعد التأجيل اكبر من الوقت الحالي</string>
 
 
 </resources>

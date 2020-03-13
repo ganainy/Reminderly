@@ -8,6 +8,7 @@
 
     <NumberPicker
         android:id="@+id/minutePicker"
+        android:theme="@style/AppTheme.Picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -18,6 +19,7 @@
     <NumberPicker
         android:id="@+id/hourPicker"
         android:layout_width="wrap_content"
+        android:theme="@style/AppTheme.Picker"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@+id/minutePicker"
         app:layout_constraintHorizontal_bias="0.5"
@@ -26,6 +28,7 @@
 
     <NumberPicker
         android:id="@+id/dayPicker"
+        android:theme="@style/AppTheme.Picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@+id/hourPicker"

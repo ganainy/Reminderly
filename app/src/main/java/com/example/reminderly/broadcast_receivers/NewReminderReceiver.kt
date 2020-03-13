@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.SystemClock
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.footy.database.ReminderDatabase
@@ -20,6 +21,7 @@ import io.reactivex.schedulers.Schedulers
 
 private val REMINDER_CHANNEL_ID = "reminder_notification_channel"
 
+/**triggered by alarm manager to show notification when reminder time comes*/
 class NewReminderReceiver : BroadcastReceiver() {
 
     private lateinit var mNotifyManager: NotificationManager
@@ -29,7 +31,7 @@ class NewReminderReceiver : BroadcastReceiver() {
         setupNotificationChannel(reminderId,context)
     }
 
-    /**show notification to notify user about a reminder*/
+
     private fun setupNotificationChannel(
         reminderId: Long,
         context: Context

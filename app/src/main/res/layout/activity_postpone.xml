@@ -4,6 +4,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dialog"
     android:layout_gravity="center"
     android:layout_width="match_parent"
@@ -14,7 +15,6 @@
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     android:background="@color/white"
-    app:layout_constraintHorizontal_bias="0.5"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
@@ -28,66 +28,48 @@
         android:text="تأجيل لمدة.."
         android:textSize="18sp"/>
 
-    <RadioGroup
-        app:layout_constraintTop_toBottomOf="@id/header"
-        android:id="@+id/radioGroup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+   <include
+       layout="@layout/custom_postpone_dialog"
+       android:id="@+id/custom_postpone_dialog"
+       android:layout_height="wrap_content"
+       android:layout_width="match_parent"
+       app:layout_constraintBottom_toTopOf="@id/error_text"
+       app:layout_constraintTop_toBottomOf="@id/header"
+       android:layout_marginBottom="16dp"
+       />
 
-        <RadioButton
-            android:buttonTint="@color/grey"
-            android:id="@+id/radio_five"
-            android:textColor="@color/primaryTextColor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="خمس دقائق" />
 
-        <RadioButton
-            android:buttonTint="@color/grey"
-            android:id="@+id/radio_fiften"
-            android:textColor="@color/primaryTextColor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="15 دقيقة" />
-
-        <RadioButton
-            android:buttonTint="@color/grey"
-            android:id="@+id/radio_thirty"
-            android:textColor="@color/primaryTextColor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="30 دقيقة" />
-
-        <RadioButton
-            android:buttonTint="@color/grey"
-            android:id="@+id/radio_hour"
-            android:textColor="@color/primaryTextColor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ساعة" />
-
-    </RadioGroup>
-
+    <TextView
+        android:id="@+id/error_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reminder_in_future_error"
+        android:textColor="@color/red"
+        app:layout_constraintBottom_toTopOf="@+id/postponeButton"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/custom_postpone_dialog" />
 
     <Button
         android:id="@+id/postponeButton"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="تأجيل"
+        android:background="@android:color/transparent"
+        android:textColor="@color/primaryColor"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/cancelButton"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup"></Button>
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <Button
         android:id="@+id/cancelButton"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:textColor="@color/primaryColor"
         android:text="إلغاء"
         app:layout_constraintEnd_toStartOf="@+id/postponeButton"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup"></Button>
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

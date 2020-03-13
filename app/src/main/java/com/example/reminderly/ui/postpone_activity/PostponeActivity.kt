@@ -1,21 +1,17 @@
 package com.example.reminderly.ui.postpone_activity
 
-import android.app.Activity
-import android.app.NotificationManager
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
-import com.example.reminderly.ui.mainActivity.MainActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -36,30 +32,73 @@ class PostponeActivity : AppCompatActivity() {
 
         initViewModel()
 
+        val (dayPicker, hourPicker, minutePicker) = setupNumberPickers()
+
         //get id of the reminder which will be postponed (passed from notification pending intent)
         val reminderId = intent.getLongExtra("reminderId", -1L)
 
-        //cancel notification
-        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
-            .cancel(reminderId.toInt())
 
         disposable.add(
-        viewModel.getReminderById(reminderId).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-            .subscribe{reminder ->
-                postponeButton.setOnClickListener {
-                    when( radioGroup.checkedRadioButtonId){
-                        R.id.radio_five -> postpone(reminder,minute=5)
-                        R.id.radio_fiften -> postpone(reminder,minute=15)
-                        R.id.radio_thirty -> postpone(reminder,minute=30)
-                        R.id.radio_hour -> postpone(reminder,minute=60)
+            viewModel.getReminderById(reminderId).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { reminder ->
+                    postponeButton.setOnClickListener {
+                        val postponedReminder = MyUtils.postponeReminder(
+                            reminder,
+                            applicationContext,
+                            dayPicker.value,
+                            hourPicker.value,
+                            minutePicker.value
+                        )
+
+                        if (postponedReminder == null) {
+                            //postpone failed show error
+                            error_text.visibility= View.VISIBLE
+                        } else {
+                            error_text.visibility= View.GONE
+                            //update reminder with new postponed date
+                            disposable.add(viewModel.updateReminder(postponedReminder)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe {
+                                    // set alarm
+                                    MyUtils.addAlarm(
+                                        reminder.id,
+                                        applicationContext,
+                                        reminder.createdAt.timeInMillis,
+                                        reminder.repeat
+                                    )
+
+                                    Toast.makeText(
+                                            this,
+                                            getString(R.string.reminder_postponed),
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    finish()
+                                })
+                        }
                     }
-                }
-            })
 
-            cancelButton.setOnClickListener {
-                finish()
-            }
+                })
 
+        cancelButton.setOnClickListener {
+            finish()
+        }
+
+    }
+
+    private fun setupNumberPickers(): Triple<NumberPicker, NumberPicker, NumberPicker> {
+        val dayPicker = custom_postpone_dialog.findViewById<NumberPicker>(R.id.dayPicker)
+        dayPicker.maxValue = 30
+        dayPicker.minValue = 0
+        val hourPicker = custom_postpone_dialog.findViewById<NumberPicker>(R.id.hourPicker)
+        hourPicker.maxValue = 23
+        hourPicker.minValue = 0
+        val minutePicker = custom_postpone_dialog.findViewById<NumberPicker>(R.id.minutePicker)
+        minutePicker.maxValue = 59
+        minutePicker.minValue = 0
+        return Triple(dayPicker, hourPicker, minutePicker)
     }
 
     private fun initViewModel() {
@@ -72,52 +111,6 @@ class PostponeActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, viewModelFactory).get(PostponeViewModel::class.java)
     }
 
-    private fun postpone(reminder: Reminder, minute: Int, hour: Int = 0, day: Int = 0) {
-
-        /** will check that the new reminder date is bigger than current date; because its useless
-         *  to postpone reminder to a previous date*/
-
-        reminder.createdAt.apply {
-            add(Calendar.MINUTE, minute)
-            add(Calendar.HOUR_OF_DAY, hour)
-            add(Calendar.DAY_OF_MONTH, day)
-        }
-
-
-        if (reminder.createdAt.before(Calendar.getInstance())) {
-            Toast.makeText(
-                    this,
-                    getString(R.string.must_be_upcoming_date),
-                    Toast.LENGTH_LONG
-                )
-                .show()
-            /*reminder should return to original value since update won't be saved*/
-            reminder.createdAt.apply {
-                add(Calendar.MINUTE, -minute)
-                add(Calendar.HOUR_OF_DAY, -hour)
-                add(Calendar.DAY_OF_MONTH, -day)
-            }
-            finish()
-
-            return
-        }
-
-
-        //update reminder with new postponed date
-        disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                //cancel old alarm
-                MyUtils.cancelAlarm(reminder.id,applicationContext)
-                //get updated reminder date and set new alarm
-                MyUtils.addAlarm(reminder.id,applicationContext,reminder.createdAt.timeInMillis)
-
-                Toast.makeText(this, getString(R.string.reminder_postponed), Toast.LENGTH_SHORT).show()
-
-                finish()
-
-            })
-    }
 
     override fun onDestroy() {
         super.onDestroy()
