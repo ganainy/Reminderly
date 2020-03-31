@@ -7,10 +7,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat.startForegroundService
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.ui.postpone_activity.PostponeActivity
@@ -19,94 +22,30 @@ import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 
 
-private val REMINDER_CHANNEL_ID = "reminder_notification_channel"
-
-/**triggered by alarm manager to show notification when reminder time comes*/
+/**triggered by alarm manager to show notification when reminder time comes
+ * NOTE:we don't call the service directly because if app is asleep it won't trigger so we call
+ * receiver and acquire wakelock then call the service and release the wakelock there*/
 class NewReminderReceiver : BroadcastReceiver() {
 
-    private lateinit var mNotifyManager: NotificationManager
 
-    override fun onReceive( context: Context, intent: Intent) {
-        val reminderId = intent.getLongExtra("reminderId",-1L)
-        setupNotificationChannel(reminderId,context)
-    }
+    override fun onReceive(context: Context, intent: Intent) {
 
+        val reminderId = intent.getLongExtra("reminderId", -1L)
+        Log.d("DebugTag", "onReceiveNewReminderReceiver: $reminderId")
 
-    private fun setupNotificationChannel(
-        reminderId: Long,
-        context: Context
-    ) {
-        mNotifyManager = context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
-        if (android.os.Build.VERSION.SDK_INT >=
-            android.os.Build.VERSION_CODES.O) {
-            // Create a NotificationChannel
-            val notificationChannel = NotificationChannel(
-                REMINDER_CHANNEL_ID,
-                "Reminder Notification", NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.RED
-            notificationChannel.enableVibration(true)
-            notificationChannel.description = "Notification for certain reminder"
-            mNotifyManager.createNotificationChannel(notificationChannel)
-        }
-
-        sendReminderNotification(reminderId,context)
-
-    }
-
-
-    /**Create notification with unique id so we can cancel it later*/
-    private fun sendReminderNotification(
-        reminderId: Long,
-        context: Context
-    ) {
-        
-        //postpone reminder pending to pass to notification builder as action
-        val postponeReminderIntent = Intent(context, PostponeActivity::class.java)
-        postponeReminderIntent.putExtra("reminderId",reminderId)
-        postponeReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        val postponeReminderPendingIntent = PendingIntent.getActivity(
-            context,
-            reminderId.toInt(), postponeReminderIntent, PendingIntent.FLAG_ONE_SHOT
-        )
-        
-        //new reminder pending intent to pass to notification builder as action
-        val endReminderIntent = Intent(context, DoneReminderReceiver::class.java)
-        endReminderIntent.putExtra("reminderId",reminderId)
-        endReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        val endReminderPendingIntent = PendingIntent.getBroadcast(
-            context,
-            reminderId.toInt(), endReminderIntent, PendingIntent.FLAG_ONE_SHOT
-        )
-
-        //get reminder text using reminder id
-        val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
-        reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-            .subscribe { reminder ->
-                val notificationBuilder = NotificationCompat.Builder(context, REMINDER_CHANNEL_ID)
-                    .setContentText(reminder.text)
-                    .setSmallIcon(R.drawable.ic_notification_white)
-                    .addAction(
-                        R.drawable.ic_done_white,
-                        context.getString(R.string.end_reminder),
-                        endReminderPendingIntent
-                    )
-                    .addAction(
-                        R.drawable.ic_access_time_white
-                    ,context.getString(R.string.delay_reminder)
-                    ,postponeReminderPendingIntent
-                    )
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setDefaults(NotificationCompat.DEFAULT_ALL)
-                    .setAutoCancel(true)
-                mNotifyManager.notify(reminder.id.toInt(), notificationBuilder?.build())
-
+        //acquire wakelock
+        val wakeLock: PowerManager.WakeLock =
+            (context.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
+                    acquire(10 * 1000L /*10 seconds*/)
+                }
             }
 
+        //start the service the will show the notification
+        val notifyIntent = Intent(context, AlarmService::class.java)
+        notifyIntent.putExtra("reminderId", reminderId)
 
-
-
+        startForegroundService(context, notifyIntent)
 
     }
 
