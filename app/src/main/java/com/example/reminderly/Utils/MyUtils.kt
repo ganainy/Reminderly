@@ -10,6 +10,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.example.reminderly.R
+import com.example.reminderly.broadcast_receivers.AlarmService
 import com.example.reminderly.broadcast_receivers.NewReminderReceiver
 import com.example.reminderly.database.Reminder
 import com.prolificinteractive.materialcalendarview.CalendarDay
@@ -337,7 +338,16 @@ class MyUtils {
 
         }
 
+
+
+        /**stop the notification or any ongoing ringing alarm on showing postpone dialog*/
+        fun stopAlarmService(context: Context) {
+            val notifyIntent = Intent(context, AlarmService::class.java)
+            context.stopService(notifyIntent)
+        }
+
     }
+
 
 
 }

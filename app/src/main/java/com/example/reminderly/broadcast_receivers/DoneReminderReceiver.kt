@@ -18,6 +18,9 @@ class DoneReminderReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
 
+
+        MyUtils.stopAlarmService(context)
+
         val reminderId = intent.extras?.get("reminderId") as Long
 
 

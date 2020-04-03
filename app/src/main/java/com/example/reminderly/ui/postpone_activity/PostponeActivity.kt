@@ -1,5 +1,6 @@
 package com.example.reminderly.ui.postpone_activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -10,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.MyUtils
+import com.example.reminderly.broadcast_receivers.AlarmService
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -30,18 +32,22 @@ class PostponeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_postpone)
 
+        MyUtils.stopAlarmService(this)
+
         initViewModel()
 
         val (dayPicker, hourPicker, minutePicker) = setupNumberPickers()
 
-        //get id of the reminder which will be postponed (passed from notification pending intent)
+        //get id of the reminder which will be postponed (passed from notification pending intent
+        // coming from alarmService)
         val reminderId = intent.getLongExtra("reminderId", -1L)
 
-
+        //get passed reminder and delay it by the selected amount by user
         disposable.add(
             viewModel.getReminderById(reminderId).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { reminder ->
+
                     postponeButton.setOnClickListener {
                         val postponedReminder = MyUtils.postponeReminder(
                             reminder,
@@ -87,6 +93,8 @@ class PostponeActivity : AppCompatActivity() {
         }
 
     }
+
+
 
     private fun setupNumberPickers(): Triple<NumberPicker, NumberPicker, NumberPicker> {
         val dayPicker = custom_postpone_dialog.findViewById<NumberPicker>(R.id.dayPicker)

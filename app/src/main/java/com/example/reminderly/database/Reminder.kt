@@ -26,7 +26,6 @@ data class Reminder(
     var isDone: Boolean = false,
     @Ignore //used to add fake items to reminder list to be shown as Headers
     var header: Int = 0
-
 ) : Parcelable {
 
 

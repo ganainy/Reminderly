@@ -8,9 +8,9 @@
 
     <NumberPicker
         android:id="@+id/minutePicker"
-        android:theme="@style/AppTheme.Picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.Picker"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/hourPicker"
@@ -19,8 +19,8 @@
     <NumberPicker
         android:id="@+id/hourPicker"
         android:layout_width="wrap_content"
-        android:theme="@style/AppTheme.Picker"
         android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.Picker"
         app:layout_constraintEnd_toStartOf="@+id/minutePicker"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/dayPicker"
@@ -28,9 +28,9 @@
 
     <NumberPicker
         android:id="@+id/dayPicker"
-        android:theme="@style/AppTheme.Picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.Picker"
         app:layout_constraintEnd_toStartOf="@+id/hourPicker"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -42,6 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="@string/minutes"
+        android:textColor="@color/primaryTextColor"
         app:layout_constraintBottom_toTopOf="@+id/minutePicker"
         app:layout_constraintEnd_toEndOf="@+id/minutePicker"
         app:layout_constraintStart_toStartOf="@+id/minutePicker"
@@ -52,6 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="@string/hours"
+        android:textColor="@color/primaryTextColor"
         app:layout_constraintBottom_toTopOf="@+id/hourPicker"
         app:layout_constraintEnd_toEndOf="@+id/hourPicker"
         app:layout_constraintStart_toStartOf="@+id/hourPicker"
@@ -64,6 +66,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="@string/days"
+        android:textColor="@color/primaryTextColor"
         app:layout_constraintBottom_toTopOf="@+id/dayPicker"
         app:layout_constraintEnd_toEndOf="@+id/dayPicker"
         app:layout_constraintStart_toStartOf="@+id/dayPicker"

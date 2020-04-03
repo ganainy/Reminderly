@@ -7,29 +7,37 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.media.AudioAttributes
+import android.media.AudioAttributes.USAGE_ALARM
+import android.media.AudioManager
 import android.media.MediaPlayer
-import android.net.Uri
+import android.os.CountDownTimer
 import android.os.IBinder
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
-import com.example.footy.database.ReminderDatabase
 import com.example.footy.database.ReminderDatabase.Companion.getInstance
 import com.example.reminderly.R
+import com.example.reminderly.database.Reminder
 import com.example.reminderly.ui.postpone_activity.PostponeActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+
 
 private val REMINDER_CHANNEL_ID = "reminder_notification_channel"
 
 class AlarmService : Service() {
 
 
-
     private lateinit var mNotifyManager: NotificationManager
-    private var mStartId = 0 //identifier for this specific service call
     private val disposable = CompositeDisposable()
+    private lateinit var mCountDownTimer:CountDownTimer
+    private val mediaPlayer by lazy {
+        MediaPlayer.create(this, R.raw.tone as Int).apply {
+        setVolume(1F,1F)
+        }
+    }
 
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -37,12 +45,13 @@ class AlarmService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        mStartId = startId
+
         val reminderId = intent?.getLongExtra("reminderId", -1L)
         Log.d("DebugTag", "onStartCommandAlarmService:$reminderId ")
 
         if (reminderId != null) {
-            setupNotificationChannel(reminderId, applicationContext)
+            setupNotificationChannel( applicationContext)
+            sendReminderNotification(reminderId, applicationContext)
         }
 
 
@@ -51,7 +60,6 @@ class AlarmService : Service() {
 
 
     private fun setupNotificationChannel(
-        reminderId: Long,
         context: Context
     ) {
         mNotifyManager =
@@ -68,10 +76,10 @@ class AlarmService : Service() {
             notificationChannel.lightColor = Color.RED
             notificationChannel.enableVibration(true)
             notificationChannel.description = "Notification for certain reminder"
+            notificationChannel.setSound(null,null)
             mNotifyManager.createNotificationChannel(notificationChannel)
         }
 
-        sendReminderNotification(reminderId, context)
 
     }
 
@@ -80,6 +88,34 @@ class AlarmService : Service() {
     private fun sendReminderNotification(
         reminderId: Long,
         context: Context
+    ) {
+
+        //get reminder text using reminder id
+        val reminderDatabaseDao = getInstance(context).reminderDatabaseDao
+        disposable.add(reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io())
+            .observeOn(
+                AndroidSchedulers.mainThread()
+            )
+            .subscribe { reminder ->
+                if (reminder.reminderType == 1) {
+                        //alarm notification (always on screen notification+play sound)
+                        startAlarmNotification(context, reminder, reminderId)
+                } else {
+                    //normal notification
+                    showNotification(context, reminder, reminderId)
+                }
+
+
+            })
+
+
+    }
+
+
+    private fun showNotification(
+        context: Context,
+        reminder: Reminder,
+        reminderId: Long
     ) {
 
         //postpone reminder pending to pass to notification builder as action
@@ -100,59 +136,56 @@ class AlarmService : Service() {
             reminderId.toInt(), endReminderIntent, PendingIntent.FLAG_ONE_SHOT
         )
 
-        //get reminder text using reminder id
-        val reminderDatabaseDao = getInstance(context).reminderDatabaseDao
-        disposable.add(reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io())
-            .observeOn(
-                AndroidSchedulers.mainThread()
+        val notificationBuilder = NotificationCompat.Builder(context, REMINDER_CHANNEL_ID)
+        notificationBuilder.apply {
+            setContentText(reminder.text)
+            setSmallIcon(R.drawable.ic_notification_white)
+            addAction(
+                R.drawable.ic_done_white,
+                context.getString(R.string.end_reminder),
+                endReminderPendingIntent
             )
-                //todo play sound+vibration+pop up notification in loop until PostponeActivity or DoneReminderReceiver stop this service
-            .subscribe { reminder ->
-                //play audio in loop
-                if (reminder.reminderType == 1) {
-                    val mediaPlayer = MediaPlayer.create(context, R.raw.alarm as Int)
-                    mediaPlayer?.start()
-                    mediaPlayer.setOnCompletionListener {  mediaPlayer?.start() }
-                }
+            addAction(
+                R.drawable.ic_access_time_white
+                , context.getString(R.string.delay_reminder)
+                , postponeReminderPendingIntent
+            )
+            priority = NotificationCompat.PRIORITY_HIGH
+            setDefaults(NotificationCompat.DEFAULT_ALL)
+            setSound(null)
+            setAutoCancel(true)
+        }
 
 
-                val notificationBuilder = NotificationCompat.Builder(context, REMINDER_CHANNEL_ID)
-                notificationBuilder.apply {
-                    setContentText(reminder.text)
-                    setSmallIcon(R.drawable.ic_notification_white)
-                    addAction(
-                        R.drawable.ic_done_white,
-                        context.getString(R.string.end_reminder),
-                        endReminderPendingIntent
-                    )
-                    addAction(
-                        R.drawable.ic_access_time_white
-                        , context.getString(R.string.delay_reminder)
-                        , postponeReminderPendingIntent
-                    )
-                    priority = NotificationCompat.PRIORITY_HIGH
-                    setDefaults(NotificationCompat.DEFAULT_ALL)
-                    setAutoCancel(true)
-                }
+         startForeground(reminder.id.toInt(), notificationBuilder.build())
+        //mNotifyManager.notify(reminder.id.toInt(), notificationBuilder.build())
+    }
 
+    private fun startAlarmNotification(
+        context: Context,
+        reminder: Reminder,
+        reminderId: Long
+    ) {
 
-               // startForeground(reminder.id.toInt(), notificationBuilder.build())
-               mNotifyManager.notify(reminder.id.toInt(), notificationBuilder?.build())
+        // show notification every second so its always on screen && play audio in loop
+         mCountDownTimer = object : CountDownTimer(3 * 60 * 1000L, 1500) {
+            override fun onTick(millisUntilFinished: Long) {
+                Log.d("DebugTag", "onTick: ")
+                showNotification(context, reminder, reminderId)
+               // mediaPlayer.setAudioAttributes(AudioAttributes.Builder().setUsage(USAGE_ALARM).build())
+                mediaPlayer.start()
+            }
 
-            })
+            override fun onFinish() {
 
+            }
+        }.start()
 
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        stopSelf(mStartId)
+        if (mediaPlayer.isPlaying){ mediaPlayer.stop() }
     }
-
-    override fun onCreate() {
-        super.onCreate()
-
-    }
-
 
 }
