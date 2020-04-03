@@ -35,4 +35,11 @@
         <item name="android:textColorPrimary">@android:color/black</item>
     </style>
 
+
+    <style name="PreferenceTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+
 </resources>

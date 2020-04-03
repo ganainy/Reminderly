@@ -90,5 +90,7 @@ dependencies {
     //to inspect generated tables of room
     implementation 'com.facebook.stetho:stetho:1.5.1'
 
+    //preference androidx
+    implementation 'androidx.preference:preference:1.1.0'
 
 }

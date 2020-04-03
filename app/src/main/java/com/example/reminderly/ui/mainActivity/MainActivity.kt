@@ -30,6 +30,7 @@ import com.example.reminderly.ui.category_reminders.CategoryFragment
 import com.example.reminderly.ui.category_reminders.CategoryType
 import com.example.reminderly.ui.reminderFragment.ReminderFragment
 import com.example.reminderly.ui.search_fragment.SearchFragment
+import com.example.reminderly.ui.settings_fragment.SettingsFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayoutMediator
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -249,6 +250,11 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private fun setupDrawerContent() {
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             //todo navigate
+            when(menuItem.itemId){
+                R.id.settings -> {
+                    openSettingsFragment()
+                }
+            }
             binding.drawerLayout.closeDrawers()
             true
         }
@@ -265,6 +271,14 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
             }
+    }
+
+    private fun openSettingsFragment() {
+        supportFragmentManager
+            .beginTransaction()
+            .add(R.id.fragmentContainer, SettingsFragment())
+        .addToBackStack(null)
+            .commit()
     }
 
 

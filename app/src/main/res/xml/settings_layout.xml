@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <PreferenceCategory
+        app:key="general_category"
+        app:iconSpaceReserved="false"
+        app:title="إعدادات عامة">
+
+    <SwitchPreferenceCompat
+        app:key="persistent_notification"
+        app:iconSpaceReserved="false"
+        app:title="إشعار تذكيرات اليوم"
+        app:summary="إشعار دائم لإظهار عدد التذكيرات خلال اليوم مع امكانيه اضافة تذكيرات"/>
+
+    <Preference
+        app:key="done_behaviour"
+        app:iconSpaceReserved="false"
+        app:title="التعامل مع التذكيرات المنتهية"
+        app:summary="يتم الاحتفاظ بالتذكيرات المنتهية"/>
+
+        <Preference
+            app:key="done_behaviour_for_recurring_tasks"
+            app:iconSpaceReserved="false"
+            app:title="وظيفة زر الانهاء للتذكيرات المتكرره"
+            app:summary="التسجيل كتذكير منتهي"/>
+
+
+        <SwitchPreferenceCompat
+            app:key="don't_disturb_switch"
+            app:iconSpaceReserved="false"
+            app:title="عدم الازعاج"
+            app:summary="عدم الحصول على التبيهات خلال وقت معين"/>
+
+        <Preference
+            app:key="don't_disturb_value"
+            app:iconSpaceReserved="false"
+            app:title="توقيت تفعيل عدم الإزعاج"
+            app:summary="غير محدد, اضعط للاعداد"
+            app:enabled="false"
+            />
+
+
+    </PreferenceCategory>
+</PreferenceScreen>

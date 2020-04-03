@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -19,6 +20,7 @@ import java.util.*
 
 class MyUtils {
 
+
     companion object {
 
         private val currentDate: Date
@@ -26,8 +28,7 @@ class MyUtils {
                 return Date()
             }
 
-
-        /**-------------------------------------Date-------------------------------------*/
+        //region date
 
         private val locale = Locale("ar")
 
@@ -94,7 +95,9 @@ class MyUtils {
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
         }
-        /**-------------------------------------keyboard----------------------------------*/
+        //endregion
+
+        //region keyboard
 
 
         /**@param view :any view from the caller layout to get token from */
@@ -110,9 +113,9 @@ class MyUtils {
             imm?.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
 
         }
+//endregion
 
-
-        /**------------------------------Helpers------------------------------*/
+        //region helpers
 
         fun convertToArabicNumber(englishNum: String): String {
             val arabicChars = charArrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
@@ -158,29 +161,9 @@ class MyUtils {
             }
 
         }
+        //endregion
 
-        fun convertNotifyAdv(notifyAdvAmount: Int, notifyAdvUnit: Int): CharSequence? {
-
-            if (notifyAdvAmount + notifyAdvUnit == 0) return "التنبيه المسبق غير مفعل"
-
-            val builder = java.lang.StringBuilder(convertToArabicNumber(notifyAdvAmount.toString()))
-
-            builder.append(
-                when (notifyAdvUnit) {
-                    0 -> " دقائق "
-                    1 -> " ساعات"
-                    2 -> " أيام"
-                    3 -> " اسابيع"
-                    else -> throw Exception("unknown repeat")
-                }
-            )
-
-            return builder
-
-        }
-
-
-        /**---------------------------alarm manager----------------------------------------*/
+        //region alarm manager
 
         /**setup alarm manager to trigger NewReminderReceiver on reminder date*/
         fun addAlarm(
@@ -294,7 +277,9 @@ class MyUtils {
             notificationManager?.cancel(reminderId.toInt())
         }
 
-        /**----------------------------general utils---------------------------------------------*/
+        //endregion
+
+        //region general utils
         fun postponeReminder(
             reminder: Reminder,
             context: Context?,
@@ -339,14 +324,19 @@ class MyUtils {
         }
 
 
-
         /**stop the notification or any ongoing ringing alarm on showing postpone dialog*/
         fun stopAlarmService(context: Context) {
             val notifyIntent = Intent(context, AlarmService::class.java)
             context.stopService(notifyIntent)
         }
 
+        //endregion
+
+
+
     }
+
+
 
 
 
