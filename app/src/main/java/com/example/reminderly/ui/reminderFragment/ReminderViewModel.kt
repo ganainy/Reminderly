@@ -50,23 +50,6 @@ class ReminderViewModel(
 
     }
 
-    fun updateReminderNotifyAdvAmount(num: Int) {
-        mReminder.notifyAdvAmount=num
-    }
-
-    fun updateReminderNotifyAdvUnit(durationUnit: String) {
-        mReminder.notifyAdvUnit= when(durationUnit){
-            app.getString(R.string.minutes)-> 0
-            app.getString(R.string.hours)-> 1
-            app.getString(R.string.days)-> 2
-            app.getString(R.string.weeks)-> 3
-            else -> throw Exception("unknown  type")
-        }
-    }
-
-
-
-
     fun updateText(text: String) {
         //set reminder text and save it
         mReminder.text=text

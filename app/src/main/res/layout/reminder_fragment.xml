@@ -181,7 +181,7 @@
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/darker_green_round_bg"
                 android:padding="8dp"
-                android:src="@drawable/ic_repeat_white"
+                android:src="@drawable/ic_no_repeat"
                 app:layout_constraintBottom_toTopOf="@+id/priorityImage"
                 app:layout_constraintEnd_toStartOf="@+id/repeatText"
                 app:layout_constraintStart_toStartOf="parent"
@@ -208,29 +208,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
                 android:background="@drawable/darker_green_round_bg"
                 android:padding="8dp"
-                android:src="@drawable/ic_notification_white"
-                app:layout_constraintBottom_toTopOf="@+id/notifyInAdvanceImage"
+                android:src="@drawable/ic_notification"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/reminderTypeText"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/priorityImage" />
-
-            <ImageButton
-                android:id="@+id/notifyInAdvanceImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/darker_green_round_bg"
-                android:padding="8dp"
-                android:layout_marginBottom="@dimen/default_margin"
-                android:src="@drawable/ic_time_white"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/notifyInAdvanceText"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/reminderTypeImage" />
 
             <TextView
                 android:id="@+id/dateText"
@@ -315,23 +299,6 @@
                 app:layout_constraintStart_toEndOf="@+id/reminderTypeImage"
                 app:layout_constraintTop_toTopOf="@+id/reminderTypeImage"
                 android:text="@string/notify_using_notification" />
-
-            <TextView
-                android:id="@+id/notifyInAdvanceText"
-                style="@style/MyTextViewStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:ellipsize="end"
-                android:gravity="end"
-                android:maxLines="1"
-                app:layout_constraintBottom_toBottomOf="@+id/notifyInAdvanceImage"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toEndOf="@+id/notifyInAdvanceImage"
-                app:layout_constraintTop_toTopOf="@+id/notifyInAdvanceImage"
-                android:text="@string/notify_in_advance" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

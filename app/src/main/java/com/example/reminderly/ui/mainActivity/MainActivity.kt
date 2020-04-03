@@ -4,10 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.os.SystemClock
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -143,7 +140,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
         return NotificationCompat.Builder(this, PERSISTENT_CHANNEL_ID)
             .setContentText(notificationText)
-            .setSmallIcon(R.drawable.ic_notification_white)
+            .setSmallIcon(R.drawable.ic_bell_white)
             .setContentIntent(contentPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)

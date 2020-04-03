@@ -9,7 +9,6 @@ import android.text.util.Linkify
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
@@ -91,13 +90,31 @@ class ReminderFragment : Fragment(), View.OnClickListener
         binding.repeatText.text = MyUtils.convertRepeat(reminder.repeat)
         binding.priorityText.text = MyUtils.convertPriority(reminder.priority)
         binding.reminderTypeText.text = MyUtils.convertReminderType(reminder.reminderType)
-        binding.notifyInAdvanceText.text =
-            MyUtils.convertNotifyAdv(reminder.notifyAdvAmount, reminder.notifyAdvUnit)
         /**make numbers in edit text clickable & navigate to phone pad on click*/
         Linkify.addLinks(binding.reminderEditText, Linkify.PHONE_NUMBERS)
 
         setupPriorityBackgroundColor(reminder.priority)
+        setupRepeatImage(reminder.repeat)
+        setupReminderTypeImage(reminder.reminderType)
 
+    }
+
+    /**setup reminder type image based on its value*/
+    private fun setupReminderTypeImage(reminderType: Int) {
+        if (reminderType==0){
+            binding.reminderTypeImage.setImageResource(R.drawable.ic_notification)
+        }else{
+            binding.reminderTypeImage.setImageResource(R.drawable.ic_bell_white)
+        }
+    }
+
+    /**set no repeat image or repeat image depending on repeat value*/
+    private fun setupRepeatImage(repeat: Int) {
+        if (repeat==0){
+            binding.repeatImage.setImageResource(R.drawable.ic_no_repeat)
+        }else{
+            binding.repeatImage.setImageResource(R.drawable.ic_repeat)
+        }
     }
 
     /**setup priority image bg color depending on its value*/
@@ -130,8 +147,6 @@ class ReminderFragment : Fragment(), View.OnClickListener
         binding.priorityText.setOnClickListener(this)
         binding.reminderTypeImage.setOnClickListener(this)
         binding.reminderTypeText.setOnClickListener(this)
-        binding.notifyInAdvanceImage.setOnClickListener(this)
-        binding.notifyInAdvanceText.setOnClickListener(this)
         binding.micImage.setOnClickListener(this)
         binding.contactsImage.setOnClickListener(this)
         binding.backButton.setOnClickListener(this)
@@ -149,8 +164,6 @@ class ReminderFragment : Fragment(), View.OnClickListener
     private fun initViewsDefaults() {
         binding.dateText.text = MyUtils.getCurrentDateFormatted()
         binding.timeText.text = MyUtils.getCurrentTimeFormatted()
-
-
     }
 
 
@@ -193,53 +206,9 @@ class ReminderFragment : Fragment(), View.OnClickListener
         }
     }
 
-    private fun handleNotifyInAdvanceImageClick() {
-        var num = 1
-        var duration = "دقائق"
-        val durationList = arrayOf(
-            getString(R.string.minutes), getString(R.string.hours), getString(
-                R.string.days
-            ), getString(R.string.weeks)
-        )
-
-        val dialog = MaterialDialog(requireContext()).show {
-            customView(R.layout.notify_in_advance_dialog)
-            positiveButton(R.string.confirm) {
-                //will execute on confirm press
-                binding.notifyInAdvanceText.text =
-                    "${MyUtils.convertToArabicNumber(num.toString())} $duration"
-                viewModel.updateReminderNotifyAdvAmount(num)
-                viewModel.updateReminderNotifyAdvUnit(duration)
-            }
-            negativeButton(R.string.cancel)
-            title(0, getString(R.string.notification_in_advance_type))
-        }
-
-        //get value of numberPicker
-        dialog.getCustomView().findViewById<NumberPicker>(R.id.numberPicker).apply {
-            maxValue = 120
-            minValue = 1
-            setOnValueChangedListener { picker, oldVal, newVal ->
-                num = newVal
-            }
-        }
-
-        //get value of stringPicker
-        dialog.getCustomView().findViewById<NumberPicker>(R.id.stringPicker).apply {
-            minValue = 0
-            maxValue = durationList.size - 1
-            displayedValues = durationList
-            descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
-            setOnValueChangedListener { picker, oldVal, newVal ->
-                duration = durationList[newVal]
-            }
-        }
 
 
-    }
-
-
-    private fun handleNotifyTypeImageClick() {
+    private fun handleReminderTypeImageClick() {
         MaterialDialog(requireContext()).show {
             listItemsSingleChoice(
                 R.array.notify_type_items,
@@ -248,6 +217,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
                 // Invoked when the user selects an item
                 binding.reminderTypeText.text = text
                 viewModel.updateReminderNotificationType(index)
+                setupReminderTypeImage(index)
             }
             positiveButton(R.string.confirm)
             negativeButton(R.string.cancel)
@@ -283,6 +253,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
                 // Invoked when the user selects an item
                 binding.repeatText.text = text
                 viewModel.updateReminderRepeat(index)
+                setupRepeatImage(index)
             }
             positiveButton(R.string.confirm)
             negativeButton(R.string.cancel)
@@ -526,10 +497,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
                 handlePriorityImageClick()
             }
             R.id.reminderTypeImage, R.id.reminderTypeText -> {
-                handleNotifyTypeImageClick()
-            }
-            R.id.notifyInAdvanceImage, R.id.notifyInAdvanceText -> {
-                handleNotifyInAdvanceImageClick()
+                handleReminderTypeImageClick()
             }
             R.id.micImage -> {
                 openSpeechToTextDialog()

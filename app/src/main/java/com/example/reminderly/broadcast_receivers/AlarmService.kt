@@ -7,9 +7,6 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.media.AudioAttributes
-import android.media.AudioAttributes.USAGE_ALARM
-import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.CountDownTimer
 import android.os.IBinder
@@ -139,7 +136,7 @@ class AlarmService : Service() {
         val notificationBuilder = NotificationCompat.Builder(context, REMINDER_CHANNEL_ID)
         notificationBuilder.apply {
             setContentText(reminder.text)
-            setSmallIcon(R.drawable.ic_notification_white)
+            setSmallIcon(R.drawable.ic_bell_white)
             addAction(
                 R.drawable.ic_done_white,
                 context.getString(R.string.end_reminder),

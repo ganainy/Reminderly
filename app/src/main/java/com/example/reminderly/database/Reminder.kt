@@ -20,8 +20,6 @@ data class Reminder(
     var repeat: Int = 0,
     var priority: Int = 0,
     var reminderType: Int = 0,
-    var notifyAdvAmount: Int = 0,
-    var notifyAdvUnit: Int = 0,
     var isFavorite: Boolean = false,
     var isDone: Boolean = false,
     @Ignore //used to add fake items to reminder list to be shown as Headers
@@ -35,8 +33,6 @@ data class Reminder(
         repeat = 0
         priority = 0
         reminderType = 0
-        notifyAdvAmount = 0
-        notifyAdvUnit = 0
         isDone=false
         isFavorite = false
     }
@@ -71,11 +67,5 @@ data class Reminder(
  * 1-ALARM
  * */
 
-/**NotifyAdvUnit
- * 0-MINUTE
- * 1-HOUR
- * 2-DAY
- * 3-WEEK
- * */
 
 

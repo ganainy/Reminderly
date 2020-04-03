@@ -12,7 +12,7 @@
 
     <string name="search">بحث</string>
     <string name="remind_me_to">ذكرني ان...</string>
-    <string name="repeat_once">تكرار مرة واحدة</string>
+    <string name="repeat_once">تذكير مرة واحدة</string>
     <string name="normal">عادى</string>
     <string name="notify_using_notification">تنيه بإستخدام الاشعارات</string>
     <string name="notify_in_advance">التنبيه المسبق غير مفعل</string>
