@@ -82,6 +82,7 @@
     <string name="end_reminder">إنهاء التذكير</string>
     <string name="delay_reminder">تأجيل التذكير</string>
     <string name="reminder_in_future_error">*تأكد ان تاريخ التذكير بعد التأجيل اكبر من الوقت الحالي</string>
+    <string name="done_behaviour_for_recurring_tasks">وظيفة زر الانهاء للتذكيرات المتكررة</string>
 
 
 </resources>

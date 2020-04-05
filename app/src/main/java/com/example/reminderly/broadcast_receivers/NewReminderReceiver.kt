@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.ContextCompat.startForegroundService
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
+import com.example.reminderly.Utils.REMINDER_ID
 import com.example.reminderly.ui.postpone_activity.PostponeActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
@@ -30,8 +31,10 @@ class NewReminderReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
 
-        val reminderId = intent.getLongExtra("reminderId", -1L)
+        val reminderId = intent.getLongExtra(REMINDER_ID, -1L)
         Log.d("DebugTag", "onReceiveNewReminderReceiver: $reminderId")
+
+        if (reminderId!=-1L){
 
         //acquire wakelock
         val wakeLock: PowerManager.WakeLock =
@@ -43,11 +46,10 @@ class NewReminderReceiver : BroadcastReceiver() {
 
         //start the service the will show the notification
         val notifyIntent = Intent(context, AlarmService::class.java)
-        notifyIntent.putExtra("reminderId", reminderId)
+        notifyIntent.putExtra(REMINDER_ID, reminderId)
 
         startForegroundService(context, notifyIntent)
 
     }
-
-
+    }
 }

@@ -18,8 +18,10 @@ import com.prolificinteractive.materialcalendarview.CalendarDay
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MyUtils {
+const val DONE_ACTION_FOR_REPEATING_REMINDERS ="doneActionForRepeatingReminders"
+const val REMINDER_ID="reminder_Id"
 
+class MyUtils {
 
     companion object {
 
@@ -161,6 +163,16 @@ class MyUtils {
             }
 
         }
+
+
+        /**@param arrayName should be in form R.array.___
+         * @return string from the given resources array
+         * */
+        fun getStringFromResourceArray(context: Context,arrayName:Int,itemIndex:Int):String{
+            val array: Array<String> = context.resources.getStringArray(arrayName)
+            return array[itemIndex]
+        }
+
         //endregion
 
         //region alarm manager
@@ -173,8 +185,8 @@ class MyUtils {
             repeat: Int
         ) {
             //cancel any existing alarms for this reminder
-            cancelAlarm(reminderId, context)
-            //add new onetime alarm/ repeat alarm depending on repeat value
+            cancelAlarmManager(reminderId, context)
+            //add new onetime alarm OR repeat alarm depending on repeat value
             when (repeat) {
                 0 -> {//one time reminder
                     addOneTimeAlarm(reminderId, context, triggerMillis)
@@ -205,7 +217,7 @@ class MyUtils {
         ) {
             Log.d("DebugTag", "addOneTimeAlarm: ${reminderId} ,,, ${Date(triggerMillis)}")
             val notifyIntent = Intent(context, NewReminderReceiver::class.java)
-            notifyIntent.putExtra("reminderId", reminderId)
+            notifyIntent.putExtra(REMINDER_ID, reminderId)
             val notifyPendingIntent = PendingIntent.getBroadcast(
                 context, reminderId.toInt(), notifyIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
@@ -237,7 +249,7 @@ class MyUtils {
             )
 
             val notifyIntent = Intent(context, NewReminderReceiver::class.java)
-            notifyIntent.putExtra("reminderId", reminderId)
+            notifyIntent.putExtra(REMINDER_ID, reminderId)
             val notifyPendingIntent = PendingIntent.getBroadcast(
                 context, reminderId.toInt(), notifyIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
@@ -254,12 +266,12 @@ class MyUtils {
         }
 
 
-        fun cancelAlarm(
+        fun cancelAlarmManager(
             reminderId: Long,
             context: Context?
         ) {
             val notifyIntent = Intent(context, NewReminderReceiver::class.java)
-            notifyIntent.putExtra("reminderId", reminderId)
+            notifyIntent.putExtra(REMINDER_ID, reminderId)
             val notifyPendingIntent = PendingIntent.getBroadcast(
                 context, reminderId.toInt(), notifyIntent,
                 PendingIntent.FLAG_ONE_SHOT
@@ -280,6 +292,9 @@ class MyUtils {
         //endregion
 
         //region general utils
+
+
+
         fun postponeReminder(
             reminder: Reminder,
             context: Context?,
@@ -287,7 +302,7 @@ class MyUtils {
             hour: Int,
             minute: Int
         ): Reminder? {
-            cancelAlarm(reminder.id,context)
+            cancelAlarmManager(reminder.id,context)
 
             /** postpone reminder with passed duration*/
 
@@ -332,6 +347,47 @@ class MyUtils {
 
         //endregion
 
+        //region shared preferences
+
+        fun putString(context: Context,key:String,data:String){
+            val pref: SharedPreferences =
+                context.applicationContext
+                    .getSharedPreferences("MyPref", 0)
+
+            val editor = pref.edit()
+
+            editor.putString(key, data)
+
+            editor.apply()
+        }
+
+        fun getString(context: Context,key:String):String?{
+            val pref: SharedPreferences =
+                context.applicationContext
+                    .getSharedPreferences("MyPref", 0)
+           return pref.getString(key, null)
+        }
+
+        fun putInt(context: Context,key:String,data:Int){
+            val pref: SharedPreferences =
+                context.applicationContext
+                    .getSharedPreferences("MyPref", 0)
+
+            val editor = pref.edit()
+
+            editor.putInt(key, data)
+
+            editor.apply()
+        }
+
+        fun getInt(context: Context,key:String):Int{
+            val pref: SharedPreferences =
+                context.applicationContext
+                    .getSharedPreferences("MyPref", 0)
+            return pref.getInt(key, 0) //0 is default value which matches default value of settings
+        }
+
+        //endregion
 
 
     }

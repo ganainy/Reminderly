@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.MyUtils
+import com.example.reminderly.Utils.REMINDER_ID
 import com.example.reminderly.broadcast_receivers.AlarmService
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
@@ -32,6 +33,7 @@ class PostponeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_postpone)
 
+
         MyUtils.stopAlarmService(this)
 
         initViewModel()
@@ -40,7 +42,7 @@ class PostponeActivity : AppCompatActivity() {
 
         //get id of the reminder which will be postponed (passed from notification pending intent
         // coming from alarmService)
-        val reminderId = intent.getLongExtra("reminderId", -1L)
+        val reminderId = intent.getLongExtra(REMINDER_ID, -1L)
 
         //get passed reminder and delay it by the selected amount by user
         disposable.add(

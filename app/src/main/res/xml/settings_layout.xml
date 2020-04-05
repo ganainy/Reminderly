@@ -24,7 +24,7 @@
             app:key="done_behaviour_for_recurring_tasks"
             app:iconSpaceReserved="false"
             app:title="وظيفة زر الانهاء للتذكيرات المتكرره"
-            app:summary="التسجيل كتذكير منتهي"/>
+            app:summary="فقط اغلاق التذكير حتى موعد التنيه القادم"/>
 
 
         <SwitchPreferenceCompat

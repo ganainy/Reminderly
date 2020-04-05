@@ -35,4 +35,10 @@
         <item>ساعة</item>
     </string-array>
 
+    <string-array name="done_behaviour_for_recurring_tasks_list">
+        <item>فقط اغلاق التذكير حتى موعد التنيه القادم</item>
+        <item>التسجيل كتذكير منتهي</item>
+    </string-array>
+
+
 </resources>

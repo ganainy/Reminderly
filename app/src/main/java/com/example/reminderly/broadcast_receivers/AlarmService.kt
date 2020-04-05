@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.footy.database.ReminderDatabase.Companion.getInstance
 import com.example.reminderly.R
+import com.example.reminderly.Utils.REMINDER_ID
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.ui.postpone_activity.PostponeActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -43,10 +44,10 @@ class AlarmService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        val reminderId = intent?.getLongExtra("reminderId", -1L)
+        val reminderId = intent?.getLongExtra(REMINDER_ID, -1L)
         Log.d("DebugTag", "onStartCommandAlarmService:$reminderId ")
 
-        if (reminderId != null) {
+        if (reminderId != null && reminderId!=-1L) {
             setupNotificationChannel( applicationContext)
             sendReminderNotification(reminderId, applicationContext)
         }
@@ -117,7 +118,7 @@ class AlarmService : Service() {
 
         //postpone reminder pending to pass to notification builder as action
         val postponeReminderIntent = Intent(context, PostponeActivity::class.java)
-        postponeReminderIntent.putExtra("reminderId", reminderId)
+        postponeReminderIntent.putExtra(REMINDER_ID, reminderId)
         postponeReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val postponeReminderPendingIntent = PendingIntent.getActivity(
             context,
@@ -126,7 +127,7 @@ class AlarmService : Service() {
 
         //new reminder pending intent to pass to notification builder as action
         val endReminderIntent = Intent(context, DoneReminderReceiver::class.java)
-        endReminderIntent.putExtra("reminderId", reminderId)
+        endReminderIntent.putExtra(REMINDER_ID, reminderId)
         endReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val endReminderPendingIntent = PendingIntent.getBroadcast(
             context,
@@ -183,6 +184,7 @@ class AlarmService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         if (mediaPlayer.isPlaying){ mediaPlayer.stop() }
+        if (::mCountDownTimer.isInitialized){ mCountDownTimer.cancel() }
     }
 
 }
