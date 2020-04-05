@@ -193,7 +193,7 @@ open class BaseFragment : Fragment() {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe {
                             // set alarm
-                            MyUtils.addAlarm(reminder.id,context,reminder.createdAt.timeInMillis,reminder.repeat)
+                            MyUtils.addAlarmManager(reminder.id,context,reminder.createdAt.timeInMillis,reminder.repeat)
                             adapter.notifyItemChanged(position)
 
                             Toast.makeText(requireActivity(), getString(R.string.reminder_postponed), Toast.LENGTH_SHORT).show()

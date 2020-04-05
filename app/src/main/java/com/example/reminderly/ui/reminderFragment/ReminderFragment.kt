@@ -351,8 +351,10 @@ class ReminderFragment : Fragment(), View.OnClickListener
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { reminderId->
-                    // set alarm
-                    MyUtils.addAlarm(reminderId,context,viewModel.getReminder().createdAt.timeInMillis,viewModel.getReminder().repeat)
+                    //this reminder could be an update for existing reminder so we cancel any ongoing alarms
+                    MyUtils.cancelAlarmManager(reminderId,context)
+                    // set alarm manager
+                    MyUtils.addAlarmManager(reminderId,context,viewModel.getReminder().createdAt.timeInMillis,viewModel.getReminder().repeat)
 
                     viewModel.resetReminder()
                     requireActivity().onBackPressed()

@@ -113,7 +113,6 @@ class MyUtils {
         fun showKeyboard(context: Context?) {
             val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             imm?.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-
         }
 //endregion
 
@@ -178,14 +177,7 @@ class MyUtils {
         //region alarm manager
 
         /**setup alarm manager to trigger NewReminderReceiver on reminder date*/
-        fun addAlarm(
-            reminderId: Long,
-            context: Context?,
-            triggerMillis: Long,
-            repeat: Int
-        ) {
-            //cancel any existing alarms for this reminder
-            cancelAlarmManager(reminderId, context)
+        fun addAlarmManager(reminderId: Long, context: Context?, triggerMillis: Long, repeat: Int) {
             //add new onetime alarm OR repeat alarm depending on repeat value
             when (repeat) {
                 0 -> {//one time reminder
@@ -223,14 +215,8 @@ class MyUtils {
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
             val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-            if (android.os.Build.VERSION.SDK_INT >=
-                android.os.Build.VERSION_CODES.M
-            ) {
-                alarmManager?.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerMillis,
-                    notifyPendingIntent
-                )
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                alarmManager?.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMillis, notifyPendingIntent)
             } else {
                 alarmManager?.setExact(AlarmManager.RTC_WAKEUP, triggerMillis, notifyPendingIntent)
             }
@@ -249,19 +235,14 @@ class MyUtils {
             )
 
             val notifyIntent = Intent(context, NewReminderReceiver::class.java)
+
             notifyIntent.putExtra(REMINDER_ID, reminderId)
-            val notifyPendingIntent = PendingIntent.getBroadcast(
-                context, reminderId.toInt(), notifyIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
-            )
+
+            val notifyPendingIntent = PendingIntent.getBroadcast(context, reminderId.toInt(), notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
             val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
 
-            alarmManager?.setRepeating(
-                AlarmManager.RTC_WAKEUP,
-                triggerMillis,
-                repeatMillis,
-                notifyPendingIntent
-            )
+            alarmManager?.setRepeating(AlarmManager.RTC_WAKEUP, triggerMillis, repeatMillis, notifyPendingIntent)
 
         }
 
@@ -279,15 +260,13 @@ class MyUtils {
             val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
             alarmManager?.cancel(notifyPendingIntent)
 
-            //if cancelAlarm is called by clicking notification actions we also want to remove notification
-            cancelNotification(reminderId, context)
         }
 
-         fun cancelNotification(reminderId: Long, context: Context?) {
+      /*   fun cancelNotification(reminderId: Long, context: Context?) {
             val notificationManager =
                 context?.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             notificationManager?.cancel(reminderId.toInt())
-        }
+        }*/
 
         //endregion
 
@@ -302,8 +281,6 @@ class MyUtils {
             hour: Int,
             minute: Int
         ): Reminder? {
-            cancelAlarmManager(reminder.id,context)
-
             /** postpone reminder with passed duration*/
 
             reminder.createdAt.apply {
@@ -337,7 +314,6 @@ class MyUtils {
 
 
         }
-
 
         /**stop the notification or any ongoing ringing alarm on showing postpone dialog*/
         fun stopAlarmService(context: Context) {

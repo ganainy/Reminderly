@@ -32,7 +32,7 @@ class NewReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         val reminderId = intent.getLongExtra(REMINDER_ID, -1L)
-        Log.d("DebugTag", "onReceiveNewReminderReceiver: $reminderId")
+        Log.d("DebugTag", "NewReminderReceiver onReceive : $reminderId")
 
         if (reminderId!=-1L){
 

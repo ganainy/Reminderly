@@ -1,6 +1,5 @@
 package com.example.reminderly.ui.postpone_activity
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -12,14 +11,11 @@ import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.Utils.REMINDER_ID
-import com.example.reminderly.broadcast_receivers.AlarmService
-import com.example.reminderly.database.Reminder
 import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_postpone.*
-import java.util.*
 
 /**this activity has special theme in manifest so it is transparent && and special attributes
  *  (special affinity and launch mode) so it won't show in recent apps after i use it*/
@@ -33,7 +29,8 @@ class PostponeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_postpone)
 
-
+        Log.d("DebugTag", "PostponeActivity onCreate: ")
+        //stop any ongoing alarm/notification
         MyUtils.stopAlarmService(this)
 
         initViewModel()
@@ -70,7 +67,7 @@ class PostponeActivity : AppCompatActivity() {
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe {
                                     // set alarm
-                                    MyUtils.addAlarm(
+                                    MyUtils.addAlarmManager(
                                         reminder.id,
                                         applicationContext,
                                         reminder.createdAt.timeInMillis,
