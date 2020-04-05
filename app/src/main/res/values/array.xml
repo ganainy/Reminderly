@@ -36,9 +36,13 @@
     </string-array>
 
     <string-array name="done_behaviour_for_recurring_tasks_list">
-        <item>فقط اغلاق التذكير حتى موعد التنيه القادم</item>
+        <item>فقط اغلاق التذكير حتى موعد التنيه القادم (افتراضي)</item>
         <item>التسجيل كتذكير منتهي</item>
     </string-array>
 
+    <string-array name="done_behaviour_list">
+        <item>يتم الاحتفاظ بالتذكيرات المنتهية ويمكن الوصول لها عن طريق القائمة (افتراضي)</item>
+        <item>يتم حذف التذكيرات المنتهية(تنيه: سيتم حذف اى تذكير سابق منتهي)</item>
+    </string-array>
 
 </resources>

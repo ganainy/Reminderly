@@ -18,7 +18,7 @@
         app:key="done_behaviour"
         app:iconSpaceReserved="false"
         app:title="التعامل مع التذكيرات المنتهية"
-        app:summary="يتم الاحتفاظ بالتذكيرات المنتهية"/>
+        app:summary="يتم الاحتفاظ بالتذكيرات المنتهية ويمكن الوصول لها عن طريق القائمة"/>
 
         <Preference
             app:key="done_behaviour_for_recurring_tasks"

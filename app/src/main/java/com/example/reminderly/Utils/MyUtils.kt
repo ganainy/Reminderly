@@ -18,8 +18,23 @@ import com.prolificinteractive.materialcalendarview.CalendarDay
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ *  DONE_ACTION_FOR_REPEATING_REMINDERS:Int
+ *  this value changes based on user settings
+ *  0-> just cancel this notification and it will work normally in next repeat (default)
+ *  1-> end the whole reminder
+ *  */
+
+/**
+ *  DONE_ACTION_FOR_REMINDERS:Int
+ *  this value changes based on user settings
+ *  0-> done reminder are saved and can be accessed through menu (default)
+ *  1-> done reminders are deleted
+ *  */
+
 const val DONE_ACTION_FOR_REPEATING_REMINDERS ="doneActionForRepeatingReminders"
 const val ALLOW_PERSISTENT_NOTIFICATION ="allowPersistent_notification"
+const val DONE_ACTION_FOR_REMINDERS ="doneActionForReminders"
 const val REMINDER_ID="reminder_Id"
 
 class MyUtils {

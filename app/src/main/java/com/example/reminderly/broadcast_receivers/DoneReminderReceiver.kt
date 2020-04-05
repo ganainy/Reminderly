@@ -8,6 +8,7 @@ import android.widget.Toast
 import com.example.footy.database.ReminderDatabase
 import com.example.footy.database.ReminderDatabaseDao
 import com.example.reminderly.R
+import com.example.reminderly.Utils.DONE_ACTION_FOR_REMINDERS
 import com.example.reminderly.Utils.DONE_ACTION_FOR_REPEATING_REMINDERS
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.Utils.REMINDER_ID
@@ -37,38 +38,73 @@ class DoneReminderReceiver : BroadcastReceiver() {
                 AndroidSchedulers.mainThread()
             ).subscribe { reminder ->
 
-            Log.d(
-                "DebugTag",
-                "DoneReminderReceiver DONE_ACTION_FOR_REPEATING_REMINDERS: ${MyUtils.getInt(
-                    context,
-                    DONE_ACTION_FOR_REPEATING_REMINDERS
-                )}"
-            )
+                Log.d(
+                    "DebugTag",
+                    "DoneReminderReceiver DONE_ACTION_FOR_REPEATING_REMINDERS: ${MyUtils.getInt(
+                        context,
+                        DONE_ACTION_FOR_REPEATING_REMINDERS
+                    )}"
+                )
                 Log.d("DebugTag", "DoneReminderReceiver onReceive reminderid: ${reminderId}")
 
-            /**
-             *  DONE_ACTION_FOR_REPEATING_REMINDERS:Int
-             *  this value changes based on user settings
-             *  0-> just cancel this notification and it will work normally in next repeat (default)
-             *  1-> end the whole reminder
-             *  */
+                /**
+                 *  DONE_ACTION_FOR_REPEATING_REMINDERS:Int
+                 *  this value changes based on user settings
+                 *  0-> just cancel this notification and it will work normally in next repeat (default)
+                 *  1-> end the whole reminder
+                 *  */
+
+                /**
+                 *  DONE_ACTION_FOR_REMINDERS:Int
+                 *  this value changes based on user settings
+                 *  0-> done reminder are saved and can be accessed through menu (default)
+                 *  1-> done reminders are deleted
+                 *  */
 
 
+                when {reminder.repeat != 0 && MyUtils.getInt(context, DONE_ACTION_FOR_REPEATING_REMINDERS) == 0 -> {
+                        //repeating reminder && should just cancel this notification and reminder will work normally in next repeat (default)
+                        //do nothing since we already called stopAlarmService()
+                    }
+                    else -> {
+                        if (MyUtils.getInt(context, DONE_ACTION_FOR_REMINDERS) == 0) {
+                            //make the reminder done (won't fire alarm/notification again)
+                            markReminderAsDone(reminder, context, reminderDatabaseDao)
+                        } else {
+                            //delete reminder
+                            deleteReminder(reminderDatabaseDao, reminder, context)
+                        }
 
-            if (reminder.repeat != 0 && MyUtils.getInt(context, DONE_ACTION_FOR_REPEATING_REMINDERS) == 0) {
-                //repeating reminder && should just cancel this notification and reminder will work normally in next repeat (default)
-                //do nothing since we already called stopalarmservice()
-            } else {
-                //make the reminder done (won't fire alarm/notification again)
-                endReminder(reminder, context, reminderDatabaseDao)
-            }
+                    }
+                }
 
 
-        })
+            })
 
     }
 
-    private fun endReminder(
+    private fun deleteReminder(
+        reminderDatabaseDao: ReminderDatabaseDao,
+        reminder: Reminder,
+        context: Context
+    ) {
+        disposable.add(reminderDatabaseDao.delete(reminder).subscribeOn(Schedulers.io()).observeOn(
+            AndroidSchedulers.mainThread()
+        ).subscribe(
+            {//complete
+            },
+            { error ->
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.something_went_wrong),
+                    Toast.LENGTH_SHORT
+                ).show()
+                disposable.clear()
+            }
+        ))
+    }
+
+    private fun markReminderAsDone(
         reminder: Reminder,
         context: Context,
         reminderDatabaseDao: ReminderDatabaseDao
@@ -78,7 +114,6 @@ class DoneReminderReceiver : BroadcastReceiver() {
             AndroidSchedulers.mainThread()
         ).subscribe(
             {//complete
-                disposable.clear()
             },
             { error ->
                 Toast.makeText(

@@ -12,11 +12,16 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
+import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.ALLOW_PERSISTENT_NOTIFICATION
+import com.example.reminderly.Utils.DONE_ACTION_FOR_REMINDERS
 import com.example.reminderly.Utils.DONE_ACTION_FOR_REPEATING_REMINDERS
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.ui.mainActivity.MainActivity
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
 
 class SettingsFragment : PreferenceFragmentCompat() {
@@ -30,6 +35,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private val doneBehaviour by lazy { findPreference<Preference>("done_behaviour") }
     private val doneBehaviourForRecurringTasks by lazy { findPreference<Preference>("done_behaviour_for_recurring_tasks") }
     private val dontDisturbValue by lazy { findPreference<Preference>("don't_disturb_value") }
+
+    private val disposable by lazy { CompositeDisposable() }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -72,7 +79,40 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         doneBehaviour?.setOnPreferenceClickListener {
 
-            //todo
+            MaterialDialog(requireContext()).show {
+                listItemsSingleChoice(
+                    R.array.done_behaviour_list
+                ) { dialog, index, text ->
+                    // Invoked when the user selects an item
+                    //update shared pref value , setting summary based on user selection
+                    when (index) {
+                        0 -> {
+                            MyUtils.putInt(context, DONE_ACTION_FOR_REMINDERS, 0)
+
+                            doneBehaviour!!.summary = MyUtils.getStringFromResourceArray(
+                                context,
+                                R.array.done_behaviour_list, 0
+                            )
+
+                        }
+                        1 -> {
+                            MyUtils.putInt(context, DONE_ACTION_FOR_REMINDERS, 1)
+
+                            doneBehaviour!!.summary = MyUtils.getStringFromResourceArray(
+                                context,
+                                R.array.done_behaviour_list, 1
+                            )
+
+                            deleteExistingDoneReminders()
+
+                        }
+                    }
+                }
+                negativeButton(R.string.cancel)
+                positiveButton(R.string.confirm)
+                title(0, getString(R.string.done_behaviour_for_recurring_tasks))
+            }
+            true
 
             true
         }
@@ -81,26 +121,28 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
             MaterialDialog(requireContext()).show {
                 listItemsSingleChoice(
-                    R.array.done_behaviour_for_recurring_tasks_list,
-                    initialSelection = 0
+                    R.array.done_behaviour_for_recurring_tasks_list
                 ) { dialog, index, text ->
                     // Invoked when the user selects an item
                     //update shared pref value , setting summary based on user selection
-                    if (index == 0) {
-                        MyUtils.putInt(context, DONE_ACTION_FOR_REPEATING_REMINDERS, 0)
+                    when (index) {
+                        0 -> {
+                            MyUtils.putInt(context, DONE_ACTION_FOR_REPEATING_REMINDERS, 0)
 
-                        doneBehaviourForRecurringTasks!!.summary = MyUtils.getStringFromResourceArray(
-                            context,
-                            R.array.done_behaviour_for_recurring_tasks_list, 0
-                        )
+                            doneBehaviourForRecurringTasks!!.summary = MyUtils.getStringFromResourceArray(
+                                context,
+                                R.array.done_behaviour_for_recurring_tasks_list, 0
+                            )
 
-                    } else if (index == 1) {
-                        MyUtils.putInt(context, DONE_ACTION_FOR_REPEATING_REMINDERS, 1)
+                        }
+                        1 -> {
+                            MyUtils.putInt(context, DONE_ACTION_FOR_REPEATING_REMINDERS, 1)
 
-                        doneBehaviourForRecurringTasks!!.summary = MyUtils.getStringFromResourceArray(
-                            context,
-                            R.array.done_behaviour_for_recurring_tasks_list, 1
-                        )
+                            doneBehaviourForRecurringTasks!!.summary = MyUtils.getStringFromResourceArray(
+                                context,
+                                R.array.done_behaviour_for_recurring_tasks_list, 1
+                            )
+                        }
                     }
                 }
                 negativeButton(R.string.cancel)
@@ -116,6 +158,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
+    }
+
+    private fun deleteExistingDoneReminders() {
+        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
+        disposable.add(reminderDatabaseDao.getDoneReminders().subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe { doneReminderList ->
+                    Log.d("DebugTag", "deleteExistingDoneReminders: ${doneReminderList.size}")
+                    for (doneReminder in doneReminderList){
+                        reminderDatabaseDao.delete(doneReminder).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe({
+                            Log.d("DebugTag", "deleteExistingDoneReminders: complete")},
+                            { error ->Log.d("DebugTag", "deleteExistingDoneReminders: error ${error.message}")})
+                    }
+                })
     }
 
     //setup settings' summaries based on saved values in shared pref
@@ -134,6 +189,24 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 doneBehaviourForRecurringTasks?.summary = MyUtils.getStringFromResourceArray(
                     requireContext(),
                     R.array.done_behaviour_for_recurring_tasks_list, 1
+                )
+            }
+        }
+        /**--*/
+
+        val doneBehaviourValue =
+            MyUtils.getInt(requireContext(), DONE_ACTION_FOR_REMINDERS)
+        when (doneBehaviourValue) {
+            0 -> {
+                doneBehaviour?.summary = MyUtils.getStringFromResourceArray(
+                    requireContext(),
+                    R.array.done_behaviour_list, 0
+                )
+            }
+            1 -> {
+                doneBehaviour?.summary = MyUtils.getStringFromResourceArray(
+                    requireContext(),
+                    R.array.done_behaviour_list, 1
                 )
             }
         }
