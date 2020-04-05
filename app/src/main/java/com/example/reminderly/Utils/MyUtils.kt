@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 const val DONE_ACTION_FOR_REPEATING_REMINDERS ="doneActionForRepeatingReminders"
+const val ALLOW_PERSISTENT_NOTIFICATION ="allowPersistent_notification"
 const val REMINDER_ID="reminder_Id"
 
 class MyUtils {

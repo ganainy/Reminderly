@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
         app:key="general_category"
@@ -11,6 +10,7 @@
     <SwitchPreferenceCompat
         app:key="persistent_notification"
         app:iconSpaceReserved="false"
+        android:defaultValue="true"
         app:title="إشعار تذكيرات اليوم"
         app:summary="إشعار دائم لإظهار عدد التذكيرات خلال اليوم مع امكانيه اضافة تذكيرات"/>
 

@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
+import com.example.reminderly.Utils.ALLOW_PERSISTENT_NOTIFICATION
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
@@ -40,8 +41,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_content.*
 
 
-private val PERSISTENT_CHANNEL_ID = "primary_notification_channel"
-private val PERSISTENT_NOTIFICATION_ID = 0
+private const val PERSISTENT_CHANNEL_ID = "primary_notification_channel"
+private const val PERSISTENT_NOTIFICATION_ID = 0
+private var lastCountOfTodayReminder=0
 
 class MainActivity : AppCompatActivity(), ICommunication {
 
@@ -52,8 +54,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private lateinit var viewPager: ViewPager2
     private lateinit var viewModel: MainActivityViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
-    private lateinit var mNotifyManager: NotificationManager
-
+    private  val mNotifyManager by lazy { getSystemService(NOTIFICATION_SERVICE) as NotificationManager }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,9 +92,14 @@ class MainActivity : AppCompatActivity(), ICommunication {
         
     }
 
+    fun cancelPersistentNotification() {
+        mNotifyManager.cancel(PERSISTENT_NOTIFICATION_ID)
+    }
+
+
     /**show persistent notification to allow user to add reminder if app is closed*/
-    private fun sendPersistentNotification(todayNotificationCount: Int) {
-        mNotifyManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+     fun sendPersistentNotification(todayNotificationCount: Int= lastCountOfTodayReminder) {
+
         if (android.os.Build.VERSION.SDK_INT >=
             android.os.Build.VERSION_CODES.O
         ) {
@@ -399,10 +405,19 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 AndroidSchedulers.mainThread()
             ).subscribe({ todayReminders ->
 
+                lastCountOfTodayReminder=todayReminders.size
 
                 showMenuItem(todayReminders.size, R.id.today, CategoryType.TODAY)
 
-                sendPersistentNotification(todayReminders.size)
+                //show persistent notification to help user add reminder from outside of app
+                /**check if user allowed showing persistent notification
+                 * 0-> allowed (default)
+                 * 1-> not allowed
+                */
+                if (MyUtils.getInt(this,ALLOW_PERSISTENT_NOTIFICATION)==0)
+                {
+                    sendPersistentNotification(todayReminders.size)
+                }
 
             }, { error ->
                 Toast.makeText(

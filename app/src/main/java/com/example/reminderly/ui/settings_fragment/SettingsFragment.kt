@@ -13,8 +13,10 @@ import androidx.preference.SwitchPreferenceCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.reminderly.R
+import com.example.reminderly.Utils.ALLOW_PERSISTENT_NOTIFICATION
 import com.example.reminderly.Utils.DONE_ACTION_FOR_REPEATING_REMINDERS
 import com.example.reminderly.Utils.MyUtils
+import com.example.reminderly.ui.mainActivity.MainActivity
 
 
 class SettingsFragment : PreferenceFragmentCompat() {
@@ -48,9 +50,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         persistentNotificationSwitch!!.setOnPreferenceClickListener {
             if (persistentNotificationSwitch!!.isChecked) {
-                //todo
+                (requireActivity() as MainActivity).sendPersistentNotification()
+                MyUtils.putInt(requireContext(),ALLOW_PERSISTENT_NOTIFICATION,0)
             } else {
-                //todo
+                (requireActivity() as MainActivity).cancelPersistentNotification()
+                MyUtils.putInt(requireContext(),ALLOW_PERSISTENT_NOTIFICATION,1)
             }
             true
         }
