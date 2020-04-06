@@ -4,10 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
 import com.example.footy.database.ReminderDatabase
 import com.example.footy.database.ReminderDatabaseDao
-import com.example.reminderly.R
 import com.example.reminderly.Utils.DONE_ACTION_FOR_REMINDERS
 import com.example.reminderly.Utils.DONE_ACTION_FOR_REPEATING_REMINDERS
 import com.example.reminderly.Utils.MyUtils
@@ -94,11 +92,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
             {//complete
             },
             { error ->
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.something_went_wrong),
-                    Toast.LENGTH_SHORT
-                ).show()
+                MyUtils.showErrorToast(context)
                 disposable.clear()
             }
         ))
@@ -116,11 +110,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
             {//complete
             },
             { error ->
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.something_went_wrong),
-                    Toast.LENGTH_SHORT
-                ).show()
+                MyUtils.showErrorToast(context)
                 disposable.clear()
             }
         ))

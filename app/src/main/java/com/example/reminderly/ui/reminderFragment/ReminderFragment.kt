@@ -197,12 +197,8 @@ class ReminderFragment : Fragment(), View.OnClickListener
                 SPEECH_TO_TEXT_CODE
             )
         } else {
-            Toast.makeText(
-                requireActivity(),
-                getString(R.string.feature_not_supported),
-                Toast.LENGTH_SHORT
-            )
-                .show()
+            MyUtils.showCustomToast(requireActivity(),R.string.feature_not_supported)
+
         }
     }
 
@@ -323,22 +319,14 @@ class ReminderFragment : Fragment(), View.OnClickListener
     private fun handleSaveButton() {
 
    if (binding.reminderEditText.text.isBlank()){
-       Toast.makeText(
-           requireActivity(),
-           getString(R.string.text_empty),
-           Toast.LENGTH_SHORT
-       )
-           .show()
+       MyUtils.showCustomToast(requireContext(),R.string.text_empty)
+
        return
    }
         //todo remove comment
         /*else if(viewModel.mReminder.createdAt.timeInMillis <= Calendar.getInstance().timeInMillis){
-       Toast.makeText(
-           requireActivity(),
-           getString(R.string.old_date_error),
-           Toast.LENGTH_SHORT
-       )
-           .show()
+      MyUtils.showCustomToast(requireContext(),R.string.old_date_error)
+
        return
    }*/
 
@@ -361,11 +349,8 @@ class ReminderFragment : Fragment(), View.OnClickListener
                 },
                 {   //error
                         error ->
-                    Toast.makeText(
-                        requireActivity(),
-                        getString(R.string.error_saving_reminder),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    MyUtils.showCustomToast(requireContext(),R.string.error_saving_reminder)
+
                 }
             ))
 
@@ -382,12 +367,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
         when (requestCode) {
             SPEECH_TO_TEXT_CODE -> {
                 if (data == null) {
-                    Toast.makeText(
-                        requireActivity(),
-                        getString(R.string.something_went_wrong),
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    MyUtils.showErrorToast(requireContext())
                     return
                 }
                 val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
@@ -425,12 +405,8 @@ class ReminderFragment : Fragment(), View.OnClickListener
                     binding.reminderEditText.append("\n")
                     Linkify.addLinks(binding.reminderEditText, Linkify.PHONE_NUMBERS)
                 } else {
-                    Toast.makeText(
-                        requireActivity(),
-                        getString(R.string.fetch_contact_failure),
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    MyUtils.showCustomToast(requireContext(),R.string.fetch_contact_failure)
+
                 }
                 cursor?.close()
             }

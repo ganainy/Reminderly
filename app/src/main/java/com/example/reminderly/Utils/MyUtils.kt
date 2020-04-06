@@ -33,13 +33,21 @@ import java.util.*
  *  */
 
 const val DONE_ACTION_FOR_REPEATING_REMINDERS ="doneActionForRepeatingReminders"
+/* 0-> just cancel this notification and it will work normally in next repeat (default) ,
+  1-> end the whole reminder*/
+
 const val ALLOW_PERSISTENT_NOTIFICATION ="allowPersistent_notification"
+/* 0-> allowed (default) , 1-> not allowed*/
+
 const val DONE_ACTION_FOR_REMINDERS ="doneActionForReminders"
+/*0-> done reminder are saved and can be accessed through menu (default) ,  1-> done reminders are deleted*/
+
 const val REMINDER_ID="reminder_Id"
 const val DONT_DISTURB_START_HOURS="dontDisturbStartHours"
 const val DONT_DISTURB_START_MINUTES="dontDisturbStartMinutes"
 const val DONT_DISTURB_END_HOURS="dontDisturbEndHours"
 const val DONT_DISTURB_END_MINUTES="dontDisturbEndMinutes"
+const val DND_OPTION_ENABLED="dndOptionEnabled" /*0->disabled , 1 -> enabled */
 
 class MyUtils {
 
@@ -198,6 +206,24 @@ class MyUtils {
             return array[itemIndex]
         }
 
+         fun showErrorToast(context: Context) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.something_went_wrong),
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        }
+
+        fun showCustomToast(context: Context,stringId:Int) {
+            Toast.makeText(
+                context,
+                context.getString(stringId),
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        }
+
         //endregion
 
         //region alarm manager
@@ -320,13 +346,9 @@ class MyUtils {
              *  if not; because its useless to postpone reminder to a previous date*/
 
             return if (reminder.createdAt.before(Calendar.getInstance())) {
-                Toast.makeText(
-                        context,
-                        context?.getString(R.string.must_be_upcoming_date),
-                        Toast.LENGTH_LONG
-                    )
-                    .show()
-
+                if (context != null) {
+                    showCustomToast(context,R.string.must_be_upcoming_date)
+                }
                 //remove added duration since reminder won't be updated
                 reminder.createdAt.apply {
                     add(Calendar.DAY_OF_MONTH, -day)

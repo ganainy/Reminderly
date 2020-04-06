@@ -15,12 +15,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.footy.database.ReminderDatabase.Companion.getInstance
 import com.example.reminderly.R
-import com.example.reminderly.Utils.REMINDER_ID
+import com.example.reminderly.Utils.*
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.ui.postpone_activity.PostponeActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import java.util.*
 
 
 private val REMINDER_CHANNEL_ID = "reminder_notification_channel"
@@ -47,13 +48,42 @@ class AlarmService : Service() {
         val reminderId = intent?.getLongExtra(REMINDER_ID, -1L)
         Log.d("DebugTag", "onStartCommandAlarmService:$reminderId ")
 
-        if (reminderId != null && reminderId!=-1L) {
+        if (reminderId != null && reminderId!=-1L && !inDndPeriod()) {
             setupNotificationChannel( applicationContext)
             sendReminderNotification(reminderId, applicationContext)
         }
 
 
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    /**this method checks if a date is in range between two dates*/
+    private fun inDndPeriod(): Boolean {
+
+        //first check if dnd option is enabled
+        if (MyUtils.getInt(applicationContext, DND_OPTION_ENABLED)==0){
+            //dnd option is disabled
+            return false
+        }
+
+        val startMinute = MyUtils.getInt(applicationContext, DONT_DISTURB_START_MINUTES)
+        val startHour = MyUtils.getInt(applicationContext, DONT_DISTURB_START_HOURS)
+        val endHour = MyUtils.getInt(applicationContext, DONT_DISTURB_END_HOURS)
+        val endMinute = MyUtils.getInt(applicationContext, DONT_DISTURB_END_MINUTES)
+
+        //get current minute and hour and compare them with dnd period
+       val currentTime= Calendar.getInstance()
+
+       val dndStart= Calendar.getInstance()
+        dndStart.set(Calendar.HOUR_OF_DAY,startHour)
+        dndStart.set(Calendar.MINUTE,startMinute)
+
+        val dndEnd= Calendar.getInstance()
+        dndEnd.set(Calendar.HOUR_OF_DAY,endHour)
+        dndEnd.set(Calendar.MINUTE,endMinute)
+
+        return currentTime.after(dndStart) && currentTime.before(dndEnd)
+
     }
 
 

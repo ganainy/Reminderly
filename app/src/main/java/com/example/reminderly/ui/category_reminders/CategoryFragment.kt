@@ -121,12 +121,8 @@ class CategoryFragment : BaseFragment() {
                 }
 
             }, { error ->
-                Toast.makeText(
-                    requireActivity(),
-                    getString(R.string.error_retreiving_reminder),
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+                MyUtils.showCustomToast(requireContext(),R.string.error_retreiving_reminder)
+
             })
         )
 
@@ -192,12 +188,8 @@ class CategoryFragment : BaseFragment() {
 
 
             }, { error ->
-                Toast.makeText(
-                    requireActivity(),
-                    getString(R.string.error_retreiving_reminder),
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+                MyUtils.showCustomToast(requireContext(),R.string.error_retreiving_reminder)
+
             })
         )
 

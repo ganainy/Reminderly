@@ -131,12 +131,12 @@ open class BaseFragment : Fragment() {
     private fun deleteReminder(reminder: Reminder) {
         disposable.add(viewModel.deleteReminder(reminder).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe( { Toast.makeText(context,getString(R.string.reminder_deleted), Toast.LENGTH_SHORT).show()
+            .subscribe( { MyUtils.showCustomToast(requireContext(),R.string.reminder_deleted)
                 //cancel alarm of this reminder
                 MyUtils.cancelAlarmManager(reminder.id,context)
             },{
                     error->
-                (Toast.makeText(context,getString(R.string.reminder_delete_failed), Toast.LENGTH_SHORT).show())
+                (MyUtils.showCustomToast(requireContext(),R.string.reminder_delete_failed))
             }))
 
     }
@@ -157,12 +157,7 @@ open class BaseFragment : Fragment() {
             requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("label", reminder.text)
         clipboard.setPrimaryClip(clip)
-        Toast.makeText(
-            context,
-            getString(R.string.copied_to_clipboard),
-            Toast.LENGTH_SHORT
-        )
-            .show()
+        MyUtils.showCustomToast(requireContext(),R.string.copied_to_clipboard)
     }
 
     private fun editReminder(reminder: Reminder) {
@@ -196,7 +191,7 @@ open class BaseFragment : Fragment() {
                             MyUtils.addAlarmManager(reminder.id,context,reminder.createdAt.timeInMillis,reminder.repeat)
                             adapter.notifyItemChanged(position)
 
-                            Toast.makeText(requireActivity(), getString(R.string.reminder_postponed), Toast.LENGTH_SHORT).show()
+                            MyUtils.showCustomToast(requireContext(),R.string.reminder_postponed)
                         })
                 }
 
@@ -245,7 +240,7 @@ open class BaseFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 MyUtils.cancelAlarmManager(reminder.id,context)
-                Toast.makeText(requireActivity(), getString(R.string.marked_as_done), Toast.LENGTH_SHORT).show()
+                MyUtils.showCustomToast(requireContext(),R.string.marked_as_done)
             })
     }
 

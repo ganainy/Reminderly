@@ -85,7 +85,8 @@
     <string name="done_behaviour_for_recurring_tasks">وظيفة زر الانهاء للتذكيرات المتكررة</string>
     <string name="from">بداية من</string>
     <string name="until">حتي</string>
-    <string name="wrong_dnd_start_time">يجب ان يكون وقت نهاية فترة عدم الازعاج بعد وقت بدايتها</string>
+    <string name="wrong_dnd_period">يجب ان يكون وقت نهاية فترة عدم الازعاج بعد وقت بدايتها</string>
+    <string name="dont_disturb_summary">بداية من %1$s حتي %2$s</string>
 
 
 </resources>

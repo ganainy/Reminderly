@@ -126,12 +126,8 @@ class CalendarActivity : AppCompatActivity() ,ICommunication{
                 binding.calendarView.invalidateDecorators()
 
             }, { error ->
-                Toast.makeText(
-                    this,
-                    getString(R.string.error_retreiving_reminder),
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+                MyUtils.showCustomToast(this@CalendarActivity,R.string.error_retreiving_reminder)
+
             })
         )
     }

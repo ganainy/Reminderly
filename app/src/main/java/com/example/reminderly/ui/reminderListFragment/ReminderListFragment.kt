@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
+import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ReminderListFragmentBinding
 import com.example.reminderly.ui.basefragment.BaseFragment
@@ -145,12 +146,8 @@ class ReminderListFragment : BaseFragment() {
                 )
 
             }, { error ->
-                Toast.makeText(
-                    requireActivity(),
-                    getString(R.string.error_retreiving_reminder),
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+                MyUtils.showCustomToast(requireContext(),R.string.error_retreiving_reminder)
+
             })
         )
     }

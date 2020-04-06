@@ -74,12 +74,8 @@ class PostponeActivity : AppCompatActivity() {
                                         reminder.repeat
                                     )
 
-                                    Toast.makeText(
-                                            this,
-                                            getString(R.string.reminder_postponed),
-                                            Toast.LENGTH_SHORT
-                                        )
-                                        .show()
+                                    MyUtils.showCustomToast(this@PostponeActivity,R.string.reminder_postponed)
+
                                     finish()
                                 })
                         }

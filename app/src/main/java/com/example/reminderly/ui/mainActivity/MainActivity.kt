@@ -177,12 +177,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
 
             }, { error ->
-                Toast.makeText(
-                        this,
-                        getString(R.string.error_retreiving_reminder),
-                        Toast.LENGTH_SHORT
-                    )
-                    .show()
+                MyUtils.showCustomToast(this@MainActivity,R.string.error_retreiving_reminder)
             })
         )
     }
@@ -389,12 +384,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 showMenuItem(overdueReminders.size, R.id.overdue, CategoryType.OVERDUE)
 
             }, { error ->
-                Toast.makeText(
-                        this,
-                        getString(R.string.error_retreiving_reminder),
-                        Toast.LENGTH_SHORT
-                    )
-                    .show()
+                MyUtils.showCustomToast(this@MainActivity,R.string.error_retreiving_reminder)
+
             })
         )
     }
@@ -420,12 +411,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 }
 
             }, { error ->
-                Toast.makeText(
-                        this,
-                        getString(R.string.error_retreiving_reminder),
-                        Toast.LENGTH_SHORT
-                    )
-                    .show()
+                MyUtils.showCustomToast(this@MainActivity,R.string.error_retreiving_reminder)
+
             })
         )
     }
@@ -444,12 +431,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
 
             }, { error ->
-                Toast.makeText(
-                        this,
-                        getString(R.string.error_retreiving_reminder),
-                        Toast.LENGTH_SHORT
-                    )
-                    .show()
+                MyUtils.showCustomToast(this@MainActivity,R.string.error_retreiving_reminder)
+
             })
         )
     }
