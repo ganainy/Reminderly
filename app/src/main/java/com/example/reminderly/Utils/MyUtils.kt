@@ -36,6 +36,10 @@ const val DONE_ACTION_FOR_REPEATING_REMINDERS ="doneActionForRepeatingReminders"
 const val ALLOW_PERSISTENT_NOTIFICATION ="allowPersistent_notification"
 const val DONE_ACTION_FOR_REMINDERS ="doneActionForReminders"
 const val REMINDER_ID="reminder_Id"
+const val DONT_DISTURB_START_HOURS="dontDisturbStartHours"
+const val DONT_DISTURB_START_MINUTES="dontDisturbStartMinutes"
+const val DONT_DISTURB_END_HOURS="dontDisturbEndHours"
+const val DONT_DISTURB_END_MINUTES="dontDisturbEndMinutes"
 
 class MyUtils {
 
@@ -70,6 +74,12 @@ class MyUtils {
             return timeFormat.format(date)
         }
 
+        fun formatTime(hour: Int,minute: Int): String {
+            val calendar=Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY,hour)
+            calendar.set(Calendar.MINUTE,minute)
+            return timeFormat.format(calendar.time)
+        }
 
         fun getDateFromCalendar(calendar: Calendar): String {
             return dateFormat.format(calendar.time)
