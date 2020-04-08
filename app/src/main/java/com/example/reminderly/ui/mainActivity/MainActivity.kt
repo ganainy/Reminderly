@@ -25,6 +25,7 @@ import com.example.reminderly.Utils.ALLOW_PERSISTENT_NOTIFICATION
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
+import com.example.reminderly.ui.aboutFragment.AboutFragment
 import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
 import com.example.reminderly.ui.calendarActivity.CalendarActivity
 import com.example.reminderly.ui.category_reminders.CategoryFragment
@@ -255,6 +256,9 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 R.id.settings -> {
                     openSettingsFragment()
                 }
+                R.id.about -> {
+                    openAboutFragment()
+                }
             }
             binding.drawerLayout.closeDrawers()
             true
@@ -272,6 +276,14 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
             }
+    }
+
+    private fun openAboutFragment() {
+        supportFragmentManager
+            .beginTransaction()
+            .add(R.id.fragmentContainer, AboutFragment())
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun openSettingsFragment() {

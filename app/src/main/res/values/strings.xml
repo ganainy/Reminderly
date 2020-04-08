@@ -5,7 +5,7 @@
     <string name="no_active_reminders">لا يوجد تذكيرات نشطة حاليا</string>
     <string name="no_favorite_reminders">لا يوجد تذكيرات مفضلة حاليا</string>
     <string name="settings">الاعدادات</string>
-    <string name="about">عن التطبيق</string>
+    <string name="about">عن المطور</string>
     <string name="feedback">الابلاغ عن مشكلة</string>
     <string name="share_app">مشاركةالتطبيق</string>
     <string name="remove_ads">حذف الاعلانات</string>
@@ -88,6 +88,9 @@
     <string name="wrong_dnd_period">يجب ان يكون وقت نهاية فترة عدم الازعاج بعد وقت بدايتها</string>
     <string name="dont_disturb_summary">بداية من %1$s حتي %2$s</string>
     <string name="another_reminder_is_showing">هناك تنبيه اخر موعده الان وقدم تم تأجيله تلقائيا خمس دقائق</string>
+    <string name="developer_info">• الاسم:عمرو محمد على \n • الجنسية : مصري\n • العمر : 23 عام\n • الإيميل : amrmohammedali11@gmail.com\n • تليفون/واتس اب : +20 01094095356</string>
+    <string name="click_to_message_me_on_whatsapp">اضغط هنا لمحادثتي على الواتس اب</string>
+    <string name="dont_have_whatsapp">لا يحتوى هاتفك على تطبيق واتس اب</string>
 
 
 </resources>

@@ -95,7 +95,7 @@ open class BaseFragment : Fragment() {
             BasicGridItem(R.drawable.ic_check_grey, getString(R.string.done)),
             BasicGridItem(R.drawable.ic_access_time_grey, getString(R.string.postpone)),
             BasicGridItem(R.drawable.ic_edit_grey, getString(R.string.edit)),
-            BasicGridItem(R.drawable.ic_content_copy_grey, getString(R.string.copy)),
+            BasicGridItem(R.drawable.ic_content_copy_grey, getString(R.string.mcopy)),
             BasicGridItem(R.drawable.ic_share_grey, getString(R.string.share)),
             BasicGridItem(R.drawable.ic_delete_grey, getString(R.string.delete))
         )

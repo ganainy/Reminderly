@@ -50,27 +50,11 @@
             android:icon="@drawable/ic_info_grey"
             android:title="@string/about"
             />
-        <item
-            android:id="@+id/report_issue"
-            android:checked="false"
-            android:icon="@drawable/ic_feedback_grey"
-            android:title="@string/feedback"
-            />
+
 
     </group>
 
-    <group android:orderInCategory="3">
-        <item
-            android:checked="false"
-            android:icon="@drawable/ic_shop_grey"
-            android:title="@string/remove_ads" />
-        <item
-            android:checked="false"
-            android:icon="@drawable/ic_share_grey"
-            android:title="@string/share_app"
-            />
 
-    </group>
 
 
 </menu>
