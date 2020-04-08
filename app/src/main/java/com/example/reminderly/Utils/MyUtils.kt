@@ -215,11 +215,11 @@ class MyUtils {
                 .show()
         }
 
-        fun showCustomToast(context: Context,stringId:Int) {
+        fun showCustomToast(context: Context,stringId:Int,length:Int =Toast.LENGTH_SHORT) {
             Toast.makeText(
                 context,
                 context.getString(stringId),
-                Toast.LENGTH_SHORT
+                length
             )
                 .show()
         }
@@ -361,6 +361,24 @@ class MyUtils {
             }
 
 
+        }
+
+
+        /**similar to pospone reminder but won't check if date of postponed reminder is valid*/
+        fun forcePostponeReminder(
+            reminder: Reminder,
+            day: Int,
+            hour: Int,
+            minute: Int
+        ): Reminder {
+            /** postpone reminder with passed duration*/
+
+            reminder.createdAt.apply {
+                add(Calendar.DAY_OF_MONTH, day)
+                add(Calendar.HOUR_OF_DAY, hour)
+                add(Calendar.MINUTE, minute)
+            }
+             return reminder
         }
 
         /**stop the notification or any ongoing ringing alarm on showing postpone dialog*/

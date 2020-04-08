@@ -1,26 +1,14 @@
 package com.example.reminderly.broadcast_receivers
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.PowerManager
-import android.os.SystemClock
+import android.os.PowerManager.*
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat.getSystemService
+import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import androidx.core.content.ContextCompat.startForegroundService
-import com.example.footy.database.ReminderDatabase
-import com.example.reminderly.R
 import com.example.reminderly.Utils.REMINDER_ID
-import com.example.reminderly.ui.postpone_activity.PostponeActivity
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.functions.Consumer
-import io.reactivex.schedulers.Schedulers
 
 
 /**triggered by alarm manager to show notification when reminder time comes
@@ -39,7 +27,7 @@ class NewReminderReceiver : BroadcastReceiver() {
         //acquire wakelock
         val wakeLock: PowerManager.WakeLock =
             (context.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
+                newWakeLock(FULL_WAKE_LOCK , "MyApp::MyWakelockTag").apply {
                     acquire(10 * 1000L /*10 seconds*/)
                 }
             }

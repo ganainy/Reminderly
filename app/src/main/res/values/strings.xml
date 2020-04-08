@@ -45,7 +45,7 @@
     <string name="done">تم التنفيذ</string>
     <string name="postpone">تأجيل</string>
     <string name="edit">تعديل</string>
-    <string name="copy">نسخ</string>
+    <string name="mcopy">نسخ</string>
     <string name="share">مشاركة</string>
     <string name="delete">حذف</string>
     <string name="overdue_reminders">تذكيرات فائتة</string>
@@ -87,6 +87,7 @@
     <string name="until">حتي</string>
     <string name="wrong_dnd_period">يجب ان يكون وقت نهاية فترة عدم الازعاج بعد وقت بدايتها</string>
     <string name="dont_disturb_summary">بداية من %1$s حتي %2$s</string>
+    <string name="another_reminder_is_showing">هناك تنبيه اخر موعده الان وقدم تم تأجيله تلقائيا خمس دقائق</string>
 
 
 </resources>
