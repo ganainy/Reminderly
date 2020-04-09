@@ -1,5 +1,5 @@
 # Reminderly
-Private chat app with realtime notification and support audio messages,image sharing,file sharing.
+App to add one time/repeating reminders with option to be a notification or an alarm
 
 video preview : https://drive.google.com/file/d/1ihbyvQ-iIDlEs0YwEpgC67rJSvCQnDHm/view?usp=sharing
 
