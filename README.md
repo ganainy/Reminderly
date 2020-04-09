@@ -34,6 +34,8 @@ Pictures:<br>
   
    <img src="https://cdn.discordapp.com/attachments/566581417606119424/697947068114796624/2020_04_10_01_03_51.jpg" width="350"><br>
    
+      <img src="https://cdn.discordapp.com/attachments/566581417606119424/697947056467214457/2020_04_10_01_03_08.jpg" width="350"><br>
+   
     <img src="https://cdn.discordapp.com/attachments/566581417606119424/697947071826886731/2020_04_10_01_05_39.jpg" width="350"><br>
    
  
