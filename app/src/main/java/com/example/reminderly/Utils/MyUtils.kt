@@ -48,6 +48,7 @@ const val DONT_DISTURB_START_MINUTES="dontDisturbStartMinutes"
 const val DONT_DISTURB_END_HOURS="dontDisturbEndHours"
 const val DONT_DISTURB_END_MINUTES="dontDisturbEndMinutes"
 const val DND_OPTION_ENABLED="dndOptionEnabled" /*0->disabled , 1 -> enabled */
+const val NIGHT_MODE_ENABLED="nightModeEnabled" /*0->disabled , 1 -> enabled */
 
 class MyUtils {
 

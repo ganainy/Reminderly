@@ -1,0 +1,13 @@
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<resources>
+  <color name="primaryColor">#2E655F</color>
+  <color name="primaryLightColor">#54958E</color>
+  <color name="primaryDarkColor">#00867d</color>
+  <color name="primaryTextColor">#FFFFFF</color>
+    <color name="fragmentBackground">#5B5B5B</color>
+
+
+  <color name="red">#F44336</color>
+
+
+</resources>

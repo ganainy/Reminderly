@@ -80,13 +80,12 @@ class AlarmService : Service() {
             reminderDatabaseDao.getReminderById(secondReminderId).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    Log.d("DebugTag", "postponeSecondReminder: got reminder")
                     val postponedReminder = MyUtils.forcePostponeReminder(it, 0, 0, 5)
                     reminderDatabaseDao.update(postponedReminder).subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread()).subscribe({
-                            Log.d("DebugTag", "postponeSecondReminder: updated reminder")
+                            //done
                         },{
-                            Log.d("DebugTag", "postponeSecondReminder: error while updating ${it.message}")
+                            MyUtils.showCustomToast(this,R.string.something_went_wrong)
                         })
                     disposable.clear()
                 }

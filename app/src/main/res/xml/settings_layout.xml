@@ -27,6 +27,12 @@
             app:title="وظيفة زر الانهاء للتذكيرات المتكرره"
             app:summary="فقط اغلاق التذكير حتى موعد التنيه القادم"/>
 
+        <SwitchPreferenceCompat
+            app:key="night_mode_switch"
+            app:iconSpaceReserved="false"
+            app:title="تفعيل الوضع الليلي"
+            app:summary=" الوضع الليلي مناسب للاماكن منخفضة الاضاءة و قد يكون مريح اكثر للعين"/>
+
 
         <SwitchPreferenceCompat
             app:key="don't_disturb_switch"

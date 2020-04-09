@@ -5,12 +5,14 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.NotificationCompat
 import androidx.core.content.res.ResourcesCompat
@@ -23,6 +25,7 @@ import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.ALLOW_PERSISTENT_NOTIFICATION
 import com.example.reminderly.Utils.MyUtils
+import com.example.reminderly.Utils.NIGHT_MODE_ENABLED
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
 import com.example.reminderly.ui.aboutFragment.AboutFragment
@@ -64,6 +67,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
             R.layout.activity_main
         )
 
+        checkNightMode()
+
         setupToolbar()
 
         initViewModel()
@@ -81,6 +86,15 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 openReminderFragment()
             }
 
+    }
+
+    private fun checkNightMode() {
+        val isNightModeEnabled = MyUtils.getInt(this, NIGHT_MODE_ENABLED)
+        Log.d("DebugTag", "checkNightMode: ${isNightModeEnabled}")
+        if (isNightModeEnabled == 0)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        else if (isNightModeEnabled == 1)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
     }
 
 

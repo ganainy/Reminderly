@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Reminderly</string>
+    <string name="app_name">تذكيراتي</string>
     <string name="all_reminders">جميع التذكيرات</string>
     <string name="favorite_reminders">التذكيرات المفضله</string>
     <string name="no_active_reminders">لا يوجد تذكيرات نشطة حاليا</string>
@@ -43,7 +43,6 @@
     <string name="monthly">شهريا</string>
     <string name="yearly">سنويا</string>
     <string name="done">تم التنفيذ</string>
-    <string name="postpone">تأجيل</string>
     <string name="edit">تعديل</string>
     <string name="mcopy">نسخ</string>
     <string name="share">مشاركة</string>
@@ -91,6 +90,7 @@
     <string name="developer_info">• الاسم:عمرو محمد على \n • الجنسية : مصري\n • العمر : 23 عام\n • الإيميل : amrmohammedali11@gmail.com\n • تليفون/واتس اب : +20 01094095356</string>
     <string name="click_to_message_me_on_whatsapp">اضغط هنا لمحادثتي على الواتس اب</string>
     <string name="dont_have_whatsapp">لا يحتوى هاتفك على تطبيق واتس اب</string>
+    <string name="postpone">تأجيل</string>
 
 
 </resources>

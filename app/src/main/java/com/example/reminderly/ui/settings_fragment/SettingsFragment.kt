@@ -1,6 +1,7 @@
 package com.example.reminderly.ui.settings_fragment
 
 import android.app.TimePickerDialog
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -29,12 +30,10 @@ import io.reactivex.subjects.PublishSubject
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
-    private val doneBehaviourDataStore by lazy { StringDataStore(requireContext()) }
-    private val doneBehaviourForRecurringTasksDataStore by lazy { StringDataStore(requireContext()) }
-    private val dontDisturbDataStore by lazy { StringDataStore(requireContext()) }
 
     private val persistentNotificationSwitch by lazy { findPreference<SwitchPreferenceCompat>("persistent_notification") }
     private val dontDisturbSwitch by lazy { findPreference<SwitchPreferenceCompat>("don't_disturb_switch") }
+    private val nightModeSwitch by lazy { findPreference<SwitchPreferenceCompat>("night_mode_switch") }
     private val doneBehaviour by lazy { findPreference<Preference>("done_behaviour") }
     private val doneBehaviourForRecurringTasks by lazy { findPreference<Preference>("done_behaviour_for_recurring_tasks") }
     private val dontDisturbValue by lazy { findPreference<Preference>("don't_disturb_value") }
@@ -246,6 +245,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
+        nightModeSwitch?.setOnPreferenceClickListener {
+            if (nightModeSwitch!!.isChecked) {
+                MyUtils.putInt(requireContext(), NIGHT_MODE_ENABLED, 1)
+                requireActivity().recreate()
+            } else {
+                MyUtils.putInt(requireContext(), NIGHT_MODE_ENABLED, 0)
+                requireActivity().recreate()
+            }
+            true
+        }
+
     }
 
     private fun showEndTimePicker() {
@@ -404,9 +414,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        /**override background color*/
+        /**override background color to white in day mode and grey in night mode*/
         val view = super.onCreateView(inflater, container, savedInstanceState)
-        view?.setBackgroundColor(Color.parseColor("#FFFFFF"))
+
+        val nightModeFlags = context!!.resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK
+        when (nightModeFlags) {
+            Configuration.UI_MODE_NIGHT_YES -> view?.setBackgroundColor(Color.parseColor("#5B5B5B"))
+            Configuration.UI_MODE_NIGHT_NO ->  view?.setBackgroundColor(Color.parseColor("#FFFFFF"))
+        }
+
+
         return view
     }
 

@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorPrimaryDark">@color/primaryDarkColor</item>
@@ -19,6 +19,11 @@
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Small</item>
     </style>
 
+    <style name="ReminderItemStyleNight" parent="MyTextViewStyle">
+        <item name="android:textColor">@color/primaryTextColor</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Small</item>
+    </style>
+
     <style name="Theme.Transparent" parent="Theme.AppCompat.Dialog.MinWidth">
         <item name="android:background">#00000000</item>
         <item name="title">""</item>
@@ -33,6 +38,10 @@
 
     <style name="AppTheme.Picker" parent="Theme.AppCompat.Light.NoActionBar" >
         <item name="android:textColorPrimary">@android:color/black</item>
+    </style>
+
+    <style name="AppTheme.NightPicker" parent="Theme.AppCompat.Light.NoActionBar" >
+        <item name="android:textColorPrimary">@android:color/primary_text_dark</item>
     </style>
 
 
