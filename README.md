@@ -13,15 +13,15 @@ MVVM architecture <br>
 
 Features:<br>
 ----------
--create one time/repetitive reminders
--get reminded using normal notification/alarm
--mark days on the calendar to add reminders to these days, --show days that have reminders on the calendar
--favorite/search for your reminders for easy access
--add reminders with voice using text to speech
--don’t disturb option to disable reminders in a certain period of day
--option to toggle night & day mode 
--easy access for overdue-today-upcoming-done reminders from the navigation drawer
--preferences for handling done & repeating reminders
+⚫create one time/repetitive reminders<br>
+⚫get reminded using normal notification/alarm<br>
+⚫mark days on the calendar to add reminders to these days, --show days that have reminders on the calendar<br>
+⚫favorite/search for your reminders for easy access<br>
+⚫add reminders with voice using text to speech<br>
+⚫don’t disturb option to disable reminders in a certain period of day<br>
+⚫option to toggle night & day mode <br>
+⚫easy access for overdue-today-upcoming-done reminders from the navigation drawer<br>
+⚫preferences for handling done & repeating reminders<br>
 
 Pictures:<br>
 ---------
