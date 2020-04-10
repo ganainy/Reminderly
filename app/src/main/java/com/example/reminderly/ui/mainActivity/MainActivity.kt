@@ -3,8 +3,13 @@ package com.example.reminderly.ui.mainActivity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -67,6 +72,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
             R.layout.activity_main
         )
 
+        requestIgnoteBatteryOptimization()
+
         checkNightMode()
 
         setupToolbar()
@@ -86,6 +93,19 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 openReminderFragment()
             }
 
+    }
+
+    private fun requestIgnoteBatteryOptimization() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent()
+            val packageName = packageName
+            val pm: PowerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                intent.data = Uri.parse("package:$packageName")
+                startActivity(intent)
+            }
+        }
     }
 
     private fun checkNightMode() {
