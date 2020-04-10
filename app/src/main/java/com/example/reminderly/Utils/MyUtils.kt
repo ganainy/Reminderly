@@ -225,6 +225,23 @@ class MyUtils {
                 .show()
         }
 
+
+        /**cancel the reminder UI (notification) depending on if its alarm or notification reminder*/
+         fun closeReminder(
+            reminder: Reminder,
+            reminderId: Long,
+            context: Context
+        ) {
+            if (reminder.reminderType == 0) {
+                //notification reminder
+               cancelNotification(reminderId, context)
+            } else if (reminder.reminderType == 1) {
+                //alarm reminder
+                stopAlarmService(context)
+
+            }
+        }
+
         //endregion
 
         //region alarm manager

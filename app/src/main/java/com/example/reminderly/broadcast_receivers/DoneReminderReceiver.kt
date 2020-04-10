@@ -23,53 +23,64 @@ class DoneReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
 
-
-
         val reminderId = intent.extras?.get(REMINDER_ID) as Long
         val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
 
         //get reminder by id and set it to done or just close this notification and reminder will
         // work normally in next repeat if it is repeating alarm
-        disposable.add(reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { reminder ->
+        disposable.add(
+            reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe { reminder ->
 
-                /**
-                 *  DONE_ACTION_FOR_REPEATING_REMINDERS:Int
-                 *  this value changes based on user settings
-                 *  0-> just cancel this notification and it will work normally in next repeat (default)
-                 *  1-> end the whole reminder
-                 *  */
+                    //close any ongoing notification/alarm
+                MyUtils.closeReminder(reminder, reminderId, context)
 
-                /**
-                 *  DONE_ACTION_FOR_REMINDERS:Int
-                 *  this value changes based on user settings
-                 *  0-> done reminder are saved and can be accessed through menu (default)
-                 *  1-> done reminders are deleted
-                 *  */
-
-
-                when {reminder.repeat != 0 && MyUtils.getInt(context, DONE_ACTION_FOR_REPEATING_REMINDERS) == 0 -> {
-                        //repeating reminder && should just cancel this alarm and reminder will work normally in next repeat (default)
-                    MyUtils.stopAlarmService(context)
-                    }
-                    else -> {
-                        //this is notification reminder
-                        MyUtils.cancelNotification(reminderId,context)
-
-                        if (MyUtils.getInt(context, DONE_ACTION_FOR_REMINDERS) == 0) {
-                            //make the reminder done (won't fire alarm/notification again)
+                    if (reminder.repeat == 1 ){
+                        //repeating reminder
+                        if (shouldTemporaryCancelAlarmReminder(context)){
+                            //we should just stop the alarm service and not delete reminder(already did that by calling MyUtils.closeReminder())
+                        }else{
+                            //make the reminder done (won't fire alarm again)
                             markReminderAsDone(reminder, context, reminderDatabaseDao)
-                        } else {
+                        }
+
+                    }else
+                    {
+                        //this is notification reminder
+                        if (shouldDeleteDoneReminders(context)) {
                             //delete reminder
                             deleteReminder(reminderDatabaseDao, reminder, context)
+                        } else {
+                            //make the reminder done (won't fire alarm/notification again)
+                            markReminderAsDone(reminder, context, reminderDatabaseDao)
                         }
 
                     }
-                }
 
-
+                    disposable.clear()
             })
 
     }
+
+
+    /**
+     *  DONE_ACTION_FOR_REMINDERS:Int
+     *  this value changes based on user settings
+     *  0-> done reminder are saved and can be accessed through menu (default)
+     *  1-> done reminders are deleted
+     *  */
+    private fun shouldDeleteDoneReminders(context: Context) =
+        MyUtils.getInt(context, DONE_ACTION_FOR_REMINDERS) == 1
+
+
+    /**
+     *  DONE_ACTION_FOR_REPEATING_REMINDERS:Int
+     *  this value changes based on user settings
+     *  0-> just cancel this notification and it will work normally in next repeat (default)
+     *  1-> end the whole reminder
+     *  */
+    private fun shouldTemporaryCancelAlarmReminder(context: Context) =
+        MyUtils.getInt(context, DONE_ACTION_FOR_REPEATING_REMINDERS) == 0
 
     private fun deleteReminder(
         reminderDatabaseDao: ReminderDatabaseDao,
@@ -80,6 +91,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
             AndroidSchedulers.mainThread()
         ).subscribe(
             {//complete
+                disposable.clear()
             },
             { error ->
                 MyUtils.showErrorToast(context)
@@ -88,6 +100,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
         ))
     }
 
+    /**updates reminder in database with isdone=1*/
     private fun markReminderAsDone(
         reminder: Reminder,
         context: Context,
@@ -98,6 +111,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
             AndroidSchedulers.mainThread()
         ).subscribe(
             {//complete
+                disposable.clear()
             },
             { error ->
                 MyUtils.showErrorToast(context)
