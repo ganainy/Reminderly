@@ -315,11 +315,11 @@ class MyUtils {
 
         }
 
-      /*   fun cancelNotification(reminderId: Long, context: Context?) {
+         fun cancelNotification(reminderId: Long, context: Context?) {
             val notificationManager =
                 context?.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             notificationManager?.cancel(reminderId.toInt())
-        }*/
+        }
 
         //endregion
 

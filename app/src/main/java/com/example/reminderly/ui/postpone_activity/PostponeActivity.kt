@@ -29,10 +29,6 @@ class PostponeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_postpone)
 
-        Log.d("DebugTag", "PostponeActivity onCreate: ")
-        //stop any ongoing alarm/notification
-        MyUtils.stopAlarmService(this)
-
         initViewModel()
 
         val (dayPicker, hourPicker, minutePicker) = setupNumberPickers()
@@ -43,9 +39,16 @@ class PostponeActivity : AppCompatActivity() {
 
         //get passed reminder and delay it by the selected amount by user
         disposable.add(
-            viewModel.getReminderById(reminderId).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { reminder ->
+            viewModel.getReminderById(reminderId).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { reminder ->
+
+                if (reminder.reminderType==0){
+                    //notification reminder
+                    MyUtils.cancelNotification(reminderId,this)
+                }else if (reminder.reminderType==1){
+                    //alarm reminder
+                    MyUtils.stopAlarmService(this)
+
+                }
 
                     postponeButton.setOnClickListener {
                         val postponedReminder = MyUtils.postponeReminder(

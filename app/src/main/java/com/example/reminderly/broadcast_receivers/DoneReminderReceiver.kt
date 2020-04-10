@@ -23,27 +23,14 @@ class DoneReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
 
-        //stop any ongoing alarm/notification
-        MyUtils.stopAlarmService(context)
+
 
         val reminderId = intent.extras?.get(REMINDER_ID) as Long
         val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
 
         //get reminder by id and set it to done or just close this notification and reminder will
         // work normally in next repeat if it is repeating alarm
-        disposable.add(reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io())
-            .observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe { reminder ->
-
-                Log.d(
-                    "DebugTag",
-                    "DoneReminderReceiver DONE_ACTION_FOR_REPEATING_REMINDERS: ${MyUtils.getInt(
-                        context,
-                        DONE_ACTION_FOR_REPEATING_REMINDERS
-                    )}"
-                )
-                Log.d("DebugTag", "DoneReminderReceiver onReceive reminderid: ${reminderId}")
+        disposable.add(reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { reminder ->
 
                 /**
                  *  DONE_ACTION_FOR_REPEATING_REMINDERS:Int
@@ -61,10 +48,13 @@ class DoneReminderReceiver : BroadcastReceiver() {
 
 
                 when {reminder.repeat != 0 && MyUtils.getInt(context, DONE_ACTION_FOR_REPEATING_REMINDERS) == 0 -> {
-                        //repeating reminder && should just cancel this notification and reminder will work normally in next repeat (default)
-                        //do nothing since we already called stopAlarmService()
+                        //repeating reminder && should just cancel this alarm and reminder will work normally in next repeat (default)
+                    MyUtils.stopAlarmService(context)
                     }
                     else -> {
+                        //this is notification reminder
+                        MyUtils.cancelNotification(reminderId,context)
+
                         if (MyUtils.getInt(context, DONE_ACTION_FOR_REMINDERS) == 0) {
                             //make the reminder done (won't fire alarm/notification again)
                             markReminderAsDone(reminder, context, reminderDatabaseDao)

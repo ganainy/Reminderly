@@ -15,7 +15,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.footy.database.ReminderDatabase
-import com.example.footy.database.ReminderDatabase.Companion.getInstance
 import com.example.reminderly.R
 import com.example.reminderly.Utils.*
 import com.example.reminderly.database.Reminder
@@ -49,9 +48,17 @@ class AlarmService : Service() {
         return null
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        //setup notification channels
+        setupAlarmReminderNotificationChannel(applicationContext)
+        setupNotificationReminderNotificationChannel(applicationContext)
+
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-
+//first check if any alarm is already active
         if (mediaPlayer.isPlaying) {
             //this means second reminder came while a alert reminder is active so we delay the
             // second reminder for 5 minutes till the first one finishes
@@ -154,23 +161,22 @@ class AlarmService : Service() {
 
         //get reminder text using reminder id
         disposable.add(reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io())
-            .observeOn(
-                AndroidSchedulers.mainThread()
-            )
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe { reminder ->
                 if (reminder.reminderType == 1) {
                     //alarm notification (always on screen notification+play sound)
-                    setupAlarmReminderNotificationChannel(applicationContext)
                     startAlarmNotification(context, reminder, reminderId)
                 } else {
                     //normal notification
-                    setupNotificationReminderNotificationChannel(applicationContext)
-                    showNotification(
+                    val notificationBuilder = getNotificationBuilder(
                         context,
                         reminder,
                         reminderId,
                         NOTIFICATION_REMINDER_CHANNEL_ID
                     )
+
+                    mNotifyManager.notify(reminder.id.toInt(), notificationBuilder.build())
+
                 }
 
 
@@ -198,12 +204,12 @@ class AlarmService : Service() {
     }
 
 
-    private fun showNotification(
+    private fun getNotificationBuilder(
         context: Context,
         reminder: Reminder,
         reminderId: Long,
         notificationChannelId: String
-    ) {
+    ): NotificationCompat.Builder {
 
         //postpone reminder pending to pass to notification builder as action
         val postponeReminderIntent = Intent(context, PostponeActivity::class.java)
@@ -240,12 +246,13 @@ class AlarmService : Service() {
             priority = NotificationCompat.PRIORITY_HIGH
             setDefaults(NotificationCompat.DEFAULT_ALL)
             setOnlyAlertOnce(true)
+            setGroup("notification_group")
             setAutoCancel(true)
         }
 
+        return notificationBuilder
 
-        startForeground(reminder.id.toInt(), notificationBuilder.build())
-        //mNotifyManager.notify(reminder.id.toInt(), notificationBuilder.build())
+
     }
 
     private fun startAlarmNotification(
@@ -257,10 +264,11 @@ class AlarmService : Service() {
         // show notification every second so its always on screen && play audio in loop
         mediaPlayer.start()
 
+        val notificationBuilder = getNotificationBuilder(context, reminder, reminderId, ALARM_REMINDER_CHANNEL_ID)
 
         mCountDownTimer = object : CountDownTimer(3 * 60 * 1000L, 1500) {
             override fun onTick(millisUntilFinished: Long) {
-                showNotification(context, reminder, reminderId, ALARM_REMINDER_CHANNEL_ID)
+                startForeground(reminder.id.toInt(), notificationBuilder.build())
             }
 
             override fun onFinish() {
