@@ -8,12 +8,19 @@ import android.os.PowerManager.*
 import android.util.Log
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import androidx.core.content.ContextCompat.startForegroundService
+import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.Utils.REMINDER_ID
+import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 
 /**triggered by alarm manager to show notification when reminder time comes
  * NOTE:we don't call the service directly because if app is asleep it won't trigger so we call
  * receiver and acquire wakelock then call the service and release the wakelock there*/
+val disposable=CompositeDisposable()
 class NewReminderReceiver : BroadcastReceiver() {
 
 
@@ -36,7 +43,20 @@ class NewReminderReceiver : BroadcastReceiver() {
         val notifyIntent = Intent(context, AlarmService::class.java)
         notifyIntent.putExtra(REMINDER_ID, reminderId)
 
-        startForegroundService(context, notifyIntent)
+
+            val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
+            disposable.add(
+                reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread()).subscribe {
+                        //start background service or foreground service based on reminderType
+                        if (it.reminderType==0){
+                            context.startService(notifyIntent)
+                        }else{
+                            startForegroundService(context, notifyIntent)
+                        }
+                        disposable.clear()
+                })
+
 
     }
     }

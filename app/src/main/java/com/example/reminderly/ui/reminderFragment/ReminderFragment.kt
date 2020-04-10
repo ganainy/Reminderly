@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import android.speech.RecognizerIntent
 import android.text.util.Linkify
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,6 +42,22 @@ class ReminderFragment : Fragment(), View.OnClickListener
     private lateinit var viewModelFactory: ReminderViewModelFactory
     private lateinit var binding: ReminderFragmentBinding
     private val disposable = CompositeDisposable()
+    val cal = Calendar.getInstance()
+    val dateSetListener =
+        DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            Log.d("DebugTag", "handleDateImageClick: ${year}....${monthOfYear}...${dayOfMonth}")
+            cal.set(Calendar.YEAR, year)
+            cal.set(Calendar.MONTH, monthOfYear)
+            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            //update date text view with selected date
+            binding.dateText.text = MyUtils.formatDate(cal.time)
+            viewModel.updateReminderDate(
+                year = cal.get(Calendar.YEAR),
+                month = cal.get(Calendar.MONTH),
+                day = cal.get(Calendar.DAY_OF_MONTH)
+            )
+
+        }
 
     companion object {
 
@@ -287,22 +304,10 @@ class ReminderFragment : Fragment(), View.OnClickListener
     }
 
     private fun handleDateImageClick() {
-        val cal = Calendar.getInstance()
 
-        val dateSetListener =
-            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                cal.set(Calendar.YEAR, year)
-                cal.set(Calendar.MONTH, monthOfYear)
-                cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                //update date text view with selected date
-                binding.dateText.text = MyUtils.formatDate(cal.time)
-                viewModel.updateReminderDate(
-                    year = cal.get(Calendar.YEAR),
-                    month = cal.get(Calendar.MONTH),
-                    day = cal.get(Calendar.DAY_OF_MONTH)
-                )
 
-            }
+
+
 
         //open date picker
         DatePickerDialog(
