@@ -6,6 +6,7 @@ import android.content.Intent
 import android.util.Log
 import com.example.footy.database.ReminderDatabase
 import com.example.footy.database.ReminderDatabaseDao
+import com.example.reminderly.R
 import com.example.reminderly.Utils.DONE_ACTION_FOR_REMINDERS
 import com.example.reminderly.Utils.DONE_ACTION_FOR_REPEATING_REMINDERS
 import com.example.reminderly.Utils.MyUtils
@@ -26,6 +27,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
         val reminderId = intent.extras?.get(REMINDER_ID) as Long
         val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
 
+        println("DebugTag,DoneReminderReceiver-> $reminderId")
         //get reminder by id and set it to done or just close this notification and reminder will
         // work normally in next repeat if it is repeating alarm
         disposable.add(
@@ -39,6 +41,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
                         //repeating reminder
                         if (shouldTemporaryCancelAlarmReminder(context)){
                             //we should just stop the alarm service and not delete reminder(already did that by calling MyUtils.closeReminder())
+                            MyUtils.showCustomToast(context, R.string.reminder_will_work_next_time)
                         }else{
                             //make the reminder done (won't fire alarm again)
                             markReminderAsDone(reminder, context, reminderDatabaseDao)
@@ -91,6 +94,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
             AndroidSchedulers.mainThread()
         ).subscribe(
             {//complete
+                MyUtils.showCustomToast(context, R.string.reminder_deleted_can_be_changed_in_settings)
                 disposable.clear()
             },
             { error ->
@@ -111,6 +115,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
             AndroidSchedulers.mainThread()
         ).subscribe(
             {//complete
+                MyUtils.showCustomToast(context, R.string.moved_to_done_list)
                 disposable.clear()
             },
             { error ->

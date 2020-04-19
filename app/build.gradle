@@ -93,4 +93,7 @@ dependencies {
     //preference androidx
     implementation 'androidx.preference:preference:1.1.0'
 
+    //taptarget view
+    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.0'
+
 }

@@ -73,6 +73,7 @@ class AlarmService : Service() {
 
         val reminderId = intent?.getLongExtra(REMINDER_ID, -1L)
 
+        /**only send reminder if we are not in dnd period*/
         if (reminderId != null && reminderId != -1L && !inDndPeriod()) {
             sendReminderNotification(reminderId, applicationContext)
         }
@@ -81,6 +82,8 @@ class AlarmService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    /** if an alarm fires up when other alarm is ongoing it will be automatically delayed for 5
+     * minutes until the first ends*/
     private fun postponeSecondReminder(secondReminderId: Long) {
         Log.d("DebugTag", "postponeSecondReminder: called")
         val disposable =
@@ -245,8 +248,6 @@ class AlarmService : Service() {
             )
             priority = NotificationCompat.PRIORITY_HIGH
             setDefaults(NotificationCompat.DEFAULT_ALL)
-            setOnlyAlertOnce(true)
-            setGroup("notification_group")
             setAutoCancel(true)
         }
 

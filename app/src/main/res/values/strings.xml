@@ -91,6 +91,18 @@
     <string name="click_to_message_me_on_whatsapp">اضغط هنا لمحادثتي على الواتس اب</string>
     <string name="dont_have_whatsapp">لا يحتوى هاتفك على تطبيق واتس اب</string>
     <string name="postpone">تأجيل</string>
+    <string name="reminder_will_work_next_time">تم إغلاق التذكير لحين موعده القادم</string>
+    <string name="reminder_is_done">تم إنهاء التذكير</string>
+    <string name="moved_to_done_list">تم نقل التذكير إلي قائمه التذكيرات المنتهية ويمكنك الوصول إليه من القائمة</string>
+    <string name="reminder_deleted_can_be_changed_in_settings">"تم حذف التذكير, يمكن تغيير هذا السلوك من قائمة الاعدادات "</string>
+    <string name="calendar_button">زر التقويم</string>
+    <string name="click_to_add_reminders_from_calendar">إضغط لإضافة تذكير فى يوم معين او رؤيه الايام التي تحتوي على تذكيرات</string>
+    <string name="click_to_add_reminders">إضغط للبدأ فى إضافه التذكيرات</string>
+    <string name="add_button">زر الاضافة</string>
+    <string name="click_to_edit_reminder">إضغط الازرار المختلفة للتحكم في التنبيه ليناسب احتياجاتك</string>
+    <string name="options_buttons">أزرار التحكم</string>
+    <string name="save_button">زر الحفظ</string>
+    <string name="save_button_to_save">بعد كتابة التذكير وتعديله اضغط زر الحفظ لإنشاء التذكير</string>
 
 
 </resources>

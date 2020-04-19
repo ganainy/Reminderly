@@ -46,7 +46,8 @@ class PostponeActivity : AppCompatActivity() {
 
 
         //get passed reminder and delay it by the selected amount by user
-        disposable.add(viewModel.getReminderById(reminderId).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe { reminder ->
+        disposable.add(viewModel.getReminderById(reminderId).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()).subscribe { reminder ->
                 mReminder = reminder
                 MyUtils.closeReminder(reminder, reminderId, this)
                 disposable.clear()

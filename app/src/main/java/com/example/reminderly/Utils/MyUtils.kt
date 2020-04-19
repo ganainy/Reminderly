@@ -49,6 +49,9 @@ const val DONT_DISTURB_END_HOURS="dontDisturbEndHours"
 const val DONT_DISTURB_END_MINUTES="dontDisturbEndMinutes"
 const val DND_OPTION_ENABLED="dndOptionEnabled" /*0->disabled , 1 -> enabled */
 const val NIGHT_MODE_ENABLED="nightModeEnabled" /*0->disabled , 1 -> enabled */
+const val FIRST_TIME_USE="firstTimeUser" /*0->first app use , 1 -> app opened before */
+const val SHOWN_DRAWER_GUIDE="shownDrawerGuide" /*0->we need to promote user to click the calendar button , 1 ->no need to show guide */
+const val FIRST_TIME_ADD_REMINDER="firstTimeAddReminder" /*0-> first time user is adding reminders show hints , 1-> don't show hints */
 
 class MyUtils {
 
@@ -198,6 +201,10 @@ class MyUtils {
 
         }
 
+         fun isAppFirstUse(context: Context):Boolean {
+            return MyUtils.getInt(context,FIRST_TIME_USE)==0
+        }
+
 
         /**@param arrayName should be in form R.array.___
          * @return string from the given resources array
@@ -238,8 +245,8 @@ class MyUtils {
             } else if (reminder.reminderType == 1) {
                 //alarm reminder
                 stopAlarmService(context)
-
             }
+            showCustomToast(context,R.string.reminder_is_done)
         }
 
         //endregion

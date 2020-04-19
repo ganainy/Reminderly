@@ -5,14 +5,15 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color.argb
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -27,9 +28,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
-import com.example.reminderly.Utils.ALLOW_PERSISTENT_NOTIFICATION
-import com.example.reminderly.Utils.MyUtils
-import com.example.reminderly.Utils.NIGHT_MODE_ENABLED
+import com.example.reminderly.Utils.*
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
 import com.example.reminderly.ui.aboutFragment.AboutFragment
@@ -40,8 +39,11 @@ import com.example.reminderly.ui.category_reminders.CategoryType
 import com.example.reminderly.ui.reminderFragment.ReminderFragment
 import com.example.reminderly.ui.search_fragment.SearchFragment
 import com.example.reminderly.ui.settings_fragment.SettingsFragment
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayoutMediator
+
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -72,6 +74,11 @@ class MainActivity : AppCompatActivity(), ICommunication {
             R.layout.activity_main
         )
 
+        //if this is first time use for app show guide/highlight for features
+        if (MyUtils.isAppFirstUse(this)){
+            setupAppForFirstTimeUse()
+        }
+
         requestIgnoteBatteryOptimization()
 
         checkNightMode()
@@ -86,6 +93,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
         setupDrawerContent()
 
+        showCalendarButtonHint()
 
         //handle add fab click
         binding.appContent.findViewById<FloatingActionButton>(R.id.addReminderFab)
@@ -93,6 +101,45 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 openReminderFragment()
             }
 
+    }
+
+    /**this will show hint guide to promote user to click the calendar button , this will only work
+     *  the first time user opens menu only*/
+    private fun showCalendarButtonHint() {
+        if (MyUtils.getInt(this@MainActivity,SHOWN_DRAWER_GUIDE)==0) {
+            //this is the first time user opens drawer
+            binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerStateChanged(newState: Int) {
+
+            }
+
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+                if (MyUtils.getInt(this@MainActivity,SHOWN_DRAWER_GUIDE)==1) {
+                    return
+                }
+                MyUtils.putInt(this@MainActivity,SHOWN_DRAWER_GUIDE,1)
+
+                    TapTargetView.showFor(this@MainActivity,
+                    TapTarget.forView(nav_view.getHeaderView(0).findViewById<ImageView>(R.id.calendarImageView),
+                        getString(R.string.calendar_button),
+                        getString(R.string.click_to_add_reminders_from_calendar)
+                    )
+                        .tintTarget(false)
+                        .transparentTarget(false),
+                    object : TapTargetView.Listener() {})
+
+                }
+
+        })
+        }
     }
 
     private fun requestIgnoteBatteryOptimization() {
@@ -110,11 +157,31 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
     private fun checkNightMode() {
         val isNightModeEnabled = MyUtils.getInt(this, NIGHT_MODE_ENABLED)
-        Log.d("DebugTag", "checkNightMode: ${isNightModeEnabled}")
         if (isNightModeEnabled == 0)
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         else if (isNightModeEnabled == 1)
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+    }
+
+    private fun setupAppForFirstTimeUse() {
+        //set default dnd time
+        MyUtils.putInt(applicationContext, DONT_DISTURB_START_HOURS, 6)
+        MyUtils.putInt(applicationContext, DONT_DISTURB_START_MINUTES,0)
+        MyUtils.putInt(applicationContext, DONT_DISTURB_END_HOURS,18)
+        MyUtils.putInt(applicationContext, DONT_DISTURB_END_MINUTES,0)
+        //show features guide
+        TapTargetView.showFor(this@MainActivity,
+            TapTarget.forView(addReminderFab,
+                getString(R.string.add_button),
+                getString(R.string.click_to_add_reminders)
+            ).tintTarget(false)
+                .transparentTarget(false),
+            object : TapTargetView.Listener() {})
+
+
+
+        //set first time flag to false
+       MyUtils.putInt(applicationContext, FIRST_TIME_USE,1)
     }
 
 
@@ -453,6 +520,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 AndroidSchedulers.mainThread()
             ).subscribe({ todayReminders ->
 
+                println("DebugTag->is this called after reminder updated to done?")
                 lastUpdateOfTodayReminder=todayReminders
 
                 showMenuItem(todayReminders.size, R.id.today, CategoryType.TODAY)
@@ -498,6 +566,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
         super.onStop()
         disposable.clear()
     }
+
+
 
 
 

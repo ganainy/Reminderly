@@ -1,6 +1,8 @@
 package com.example.reminderly.ui.reminderFragment
 
-import android.app.*
+import android.app.Activity
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -11,7 +13,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -21,22 +22,26 @@ import com.afollestad.materialdialogs.customview.getCustomView
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
+import com.example.reminderly.Utils.FIRST_TIME_ADD_REMINDER
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ReminderFragmentBinding
 import com.example.reminderly.ui.mainActivity.ICommunication
 import com.example.reminderly.ui.reminderActivity.ReminderViewModel
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetSequence
+import com.getkeepsafe.taptargetview.TapTargetView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.reminder_fragment.*
 import java.util.*
 
 const val SPEECH_TO_TEXT_CODE = 1
 const val SELECT_PHONE_NUMBER = 2
 
 /**used to create new reminders or edit existing ones*/
-class ReminderFragment : Fragment(), View.OnClickListener
-{
+class ReminderFragment : Fragment(), View.OnClickListener {
 
     private lateinit var viewModel: ReminderViewModel
     private lateinit var viewModelFactory: ReminderViewModelFactory
@@ -97,6 +102,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
 
         setupListeners()
 
+        showHints()
 
     }
 
@@ -118,18 +124,18 @@ class ReminderFragment : Fragment(), View.OnClickListener
 
     /**setup reminder type image based on its value*/
     private fun setupReminderTypeImage(reminderType: Int) {
-        if (reminderType==0){
+        if (reminderType == 0) {
             binding.reminderTypeImage.setImageResource(R.drawable.ic_notification)
-        }else{
+        } else {
             binding.reminderTypeImage.setImageResource(R.drawable.ic_bell_white)
         }
     }
 
     /**set no repeat image or repeat image depending on repeat value*/
     private fun setupRepeatImage(repeat: Int) {
-        if (repeat==0){
+        if (repeat == 0) {
             binding.repeatImage.setImageResource(R.drawable.ic_no_repeat)
-        }else{
+        } else {
             binding.repeatImage.setImageResource(R.drawable.ic_repeat)
         }
     }
@@ -171,7 +177,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
         binding.keyboardImage.setOnClickListener(this)
     }
 
-    private fun initViewModel(reminder: Reminder=Reminder()) {
+    private fun initViewModel(reminder: Reminder = Reminder()) {
         val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
         viewModelFactory =
             ReminderViewModelFactory(requireActivity().application, reminder, reminderDatabaseDao)
@@ -214,11 +220,10 @@ class ReminderFragment : Fragment(), View.OnClickListener
                 SPEECH_TO_TEXT_CODE
             )
         } else {
-            MyUtils.showCustomToast(requireActivity(),R.string.feature_not_supported)
+            MyUtils.showCustomToast(requireActivity(), R.string.feature_not_supported)
 
         }
     }
-
 
 
     private fun handleReminderTypeImageClick() {
@@ -306,9 +311,6 @@ class ReminderFragment : Fragment(), View.OnClickListener
     private fun handleDateImageClick() {
 
 
-
-
-
         //open date picker
         DatePickerDialog(
             requireActivity(), dateSetListener,
@@ -323,11 +325,11 @@ class ReminderFragment : Fragment(), View.OnClickListener
 
     private fun handleSaveButton() {
 
-   if (binding.reminderEditText.text.isBlank()){
-       MyUtils.showCustomToast(requireContext(),R.string.text_empty)
+        if (binding.reminderEditText.text.isBlank()) {
+            MyUtils.showCustomToast(requireContext(), R.string.text_empty)
 
-       return
-   }
+            return
+        }
         //todo remove comment
         /*else if(viewModel.mReminder.createdAt.timeInMillis <= Calendar.getInstance().timeInMillis){
       MyUtils.showCustomToast(requireContext(),R.string.old_date_error)
@@ -343,25 +345,29 @@ class ReminderFragment : Fragment(), View.OnClickListener
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { reminderId->
+                { reminderId ->
                     //this reminder could be an update for existing reminder so we cancel any ongoing alarms
-                    MyUtils.cancelAlarmManager(reminderId,context)
+                    MyUtils.cancelAlarmManager(reminderId, context)
                     // set alarm manager
-                    MyUtils.addAlarmManager(reminderId,context,viewModel.getReminder().createdAt.timeInMillis,viewModel.getReminder().repeat)
+                    MyUtils.addAlarmManager(
+                        reminderId,
+                        context,
+                        viewModel.getReminder().createdAt.timeInMillis,
+                        viewModel.getReminder().repeat
+                    )
 
                     viewModel.resetReminder()
                     requireActivity().onBackPressed()
                 },
                 {   //error
                         error ->
-                    MyUtils.showCustomToast(requireContext(),R.string.error_saving_reminder)
+                    MyUtils.showCustomToast(requireContext(), R.string.error_saving_reminder)
 
                 }
             ))
 
 
     }
-
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -410,7 +416,7 @@ class ReminderFragment : Fragment(), View.OnClickListener
                     binding.reminderEditText.append("\n")
                     Linkify.addLinks(binding.reminderEditText, Linkify.PHONE_NUMBERS)
                 } else {
-                    MyUtils.showCustomToast(requireContext(),R.string.fetch_contact_failure)
+                    MyUtils.showCustomToast(requireContext(), R.string.fetch_contact_failure)
 
                 }
                 cursor?.close()
@@ -497,8 +503,35 @@ class ReminderFragment : Fragment(), View.OnClickListener
             R.id.keyboardImage -> {
                 changeKeyboardVisibility()
             }
-            else->{}
+            else -> {
+            }
 
+        }
+    }
+
+    /**show features hints for first use*/
+    private fun showHints() {
+        if (MyUtils.getInt(requireContext(), FIRST_TIME_ADD_REMINDER) == 0) {
+
+            val targets = TapTargetSequence(requireActivity())
+                .targets(
+                    TapTarget.forView(dateImage,   getString(R.string.options_buttons),
+                        getString(R.string.click_to_edit_reminder))   .tintTarget(false)
+                        .transparentTarget(false)
+                        .cancelable(true),
+                    TapTarget.forView(saveFab,   getString(R.string.save_button),
+                        getString(R.string.save_button_to_save))   .tintTarget(false)
+                        .transparentTarget(false)
+                        .cancelable(true)
+                )
+            targets.start()
+
+
+
+
+
+
+            MyUtils.putInt(requireContext(), FIRST_TIME_ADD_REMINDER,1)
         }
     }
 
