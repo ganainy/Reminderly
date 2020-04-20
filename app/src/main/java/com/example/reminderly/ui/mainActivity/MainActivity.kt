@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color.argb
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -31,7 +30,7 @@ import com.example.reminderly.R
 import com.example.reminderly.Utils.*
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
-import com.example.reminderly.ui.aboutFragment.AboutFragment
+import com.example.reminderly.ui.privacyPolicyFragment.PrivacyPolicyFragment
 import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
 import com.example.reminderly.ui.calendarActivity.CalendarActivity
 import com.example.reminderly.ui.category_reminders.CategoryFragment
@@ -393,7 +392,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private fun openAboutFragment() {
         supportFragmentManager
             .beginTransaction()
-            .add(R.id.fragmentContainer, AboutFragment())
+            .add(R.id.fragmentContainer, PrivacyPolicyFragment())
             .addToBackStack(null)
             .commit()
     }

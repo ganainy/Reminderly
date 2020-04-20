@@ -1,0 +1,99 @@
+<resources>
+    <string name="app_name">تذكيراتي</string>
+    <string name="all_reminders">جميع التذكيرات</string>
+    <string name="favorite_reminders">التذكيرات المفضله</string>
+    <string name="no_active_reminders">لا يوجد تذكيرات نشطة حاليا</string>
+    <string name="no_favorite_reminders">لا يوجد تذكيرات مفضلة حاليا</string>
+    <string name="settings">الاعدادات</string>
+    <string name="about">عن المطور</string>
+
+    <string name="search">بحث</string>
+    <string name="remind_me_to">ذكرني ان...</string>
+    <string name="repeat_once">تذكير مرة واحدة</string>
+    <string name="normal">عادى</string>
+    <string name="notify_using_notification">تنيه بإستخدام الاشعارات</string>
+    <string name="once">مرة واحده</string>
+    <string name="confirm">تأكيد</string>
+    <string name="repeat_count">معدل تكرار التذكير</string>
+    <string name="cancel">الغاء</string>
+    <string name="priority_type">أهمية التذكير</string>
+    <string name="notification_type">وسيلة التنبيه</string>
+    <string name="speech_confirmation">هل التحويل صحيح؟</string>
+    <string name="retry">حاول مجددا</string>
+    <string name="feature_not_supported">هاتفك لا يدعم هذه الخاصية</string>
+    <string name="fetch_contact_failure">حدث خطأ اثناء استعادة جهة الاتصال</string>
+    <string name="minutes">دقائق</string>
+    <string name="hours">ساعات</string>
+    <string name="days">أيام</string>
+    <string name="text_empty">لا يمكن حفظ تذكير فارغ</string>
+    <string name="something_went_wrong">حدث خطأ اثناء العملية</string>
+    <string name="error_saving_reminder">خطأ اثناء حفظ التذكير</string>
+    <string name="overdue">تذكيرات فائتة</string>
+    <string name="today">تذكيرات اليوم</string>
+    <string name="upcoming">تذكيرات مستقبلية</string>
+    <string name="every_hour">كل ساعة</string>
+    <string name="daily">يوميا</string>
+    <string name="weekly">اسبوعيا</string>
+    <string name="monthly">شهريا</string>
+    <string name="yearly">سنويا</string>
+    <string name="done">تم التنفيذ</string>
+    <string name="edit">تعديل</string>
+    <string name="mcopy">نسخ</string>
+    <string name="share">مشاركة</string>
+    <string name="delete">حذف</string>
+    <string name="overdue_reminders">تذكيرات فائتة</string>
+    <string name="today_reminders">تذكيرات اليوم</string>
+    <string name="upcoming_reminders">تذكيرات مستقبلية</string>
+    <string name="marked_as_done">تم التسجيل كتذكير منتهي</string>
+    <string name="error_retreiving_reminder">خطأ اثناء استرجاع التذكيرات</string>
+    <string name="done_reminders">تذكيرات تم تنفيذها</string>
+    <string name="reminder_postponed">تم تأجيل التذكير</string>
+    <string name="select_time">تأجيل لمدة..</string>
+    <string name="must_be_upcoming_date">خطأ: يجب أن يكون تاريخ التذكير بعد التأجيل اكبر من الوقت الحالي</string>
+
+    <string name="phone_string">تذكر الاتصال ب %1$s على الرقم  %2$s </string>
+    <string name="copied_to_clipboard">تم نسخ عنوان التذكير الى حافظة الهاتف</string>
+    <string name="reminder_deleted">تم حدف التذكير</string>
+    <string name="reminder_delete_failed">خطأ اثناء حذف التذكير</string>
+
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="error_retreiving_favorite_reminder">خطأ اثناء استرجاع التذكيرات المفضلة</string>
+    <string name="no_reminders">لا يوجد تذكيرات</string>
+
+
+    <string name="date_reminders"> تذكيرات %1$s</string>
+    <string name="no_reminder_search">لا يوجد تذكيرات تناسب بحثك</string>
+    <string name="add_reminders">أضف تذكيرات</string>
+    <string name="no_reminders_today">ليس لديك اى تذكيرات اليوم</string>
+    <string name="reminders_today">لديك %1$d تذكير اليوم, %2$d فائت و %3$d قادم</string>
+    <string name="add_other_reminders">اضف تذكيرات اخري</string>
+    <string name="end_reminder">إنهاء التذكير</string>
+    <string name="delay_reminder">تأجيل التذكير</string>
+    <string name="reminder_in_future_error">*تأكد ان تاريخ التذكير بعد التأجيل اكبر من الوقت الحالي</string>
+    <string name="done_behaviour_for_recurring_tasks">وظيفة زر الانهاء للتذكيرات المتكررة</string>
+    <string name="from">بداية من</string>
+    <string name="until">حتي</string>
+    <string name="wrong_dnd_period">يجب ان يكون وقت نهاية فترة عدم الازعاج بعد وقت بدايتها</string>
+    <string name="dont_disturb_summary">بداية من %1$s حتي %2$s</string>
+    <string name="another_reminder_is_showing">هناك تنبيه اخر موعده الان وقدم تم تأجيله تلقائيا خمس دقائق</string>
+    <string name="developer_info">• الاسم:عمرو محمد على \n • الجنسية : مصري\n • العمر : 23 عام\n • الإيميل : amrmohammedali11@gmail.com\n • تليفون/واتس اب : +20 01094095356</string>
+    <string name="click_to_message_me_on_whatsapp">اضغط هنا لمحادثتي على الواتس اب</string>
+    <string name="dont_have_whatsapp">لا يحتوى هاتفك على تطبيق واتس اب</string>
+    <string name="postpone">تأجيل</string>
+    <string name="reminder_will_work_next_time">تم إغلاق التذكير لحين موعده القادم</string>
+    <string name="reminder_is_done">تم إنهاء التذكير</string>
+    <string name="moved_to_done_list">تم نقل التذكير إلي قائمه التذكيرات المنتهية ويمكنك الوصول إليه من القائمة</string>
+    <string name="reminder_deleted_can_be_changed_in_settings">"تم حذف التذكير, يمكن تغيير هذا السلوك من قائمة الاعدادات "</string>
+    <string name="calendar_button">زر التقويم</string>
+    <string name="click_to_add_reminders_from_calendar">إضغط لإضافة تذكير فى يوم معين او رؤيه الايام التي تحتوي على تذكيرات</string>
+    <string name="click_to_add_reminders">إضغط للبدأ فى إضافه التذكيرات</string>
+    <string name="add_button">زر الاضافة</string>
+    <string name="click_to_edit_reminder">إضغط الازرار المختلفة للتحكم في التنبيه ليناسب احتياجاتك</string>
+    <string name="options_buttons">أزرار التحكم</string>
+    <string name="save_button">زر الحفظ</string>
+    <string name="save_button_to_save">بعد كتابة التذكير وتعديله اضغط زر الحفظ لإنشاء التذكير</string>
+    <string name="privacy_policy">سياسة الخصوصية</string>
+
+
+</resources>

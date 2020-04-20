@@ -48,7 +48,7 @@
             android:id="@+id/about"
             android:checked="false"
             android:icon="@drawable/ic_info_grey"
-            android:title="@string/about"
+            android:title="@string/privacy_policy"
             />
 
 

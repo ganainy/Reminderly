@@ -18,22 +18,6 @@
         <item>تنبيه بإستخدام الجرس</item>
     </string-array>
 
-    <string-array name="postpone_items">
-        <item>5 دقائق</item>
-        <item>15 دقيقة</item>
-        <item>30 دقيقة</item>
-        <item>ساعة</item>
-        <item>غير ذلك</item>
-    </string-array>
-
-
-
-    <string-array name="postpone_items_without_other">
-        <item>5 دقائق</item>
-        <item>15 دقيقة</item>
-        <item>30 دقيقة</item>
-        <item>ساعة</item>
-    </string-array>
 
     <string-array name="done_behaviour_for_recurring_tasks_list">
         <item>فقط اغلاق التذكير حتى موعد التنيه القادم (افتراضي)</item>
