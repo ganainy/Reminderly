@@ -105,4 +105,5 @@
     <string name="changes_take_effect_on_restart">Changes will take effect after you restart app</string>
     <string name="this_option_already_active">This option is already active, no changes will happen</string>
     <string name="load_fail_check_connection">Load failed, make sure you are connected to the internet</string>
+    <string name="delay_for">Delay for..</string>
 </resources>

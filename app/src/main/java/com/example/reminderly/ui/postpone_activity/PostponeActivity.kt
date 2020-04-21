@@ -50,7 +50,6 @@ class PostponeActivity : AppCompatActivity() {
             .observeOn(AndroidSchedulers.mainThread()).subscribe { reminder ->
                 mReminder = reminder
                 MyUtils.closeReminder(reminder, reminderId, this)
-                disposable.clear()
             })
 
 

@@ -15,9 +15,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.footy.database.ReminderDatabase
+import com.example.footy.database.ReminderDatabaseDao
 import com.example.reminderly.R
 import com.example.reminderly.Utils.*
 import com.example.reminderly.database.Reminder
+import com.example.reminderly.ui.category_reminders.CategoryType
 import com.example.reminderly.ui.postpone_activity.PostponeActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -31,17 +33,42 @@ private val ALARM_REMINDER_CHANNEL_ID = "alarm_reminder_notification_channel"
 class AlarmService : Service() {
 
 
+
+    /**millis of the end of today so we can get any reminders after that (upcoming reminders)*/
+    private val nextDayMillis:Long
+        get() {
+            return  Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY,23)
+                set(Calendar.MINUTE,59)
+                set(Calendar.SECOND,59)
+                set(Calendar.MILLISECOND,999)
+
+            }.timeInMillis
+        }
+
+
+    /**millis of the begging of today so we can get any reminders before that (overdue reminders)*/
+    private val todayMillis:Long
+        get() {
+            return  Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY,0)
+                set(Calendar.MINUTE,0)
+                set(Calendar.SECOND,0)
+                set(Calendar.MILLISECOND,0)
+
+            }.timeInMillis
+        }
+
     private lateinit var mNotifyManager: NotificationManager
     private val disposable = CompositeDisposable()
     private lateinit var mCountDownTimer: CountDownTimer
     private val mediaPlayer by lazy {
         MediaPlayer.create(this, R.raw.tone as Int).apply {
             setVolume(1F, 1F)
-            isLooping = true
         }
     }
 
-    val reminderDatabaseDao = ReminderDatabase.getInstance(this).reminderDatabaseDao
+    private lateinit var reminderDatabaseDao : ReminderDatabaseDao
 
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -58,6 +85,7 @@ class AlarmService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
+        reminderDatabaseDao = ReminderDatabase.getInstance(this).reminderDatabaseDao
 //first check if any alarm is already active
         if (mediaPlayer.isPlaying) {
             //this means second reminder came while a alert reminder is active so we delay the
@@ -78,27 +106,57 @@ class AlarmService : Service() {
             sendReminderNotification(reminderId, applicationContext)
         }
 
+        /**to update passed/upcoming reminders of today (there is similar method in main activity
+         *  but this is in case the service fired when application was closed)*/
+        observeTodayReminders()
 
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun observeTodayReminders() {
+            disposable.add(
+                reminderDatabaseDao.getDayReminders(todayMillis,nextDayMillis).subscribeOn(Schedulers.io()).observeOn(
+                    AndroidSchedulers.mainThread()
+                ).subscribe({ todayReminders ->
+
+                    println("ssssssssssss${todayReminders.size}")
+
+                    //show persistent notification to help user add reminder from outside of app
+                    /**check if user allowed showing persistent notification
+                     * 0-> allowed (default)
+                     * 1-> not allowed
+                     */
+                    if (MyUtils.getInt(this, ALLOW_PERSISTENT_NOTIFICATION) == 0) {
+                        MyUtils.sendPersistentNotification(applicationContext,todayReminders)
+                    }
+
+                }, { error ->
+                    MyUtils.showCustomToast(this, R.string.error_retreiving_reminder)
+
+                })
+            )
     }
 
     /** if an alarm fires up when other alarm is ongoing it will be automatically delayed for 5
      * minutes until the first ends*/
     private fun postponeSecondReminder(secondReminderId: Long) {
         Log.d("DebugTag", "postponeSecondReminder: called")
-        val disposable =
-            reminderDatabaseDao.getReminderById(secondReminderId).subscribeOn(Schedulers.io())
+        //cancel old alarm manager in case this was a repeating reminder it won't fire twice
+        MyUtils.cancelAlarmManager(secondReminderId,this)
+
+
+            disposable.add(reminderDatabaseDao.getReminderById(secondReminderId).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    val postponedReminder = MyUtils.forcePostponeReminder(it, 0, 0, 5)
+                .subscribe {reminderToPostopne->
+                    val postponedReminder = MyUtils.forcePostponeReminder(reminderToPostopne, 0, 0, 5)
                     reminderDatabaseDao.update(postponedReminder).subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread()).subscribe({
-                            //done
+                            //update done , add its new alarm manager
+                            MyUtils.addAlarmManager(secondReminderId,this,reminderToPostopne.createdAt.timeInMillis,reminderToPostopne.repeat)
                         },{
                             MyUtils.showCustomToast(this,R.string.something_went_wrong)
                         })
-                    disposable.clear()
-                }
+                })
 
     }
 
@@ -171,6 +229,8 @@ class AlarmService : Service() {
                     startAlarmNotification(context, reminder, reminderId)
                 } else {
                     //normal notification
+                    mediaPlayer.isLooping = false
+                    mediaPlayer.start()
                     val notificationBuilder = getNotificationBuilder(
                         context,
                         reminder,
@@ -263,6 +323,7 @@ class AlarmService : Service() {
     ) {
 
         // show notification every second so its always on screen && play audio in loop
+        mediaPlayer.isLooping = true
         mediaPlayer.start()
 
         val notificationBuilder = getNotificationBuilder(context, reminder, reminderId, ALARM_REMINDER_CHANNEL_ID)

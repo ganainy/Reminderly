@@ -9,10 +9,13 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
 import com.example.reminderly.R
 import com.example.reminderly.broadcast_receivers.AlarmService
 import com.example.reminderly.broadcast_receivers.NewReminderReceiver
 import com.example.reminderly.database.Reminder
+import com.example.reminderly.ui.mainActivity.MainActivity
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,6 +44,11 @@ const val ALLOW_PERSISTENT_NOTIFICATION ="allowPersistent_notification"
 const val DONE_ACTION_FOR_REMINDERS ="doneActionForReminders"
 /*0-> done reminder are saved and can be accessed through menu (default) ,  1-> done reminders are deleted*/
 
+
+
+private const val PERSISTENT_CHANNEL_ID = "primary_notification_channel"
+const val PERSISTENT_NOTIFICATION_ID = 0
+
 const val REMINDER_ID="reminder_Id"
 const val DONT_DISTURB_START_HOURS="dontDisturbStartHours"
 const val DONT_DISTURB_START_MINUTES="dontDisturbStartMinutes"
@@ -61,6 +69,8 @@ class MyUtils {
             get() {
                 return Date()
             }
+
+
 
         //region date
 
@@ -235,7 +245,6 @@ class MyUtils {
                 //alarm reminder
                 stopAlarmService(context)
             }
-            showCustomToast(context,R.string.reminder_is_done)
         }
 
         //endregion
@@ -441,6 +450,97 @@ class MyUtils {
                 context.applicationContext
                     .getSharedPreferences("MyPref", 0)
             return pref.getInt(key, 0) //0 is default value which matches default value of settings
+        }
+
+        //endregion
+
+        //region notification
+        /**show persistent notification to allow user to add reminder if app is closed*/
+        fun sendPersistentNotification(context: Context,todayReminders: MutableList<Reminder> ) {
+
+             val mNotifyManager = context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
+
+            if (android.os.Build.VERSION.SDK_INT >=
+                android.os.Build.VERSION_CODES.O
+            ) {
+                // Create a NotificationChannel
+                val notificationChannel = NotificationChannel(
+                    PERSISTENT_CHANNEL_ID,
+                    "Reminder Persistent Notification", NotificationManager.IMPORTANCE_LOW
+                )
+                notificationChannel.description = "Notification from Reminderly"
+                mNotifyManager.createNotificationChannel(notificationChannel)
+            }
+
+            val notificationBuilder = getPersistentNotificationBuilder(context,todayReminders)
+            mNotifyManager.notify(PERSISTENT_NOTIFICATION_ID, notificationBuilder?.build())
+
+        }
+
+
+
+        private fun getPersistentNotificationBuilder(context: Context,todayReminders: MutableList<Reminder>): NotificationCompat.Builder? {
+            val notificationButtonText = when (todayReminders.size) {
+                0 -> context.resources.getString(R.string.add_reminders)
+                else -> context.resources.getString(R.string.add_other_reminders)
+            }
+
+            val notificationText = when (todayReminders.size) {
+                0 -> context.resources.getString(R.string.no_reminders_today)
+                else -> {
+                    var pastReminderOfToday = 0
+                    var upcomingReminderOfToday = 0
+                    for (reminder in todayReminders) {
+                        if (reminder.createdAt.before(Calendar.getInstance())) {
+                            pastReminderOfToday++
+                        } else {
+                            upcomingReminderOfToday++
+                        }
+                    }
+                    context.resources.getString(
+                        R.string.reminders_today,
+                        todayReminders.size,
+                        pastReminderOfToday,
+                        upcomingReminderOfToday
+                    )
+                }
+            }
+
+            /**new reminder pending intent to pass to notification builder action*/
+            val newReminderIntent = Intent(context, MainActivity::class.java)
+            newReminderIntent.putExtra("newReminder", "")
+            newReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            val newReminderPendingIntent = PendingIntent.getActivity(
+                context,
+                0, newReminderIntent, PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            /**open app pending intent to pass to notification builder contentIntent*/
+            val contentIntent = Intent(context, MainActivity::class.java)
+            contentIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            val contentPendingIntent = PendingIntent.getActivity(
+                context,
+                1, contentIntent, PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            return NotificationCompat.Builder(context, PERSISTENT_CHANNEL_ID)
+                .setContentText(notificationText)
+                .setSmallIcon(R.drawable.ic_bell_white)
+                .setContentIntent(contentPendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOngoing(true)
+                .setWhen(0)
+                .addAction(
+                    R.drawable.ic_add_white,
+                    notificationButtonText,
+                    newReminderPendingIntent
+                )
+        }
+
+
+        fun cancelPersistentNotification(context: Context) {
+            val mNotifyManager = context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
+            mNotifyManager.cancel(PERSISTENT_NOTIFICATION_ID)
         }
 
         //endregion

@@ -1,6 +1,7 @@
 package com.example.reminderly.ui.settings_fragment
 
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
@@ -125,10 +126,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         persistentNotificationSwitch!!.setOnPreferenceClickListener {
             if (persistentNotificationSwitch!!.isChecked) {
-                (requireActivity() as MainActivity).sendPersistentNotification()
+            //        MyUtils.sendPersistentNotification()
+                (requireActivity() as MainActivity).observeTodayReminders()
                 MyUtils.putInt(requireContext(), ALLOW_PERSISTENT_NOTIFICATION, 0)
             } else {
-                (requireActivity() as MainActivity).cancelPersistentNotification()
+                MyUtils.cancelPersistentNotification(requireContext())
                 MyUtils.putInt(requireContext(), ALLOW_PERSISTENT_NOTIFICATION, 1)
             }
             true
@@ -299,6 +301,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             true
         }
+    }
+
+    private fun observeTodayReminders(requireContext: Context) {
     }
 
     private fun showEndTimePicker() {

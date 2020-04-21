@@ -60,7 +60,6 @@ class DoneReminderReceiver : BroadcastReceiver() {
 
                     }
 
-                    disposable.clear()
             })
 
     }
@@ -110,17 +109,16 @@ class DoneReminderReceiver : BroadcastReceiver() {
         context: Context,
         reminderDatabaseDao: ReminderDatabaseDao
     ) {
+        println("this is not called right?")
         reminder.isDone = true
         disposable.add(reminderDatabaseDao.update(reminder).subscribeOn(Schedulers.io()).observeOn(
             AndroidSchedulers.mainThread()
         ).subscribe(
             {//complete
                 MyUtils.showCustomToast(context, R.string.moved_to_done_list)
-                disposable.clear()
             },
             { error ->
                 MyUtils.showErrorToast(context)
-                disposable.clear()
             }
         ))
     }

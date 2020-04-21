@@ -116,4 +116,5 @@
 
     <string name="this_option_already_active">هذا الخيار نشط بالفعل, لن يحدث اى تغيير</string>
     <string name="load_fail_check_connection">فشل التحميل, تأكد انك متصل بالانترنت</string>
+    <string name="delay_for">تأجيل لمدة..</string>
 </resources>
