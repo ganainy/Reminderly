@@ -35,6 +35,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private val dontDisturbSwitch by lazy { findPreference<SwitchPreferenceCompat>("don't_disturb_switch") }
     private val nightModeSwitch by lazy { findPreference<SwitchPreferenceCompat>("night_mode_switch") }
     private val doneBehaviour by lazy { findPreference<Preference>("done_behaviour") }
+    private val languagePreference by lazy { findPreference<Preference>("language_pref") }
     private val doneBehaviourForRecurringTasks by lazy { findPreference<Preference>("done_behaviour_for_recurring_tasks") }
     private val dontDisturbValue by lazy { findPreference<Preference>("don't_disturb_value") }
 
@@ -80,7 +81,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
                 //update dontdisturb summary to show the correct duration
                 dontDisturbValue?.summary = resources.getString(
-                    R.string.dont_disturb_summary, MyUtils.formatTime(
+                    R.string.dont_disturb_value_summary, MyUtils.formatTime(
                         dndPeriod.startHour,
                         dndPeriod.startMinute
                     ), MyUtils.formatTime(
@@ -256,6 +257,48 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
+        languagePreference?.setOnPreferenceClickListener {
+            MaterialDialog(requireContext()).show {
+                listItemsSingleChoice(
+                    R.array.language_options_list
+                ) { dialog, index, text ->
+                    // Invoked when the user selects an item
+                    //update shared pref value , setting summary based on user selection
+                    when (index) {
+                        0 -> {
+                            if (   MyUtils.getInt(context, APP_LANGUAGE)==0){
+                                MyUtils.showCustomToast(requireContext(),R.string.this_option_already_active)
+                            }else{
+                                MyUtils.putInt(context, APP_LANGUAGE, 0)
+                                MyUtils.showCustomToast(requireContext(),R.string.changes_take_effect_on_restart)
+                            }
+                        }
+                        1 -> {
+                            if (   MyUtils.getInt(context, APP_LANGUAGE)==1){
+                                MyUtils.showCustomToast(requireContext(),R.string.this_option_already_active)
+                            }else{
+                                MyUtils.putInt(context, APP_LANGUAGE, 1)
+                                MyUtils.showCustomToast(requireContext(),R.string.changes_take_effect_on_restart)
+                            }
+                        }
+                        2 -> {
+                            if (   MyUtils.getInt(context, APP_LANGUAGE)==2){
+                                MyUtils.showCustomToast(requireContext(),R.string.this_option_already_active)
+                            }else{
+                                MyUtils.putInt(context, APP_LANGUAGE, 2)
+                                MyUtils.showCustomToast(requireContext(),R.string.changes_take_effect_on_restart)
+                            }
+                        }
+                    }
+
+
+                }
+                negativeButton(R.string.cancel)
+                positiveButton(R.string.confirm)
+                title(0, getString(R.string.choose_language))
+            }
+            true
+        }
     }
 
     private fun showEndTimePicker() {

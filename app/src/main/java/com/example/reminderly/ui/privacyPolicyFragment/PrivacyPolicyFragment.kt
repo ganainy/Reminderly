@@ -1,13 +1,18 @@
 package com.example.reminderly.ui.privacyPolicyFragment
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.fragment.app.Fragment
 import com.example.reminderly.R
+import com.example.reminderly.Utils.MyUtils
 import kotlinx.android.synthetic.main.privacy_policy_fragment.*
+
 
 class PrivacyPolicyFragment : Fragment() {
 
@@ -39,6 +44,16 @@ class PrivacyPolicyFragment : Fragment() {
             javaScriptEnabled = true
         }
 
+
+        webView.webViewClient = object : WebViewClient() {
+            override fun onReceivedError(
+                view: WebView, request: WebResourceRequest,
+                error: WebResourceError
+            ) {
+                super.onReceivedError(view, request, error)
+               MyUtils.showCustomToast(requireContext(),R.string.load_fail_check_connection)
+            }
+        }
 
     }
 

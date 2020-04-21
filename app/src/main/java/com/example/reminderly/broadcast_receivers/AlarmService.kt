@@ -197,7 +197,7 @@ class AlarmService : Service() {
             // Create a NotificationChannel
             val notificationChannel = NotificationChannel(
                 ALARM_REMINDER_CHANNEL_ID,
-                "Reminder Notification", NotificationManager.IMPORTANCE_LOW
+                "Reminder Notification", NotificationManager.IMPORTANCE_HIGH
             )
             notificationChannel.enableVibration(false)
             notificationChannel.description = "Notification for certain alarm reminder"

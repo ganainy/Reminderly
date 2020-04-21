@@ -30,7 +30,6 @@ import com.example.reminderly.ui.mainActivity.ICommunication
 import com.example.reminderly.ui.reminderActivity.ReminderViewModel
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
-import com.getkeepsafe.taptargetview.TapTargetView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -110,9 +109,12 @@ class ReminderFragment : Fragment(), View.OnClickListener {
         binding.reminderEditText.setText(reminder.text)
         binding.dateText.text = MyUtils.formatDate(Date(reminder.createdAt.timeInMillis))
         binding.timeText.text = MyUtils.formatTime(Date(reminder.createdAt.timeInMillis))
-        binding.repeatText.text = MyUtils.convertRepeat(reminder.repeat)
-        binding.priorityText.text = MyUtils.convertPriority(reminder.priority)
-        binding.reminderTypeText.text = MyUtils.convertReminderType(reminder.reminderType)
+        binding.repeatText.text = MyUtils.convertRepeat(requireContext(),reminder.repeat)
+
+
+
+        binding.priorityText.text = MyUtils.convertPriority(requireContext(),reminder.priority)
+        binding.reminderTypeText.text = MyUtils.convertReminderType(requireContext(),reminder.reminderType)
         /**make numbers in edit text clickable & navigate to phone pad on click*/
         Linkify.addLinks(binding.reminderEditText, Linkify.PHONE_NUMBERS)
 

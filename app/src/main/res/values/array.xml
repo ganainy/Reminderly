@@ -1,32 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="repeat_items">
-        <item>مرة واحده</item>
-        <item>كل ساعة</item>
-        <item>كل يوم</item>
-        <item>كل اسبوع</item>
-        <item>كل شهر</item>
-        <item>كل عام</item>
+        <item>Once</item>
+        <item>Hourly</item>
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+        <item>Yearly</item>
     </string-array>
     <string-array name="priority_items">
-        <item>عادى</item>
-        <item>متوسط</item>
-        <item>هام</item>
+        <item>Normal</item>
+        <item>Medium</item>
+        <item>High</item>
     </string-array>
     <string-array name="notify_type_items">
-        <item>تنبيه بإستخدام الاشعارات</item>
-        <item>تنبيه بإستخدام الجرس</item>
+        <item>Notify me using a notification</item>
+        <item>Notify me using an alarm</item>
     </string-array>
 
 
     <string-array name="done_behaviour_for_recurring_tasks_list">
-        <item>فقط اغلاق التذكير حتى موعد التنيه القادم (افتراضي)</item>
-        <item>التسجيل كتذكير منتهي</item>
+        <item>Just close reminder until next time(default)</item>
+        <item>Mark reminder as done</item>
     </string-array>
 
+    <string-array name="language_options_list">
+        <item>Same as device language(Default)</item>
+        <item>English</item>
+        <item>Arabic</item>
+    </string-array>
+
+
     <string-array name="done_behaviour_list">
-        <item>يتم الاحتفاظ بالتذكيرات المنتهية ويمكن الوصول لها عن طريق القائمة (افتراضي)</item>
-        <item>يتم حذف التذكيرات المنتهية(تنيه: سيتم حذف اى تذكير سابق منتهي)</item>
+        <item>Done reminders are saved and can be accessed through menu(default)</item>
+        <item>Done reminders are deleted(Warning:this will delete any previous done reminders)</item>
     </string-array>
 
 </resources>

@@ -6,45 +6,51 @@
     <PreferenceCategory
         app:key="general_category"
         app:iconSpaceReserved="false"
-        app:title="إعدادات عامة">
+        app:title="@string/general_settings">
 
     <SwitchPreferenceCompat
         app:key="persistent_notification"
         app:iconSpaceReserved="false"
         android:defaultValue="true"
-        app:title="إشعار تذكيرات اليوم"
-        app:summary="إشعار دائم لإظهار عدد التذكيرات خلال اليوم مع امكانيه اضافة تذكيرات"/>
+        app:title="@string/today_persistent_notif"
+        app:summary="@string/today_persistent_notif_explained"/>
 
     <Preference
         app:key="done_behaviour"
         app:iconSpaceReserved="false"
-        app:title="التعامل مع التذكيرات المنتهية"
-        app:summary="يتم الاحتفاظ بالتذكيرات المنتهية ويمكن الوصول لها عن طريق القائمة"/>
+        app:title="@string/done_reminders_behaviour"
+        app:summary="@string/done_reminders_behaviour_explained"/>
 
         <Preference
             app:key="done_behaviour_for_recurring_tasks"
             app:iconSpaceReserved="false"
-            app:title="وظيفة زر الانهاء للتذكيرات المتكرره"
-            app:summary="فقط اغلاق التذكير حتى موعد التنيه القادم"/>
+            app:title="@string/end_action_for_recurring_tasks"
+            app:summary="@string/just_close_till_next_time"/>
+
+        <Preference
+            app:key="language_pref"
+            app:iconSpaceReserved="false"
+            app:title="@string/lang_pref_title"
+            app:summary="@string/available_langs"/>
 
         <SwitchPreferenceCompat
             app:key="night_mode_switch"
             app:iconSpaceReserved="false"
-            app:title="تفعيل الوضع الليلي"
-            app:summary=" الوضع الليلي مناسب للاماكن منخفضة الاضاءة و قد يكون مريح اكثر للعين"/>
+            app:title="@string/night_mode"
+            app:summary="@string/night_mode_summary"/>
 
 
         <SwitchPreferenceCompat
             app:key="don't_disturb_switch"
             app:iconSpaceReserved="false"
-            app:title="عدم الازعاج"
-            app:summary="عدم الحصول على التبيهات خلال وقت معين"/>
+            app:title="@string/dont_disturb"
+            app:summary="@string/dont_disturb_summary"/>
 
         <Preference
             app:key="don't_disturb_value"
             app:iconSpaceReserved="false"
-            app:title="توقيت تفعيل عدم الإزعاج"
-            app:summary="غير محدد, اضعط للاعداد"
+            app:title="@string/dont_disturb_value_title"
+            app:summary="@string/dont_disturb_value_summary"
             app:enabled="false"
             />
 

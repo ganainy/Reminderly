@@ -30,11 +30,11 @@ import com.example.reminderly.R
 import com.example.reminderly.Utils.*
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.ActivityMainBinding
-import com.example.reminderly.ui.privacyPolicyFragment.PrivacyPolicyFragment
 import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
 import com.example.reminderly.ui.calendarActivity.CalendarActivity
 import com.example.reminderly.ui.category_reminders.CategoryFragment
 import com.example.reminderly.ui.category_reminders.CategoryType
+import com.example.reminderly.ui.privacyPolicyFragment.PrivacyPolicyFragment
 import com.example.reminderly.ui.reminderFragment.ReminderFragment
 import com.example.reminderly.ui.search_fragment.SearchFragment
 import com.example.reminderly.ui.settings_fragment.SettingsFragment
@@ -42,7 +42,6 @@ import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayoutMediator
-
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -53,7 +52,7 @@ import java.util.*
 
 private const val PERSISTENT_CHANNEL_ID = "primary_notification_channel"
 private const val PERSISTENT_NOTIFICATION_ID = 0
-private lateinit var lastUpdateOfTodayReminder:MutableList<Reminder>
+private lateinit var lastUpdateOfTodayReminder: MutableList<Reminder>
 
 class MainActivity : AppCompatActivity(), ICommunication {
 
@@ -64,17 +63,19 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private lateinit var viewPager: ViewPager2
     private lateinit var viewModel: MainActivityViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
-    private  val mNotifyManager by lazy { getSystemService(NOTIFICATION_SERVICE) as NotificationManager }
+    private val mNotifyManager by lazy { getSystemService(NOTIFICATION_SERVICE) as NotificationManager }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         binding = DataBindingUtil.setContentView(
             this,
             R.layout.activity_main
         )
 
         //if this is first time use for app show guide/highlight for features
-        if (MyUtils.isAppFirstUse(this)){
+        if (MyUtils.isAppFirstUse(this)) {
             setupAppForFirstTimeUse()
         }
 
@@ -105,39 +106,41 @@ class MainActivity : AppCompatActivity(), ICommunication {
     /**this will show hint guide to promote user to click the calendar button , this will only work
      *  the first time user opens menu only*/
     private fun showCalendarButtonHint() {
-        if (MyUtils.getInt(this@MainActivity,SHOWN_DRAWER_GUIDE)==0) {
+        if (MyUtils.getInt(this@MainActivity, SHOWN_DRAWER_GUIDE) == 0) {
             //this is the first time user opens drawer
             binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
-            override fun onDrawerStateChanged(newState: Int) {
+                override fun onDrawerStateChanged(newState: Int) {
 
-            }
-
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-
-            }
-
-            override fun onDrawerClosed(drawerView: View) {
-
-            }
-
-            override fun onDrawerOpened(drawerView: View) {
-                if (MyUtils.getInt(this@MainActivity,SHOWN_DRAWER_GUIDE)==1) {
-                    return
                 }
-                MyUtils.putInt(this@MainActivity,SHOWN_DRAWER_GUIDE,1)
+
+                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+
+                }
+
+                override fun onDrawerClosed(drawerView: View) {
+
+                }
+
+                override fun onDrawerOpened(drawerView: View) {
+                    if (MyUtils.getInt(this@MainActivity, SHOWN_DRAWER_GUIDE) == 1) {
+                        return
+                    }
+                    MyUtils.putInt(this@MainActivity, SHOWN_DRAWER_GUIDE, 1)
 
                     TapTargetView.showFor(this@MainActivity,
-                    TapTarget.forView(nav_view.getHeaderView(0).findViewById<ImageView>(R.id.calendarImageView),
-                        getString(R.string.calendar_button),
-                        getString(R.string.click_to_add_reminders_from_calendar)
-                    )
-                        .tintTarget(false)
-                        .transparentTarget(false),
-                    object : TapTargetView.Listener() {})
+                        TapTarget.forView(
+                            nav_view.getHeaderView(0)
+                                .findViewById<ImageView>(R.id.calendarImageView),
+                            getString(R.string.calendar_button),
+                            getString(R.string.click_to_add_reminders_from_calendar)
+                        )
+                            .tintTarget(false)
+                            .transparentTarget(false),
+                        object : TapTargetView.Listener() {})
 
                 }
 
-        })
+            })
         }
     }
 
@@ -165,12 +168,13 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private fun setupAppForFirstTimeUse() {
         //set default dnd time
         MyUtils.putInt(applicationContext, DONT_DISTURB_START_HOURS, 6)
-        MyUtils.putInt(applicationContext, DONT_DISTURB_START_MINUTES,0)
-        MyUtils.putInt(applicationContext, DONT_DISTURB_END_HOURS,18)
-        MyUtils.putInt(applicationContext, DONT_DISTURB_END_MINUTES,0)
+        MyUtils.putInt(applicationContext, DONT_DISTURB_START_MINUTES, 0)
+        MyUtils.putInt(applicationContext, DONT_DISTURB_END_HOURS, 18)
+        MyUtils.putInt(applicationContext, DONT_DISTURB_END_MINUTES, 0)
         //show features guide
         TapTargetView.showFor(this@MainActivity,
-            TapTarget.forView(addReminderFab,
+            TapTarget.forView(
+                addReminderFab,
                 getString(R.string.add_button),
                 getString(R.string.click_to_add_reminders)
             ).tintTarget(false)
@@ -178,19 +182,18 @@ class MainActivity : AppCompatActivity(), ICommunication {
             object : TapTargetView.Listener() {})
 
 
-
         //set first time flag to false
-       MyUtils.putInt(applicationContext, FIRST_TIME_USE,1)
+        MyUtils.putInt(applicationContext, FIRST_TIME_USE, 1)
     }
 
 
     override fun onResume() {
         super.onResume()
-        if ( intent.hasExtra("newReminder")){//user clicked add reminder from notification
+        if (intent.hasExtra("newReminder")) {//user clicked add reminder from notification
             openReminderFragment()
         }
 
-        
+
     }
 
     fun cancelPersistentNotification() {
@@ -199,7 +202,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
 
     /**show persistent notification to allow user to add reminder if app is closed*/
-     fun sendPersistentNotification(todayReminders: MutableList<Reminder> = lastUpdateOfTodayReminder) {
+    fun sendPersistentNotification(todayReminders: MutableList<Reminder> = lastUpdateOfTodayReminder) {
 
         if (android.os.Build.VERSION.SDK_INT >=
             android.os.Build.VERSION_CODES.O
@@ -219,30 +222,35 @@ class MainActivity : AppCompatActivity(), ICommunication {
     }
 
     private fun getPersistentNotificationBuilder(todayReminders: MutableList<Reminder>): NotificationCompat.Builder? {
-        val notificationButtonText= when (todayReminders.size) {
-            0 ->getString(R.string.add_reminders)
-            else->getString(R.string.add_other_reminders)
+        val notificationButtonText = when (todayReminders.size) {
+            0 -> getString(R.string.add_reminders)
+            else -> getString(R.string.add_other_reminders)
         }
 
         val notificationText = when (todayReminders.size) {
-            0 ->getString(R.string.no_reminders_today)
-            else->{
-                var pastReminderOfToday=0
-                var upcomingReminderOfToday=0
-                for (reminder in todayReminders){
-                    if (reminder.createdAt.before(Calendar.getInstance())){
+            0 -> getString(R.string.no_reminders_today)
+            else -> {
+                var pastReminderOfToday = 0
+                var upcomingReminderOfToday = 0
+                for (reminder in todayReminders) {
+                    if (reminder.createdAt.before(Calendar.getInstance())) {
                         pastReminderOfToday++
-                    }else{
+                    } else {
                         upcomingReminderOfToday++
                     }
                 }
-                getString(R.string.reminders_today,todayReminders.size,pastReminderOfToday,upcomingReminderOfToday)
+                getString(
+                    R.string.reminders_today,
+                    todayReminders.size,
+                    pastReminderOfToday,
+                    upcomingReminderOfToday
+                )
             }
         }
 
         /**new reminder pending intent to pass to notification builder action*/
         val newReminderIntent = Intent(this, MainActivity::class.java)
-        newReminderIntent.putExtra("newReminder","")
+        newReminderIntent.putExtra("newReminder", "")
         newReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val newReminderPendingIntent = PendingIntent.getActivity(
             this,
@@ -271,12 +279,6 @@ class MainActivity : AppCompatActivity(), ICommunication {
             )
     }
 
- 
- 
-
-
-
-
 
     private fun observeDoneReminders() {
         disposable.add(
@@ -289,7 +291,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
 
             }, { error ->
-                MyUtils.showCustomToast(this@MainActivity,R.string.error_retreiving_reminder)
+                MyUtils.showCustomToast(this@MainActivity, R.string.error_retreiving_reminder)
             })
         )
     }
@@ -363,7 +365,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private fun setupDrawerContent() {
         binding.navView.setNavigationItemSelectedListener { menuItem ->
             //todo navigate
-            when(menuItem.itemId){
+            when (menuItem.itemId) {
                 R.id.settings -> {
                     openSettingsFragment()
                 }
@@ -401,7 +403,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
         supportFragmentManager
             .beginTransaction()
             .add(R.id.fragmentContainer, SettingsFragment())
-        .addToBackStack(null)
+            .addToBackStack(null)
             .commit()
     }
 
@@ -507,7 +509,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 showMenuItem(overdueReminders.size, R.id.overdue, CategoryType.OVERDUE)
 
             }, { error ->
-                MyUtils.showCustomToast(this@MainActivity,R.string.error_retreiving_reminder)
+                MyUtils.showCustomToast(this@MainActivity, R.string.error_retreiving_reminder)
 
             })
         )
@@ -520,7 +522,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
             ).subscribe({ todayReminders ->
 
                 println("DebugTag->is this called after reminder updated to done?")
-                lastUpdateOfTodayReminder=todayReminders
+                lastUpdateOfTodayReminder = todayReminders
 
                 showMenuItem(todayReminders.size, R.id.today, CategoryType.TODAY)
 
@@ -528,14 +530,13 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 /**check if user allowed showing persistent notification
                  * 0-> allowed (default)
                  * 1-> not allowed
-                */
-                if (MyUtils.getInt(this,ALLOW_PERSISTENT_NOTIFICATION)==0)
-                {
+                 */
+                if (MyUtils.getInt(this, ALLOW_PERSISTENT_NOTIFICATION) == 0) {
                     sendPersistentNotification(todayReminders)
                 }
 
             }, { error ->
-                MyUtils.showCustomToast(this@MainActivity,R.string.error_retreiving_reminder)
+                MyUtils.showCustomToast(this@MainActivity, R.string.error_retreiving_reminder)
 
             })
         )
@@ -555,7 +556,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
 
             }, { error ->
-                MyUtils.showCustomToast(this@MainActivity,R.string.error_retreiving_reminder)
+                MyUtils.showCustomToast(this@MainActivity, R.string.error_retreiving_reminder)
 
             })
         )
@@ -567,8 +568,24 @@ class MainActivity : AppCompatActivity(), ICommunication {
     }
 
 
+    override fun attachBaseContext(newBase: Context?) {
+
+        when (newBase?.let { MyUtils.getInt(it, APP_LANGUAGE) }) {
+            0 -> {//same as device lang
+                super.attachBaseContext(newBase)
+            }
+            1 -> {
+                super.attachBaseContext(MyContextWrapper.wrap(newBase, "en"))
+                MyUtils.setLocale("en")
+            }
+            2 -> {
+                super.attachBaseContext(MyContextWrapper.wrap(newBase, "ar"))
+                MyUtils.setLocale("ar")
+            }
+        }
 
 
+    }
 
     /**this method called from fragments to lock/unlock drawer*/
     override fun setDrawerEnabled(enabled: Boolean) {
@@ -581,7 +598,6 @@ class MainActivity : AppCompatActivity(), ICommunication {
     override fun showReminderFragment(reminder: Reminder) {
         openReminderFragment(reminder)
     }
-
 
 
 }

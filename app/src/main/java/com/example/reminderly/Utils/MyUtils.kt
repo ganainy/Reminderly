@@ -1,11 +1,10 @@
 package com.example.reminderly.Utils
 
-import android.app.AlarmManager
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -52,6 +51,7 @@ const val NIGHT_MODE_ENABLED="nightModeEnabled" /*0->disabled , 1 -> enabled */
 const val FIRST_TIME_USE="firstTimeUser" /*0->first app use , 1 -> app opened before */
 const val SHOWN_DRAWER_GUIDE="shownDrawerGuide" /*0->we need to promote user to click the calendar button , 1 ->no need to show guide */
 const val FIRST_TIME_ADD_REMINDER="firstTimeAddReminder" /*0-> first time user is adding reminders show hints , 1-> don't show hints */
+const val APP_LANGUAGE="appLang" /*0-> same as device(default),1-> english(default) , 2-> arabic */
 
 class MyUtils {
 
@@ -64,11 +64,16 @@ class MyUtils {
 
         //region date
 
-        private val locale = Locale("ar")
+        private  lateinit var locale:Locale
 
-        private val dateFormat = SimpleDateFormat("EEEE, dd MMMM", locale)
-        private val timeFormat = SimpleDateFormat("hh:mm a", locale)
+        private var dateFormat = SimpleDateFormat("EEEE, dd MMMM")
+        private var timeFormat = SimpleDateFormat("hh:mm a")
 
+        fun setLocale(localeAbrreviation:String){
+            locale=Locale(localeAbrreviation)
+            dateFormat = SimpleDateFormat("EEEE, dd MMMM", locale)
+            timeFormat = SimpleDateFormat("hh:mm a", locale)
+        }
 
         fun getCurrentDateFormatted(): String {
             return dateFormat.format(currentDate)
@@ -169,36 +174,20 @@ class MyUtils {
             return builder.toString()
         }
 
-        fun convertRepeat(repeat: Int): String {
-            return when (repeat) {
-                0 -> "مرة واحده"
-                1 -> "كل ساعة"
-                2 -> "كل يوم"
-                3 -> "كل اسبوع"
-                4 -> "كل شهر"
-                5 -> "كل عام"
-                else -> throw Exception("unknown repeat")
+        fun convertRepeat(context: Context, repeat: Int): String {
+            val repeatArray = context.resources.getStringArray(R.array.repeat_items)
+            return repeatArray[repeat]
             }
 
+
+        fun convertPriority(context: Context,priority: Int): String {
+            val repeatArray = context.resources.getStringArray(R.array.priority_items)
+            return repeatArray[priority]
         }
 
-        fun convertPriority(repeat: Int): String {
-            return when (repeat) {
-                0 -> "عادي"
-                1 -> "متوسط"
-                2 -> "هام"
-                else -> throw Exception("unknown repeat")
-            }
-
-        }
-
-        fun convertReminderType(repeat: Int): String {
-            return when (repeat) {
-                0 -> "تنيه بإستخدام الاشعارات"
-                1 -> "تنبيه بإستخدام الجرس"
-                else -> throw Exception("unknown repeat")
-            }
-
+        fun convertReminderType(context: Context,type: Int): String {
+            val repeatArray = context.resources.getStringArray(R.array.notify_type_items)
+            return repeatArray[type]
         }
 
          fun isAppFirstUse(context: Context):Boolean {

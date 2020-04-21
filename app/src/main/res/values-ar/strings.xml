@@ -57,7 +57,6 @@
     <string name="reminder_delete_failed">خطأ اثناء حذف التذكير</string>
 
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="error_retreiving_favorite_reminder">خطأ اثناء استرجاع التذكيرات المفضلة</string>
     <string name="no_reminders">لا يوجد تذكيرات</string>
 
@@ -75,12 +74,14 @@
     <string name="from">بداية من</string>
     <string name="until">حتي</string>
     <string name="wrong_dnd_period">يجب ان يكون وقت نهاية فترة عدم الازعاج بعد وقت بدايتها</string>
-    <string name="dont_disturb_summary">بداية من %1$s حتي %2$s</string>
+    <string name="dont_disturb_summary">في حالة تفعيله لن تتلقي أي اشعارات خلال مده معينه</string>
+    <string name="dont_disturb_value_summary"> بداية من %1$s حتي %2$s</string>
     <string name="another_reminder_is_showing">هناك تنبيه اخر موعده الان وقدم تم تأجيله تلقائيا خمس دقائق</string>
-    <string name="developer_info">• الاسم:عمرو محمد على \n • الجنسية : مصري\n • العمر : 23 عام\n • الإيميل : amrmohammedali11@gmail.com\n • تليفون/واتس اب : +20 01094095356</string>
-    <string name="click_to_message_me_on_whatsapp">اضغط هنا لمحادثتي على الواتس اب</string>
-    <string name="dont_have_whatsapp">لا يحتوى هاتفك على تطبيق واتس اب</string>
     <string name="postpone">تأجيل</string>
+
+
+
+
     <string name="reminder_will_work_next_time">تم إغلاق التذكير لحين موعده القادم</string>
     <string name="reminder_is_done">تم إنهاء التذكير</string>
     <string name="moved_to_done_list">تم نقل التذكير إلي قائمه التذكيرات المنتهية ويمكنك الوصول إليه من القائمة</string>
@@ -95,5 +96,24 @@
     <string name="save_button_to_save">بعد كتابة التذكير وتعديله اضغط زر الحفظ لإنشاء التذكير</string>
     <string name="privacy_policy">سياسة الخصوصية</string>
 
+    <string name="today_persistent_notif">إشعار تذكيرات اليوم</string>
+    <string name="today_persistent_notif_explained">إشعار دائم لإظهار عدد التذكيرات خلال اليوم مع امكانيه اضافة تذكيرات</string>
+    <string name="done_reminders_behaviour">التعامل مع التذكيرات المنتهية</string>
+    <string name="done_reminders_behaviour_explained">يتم الاحتفاظ بالتذكيرات المنتهية ويمكن الوصول لها عن طريق القائمة</string>
+    <string name="end_action_for_recurring_tasks">وظيفة زر الانهاء للتذكيرات المتكرره</string>
+    <string name="just_close_till_next_time">فقط اغلاق التذكير حتى موعد التنيه القادم</string>
+    <string name="night_mode">تفعيل الوضع الليلي</string>
+    <string name="night_mode_summary"> الوضع الليلي مناسب للاماكن منخفضة الاضاءة و قد يكون مريح اكثر للعين</string>
+    <string name="dont_disturb">عدم الازعاج</string>
+    <string name="dont_disturb_option_summary">عدم الحصول على التبيهات خلال وقت معين</string>
+    <string name="dont_disturb_value_title">توقيت تفعيل عدم الإزعاج</string>
+    <string name="general_settings">إعدادات عامة</string>
 
+    <string name="lang_pref_title">تفضيلات اللغة</string>
+    <string name="available_langs">الإنجليزية, العربية او لغة الجهاز</string>
+    <string name="choose_language">إختر اللغة</string>
+    <string name="changes_take_effect_on_restart">سيتم تغيير اللغة بعد إعادة تشغيل التطبيق</string>
+
+    <string name="this_option_already_active">هذا الخيار نشط بالفعل, لن يحدث اى تغيير</string>
+    <string name="load_fail_check_connection">فشل التحميل, تأكد انك متصل بالانترنت</string>
 </resources>
