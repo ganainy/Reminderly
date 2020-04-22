@@ -4,7 +4,7 @@
     <string name="all_reminders">All reminders</string>
     <string name="favorite_reminders">Favorite reminders</string>
     <string name="no_active_reminders">No active reminder right now</string>
-    <string name="no_favorite_reminders">No favorite reminder right now</string>
+    <string name="no_favorite_reminders">No favorite reminders right now</string>
     <string name="settings">Settings</string>
     <string name="search">Search</string>
     <string name="remind_me_to">Remind me to…</string>

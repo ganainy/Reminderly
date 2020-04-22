@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import com.example.footy.database.ReminderDatabase
 import com.example.footy.database.ReminderDatabaseDao
 import com.example.reminderly.R
@@ -115,7 +116,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
             AndroidSchedulers.mainThread()
         ).subscribe(
             {//complete
-                MyUtils.showCustomToast(context, R.string.moved_to_done_list)
+                MyUtils.showCustomToast(context, R.string.moved_to_done_list,Toast.LENGTH_LONG)
             },
             { error ->
                 MyUtils.showErrorToast(context)
