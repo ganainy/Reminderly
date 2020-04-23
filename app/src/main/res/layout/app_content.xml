@@ -6,7 +6,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:showIn="@layout/activity_main">
 
-
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -39,20 +41,44 @@
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        >
 
 
-    <com.example.reminderly.MovableFloatingActionButton
-        android:id="@+id/addReminderFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/primaryColor"
-        android:layout_margin="@dimen/default_margin"
-        android:clickable="true"
-        app:borderWidth="0dp"
-        android:src="@drawable/ic_add_white"
-        android:layout_gravity="end|bottom"
-        android:focusable="true" />
+
+
+    </androidx.viewpager2.widget.ViewPager2>
+
+
+        <com.example.reminderly.MovableFloatingActionButton
+            android:id="@+id/addReminderFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="@dimen/default_margin"
+            android:backgroundTint="@color/primaryColor"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/ic_add_white"
+            app:borderWidth="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/adView"
+            app:layout_constraintEnd_toEndOf="@+id/pager" />
+
+        <!--TODO replace this test ad unit with real ads before publishing-->
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            app:adSize="BANNER"
+            app:adUnitId="ca-app-pub-3940256099942544/6300978111"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -96,4 +96,6 @@ dependencies {
     //taptarget view
     implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.0'
 
+    //admob
+    implementation 'com.google.android.gms:play-services-ads:19.1.0'
 }

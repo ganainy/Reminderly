@@ -27,14 +27,14 @@ class NewReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         val reminderId = intent.getLongExtra(REMINDER_ID, -1L)
-        Log.d("DebugTag", "NewReminderReceiver onReceive : $reminderId")
+
 
         if (reminderId!=-1L){
 
         //acquire wakelock
         val wakeLock: PowerManager.WakeLock =
             (context.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-                newWakeLock(FULL_WAKE_LOCK , "MyApp::MyWakelockTag").apply {
+                newWakeLock(PARTIAL_WAKE_LOCK , "MyApp::MyWakelockTag").apply {
                     acquire(10 * 1000L /*10 seconds*/)
                 }
             }
