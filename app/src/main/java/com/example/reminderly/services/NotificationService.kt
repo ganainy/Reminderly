@@ -7,7 +7,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.media.MediaPlayer
+import android.net.Uri
 import android.os.IBinder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
@@ -30,7 +30,6 @@ class NotificationService : Service() {
 
     private  val notificationManager by lazy {  getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager }
     private val reminderDatabaseDao by lazy {  ReminderDatabase.getInstance(this).reminderDatabaseDao}
-    private val mediaPlayer by lazy { MediaPlayer.create(this, R.raw.tone)}
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -70,7 +69,7 @@ class NotificationService : Service() {
     }
 
 
-    /**Create notification with unique id so we can cancel it later*/
+    /**Create and send notification with unique id so we can cancel it later*/
     private fun sendReminderNotification(
         reminderId: Long,
         context: Context
@@ -81,8 +80,6 @@ class NotificationService : Service() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { reminder ->
 
-                //normal notification
-                mediaPlayer.start()
                 val notificationBuilder = getNotificationBuilder(
                     context,
                     reminder,
@@ -134,9 +131,9 @@ class NotificationService : Service() {
                 , postponeReminderPendingIntent
             )
             priority = NotificationCompat.PRIORITY_HIGH
-            setDefaults(NotificationCompat.DEFAULT_ALL)
+            setDefaults(NotificationCompat.DEFAULT_LIGHTS)
             setVisibility(VISIBILITY_PUBLIC)
-
+            setSound(Uri.parse("android.resource://"+this@NotificationService.packageName+"/"+ R.raw.tone))
             setAutoCancel(true)
         }
 
@@ -163,6 +160,7 @@ class NotificationService : Service() {
             notificationChannel.enableVibration(true)
             notificationChannel.lockscreenVisibility= VISIBILITY_PUBLIC
             notificationChannel.description = "Notification for certain notification reminder"
+            notificationChannel.setSound(Uri.parse("android.resource://"+this.packageName+"/"+ R.raw.tone), null)
             notificationManager.createNotificationChannel(notificationChannel)
         }
 

@@ -3,17 +3,19 @@ package com.example.reminderly.services
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.ALLOW_PERSISTENT_NOTIFICATION
 import com.example.reminderly.Utils.MyUtils
+import com.example.reminderly.Utils.ONGOING_ALARM_FLAG
 import com.example.reminderly.Utils.REMINDER_ID
 import com.example.reminderly.broadcast_receivers.DoneReminderReceiver
 import com.example.reminderly.database.Reminder
@@ -58,7 +60,6 @@ class AlarmService : Service() {
 
     private val disposable = CompositeDisposable()
     private lateinit var mCountDownTimer: CountDownTimer
-    private val mediaPlayer by lazy { MediaPlayer.create(this, R.raw.tone).apply { isLooping=true }}
     private val reminderDatabaseDao by lazy {  ReminderDatabase.getInstance(this).reminderDatabaseDao}
     private  val notificationManager by lazy {getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager }
 
@@ -80,7 +81,8 @@ class AlarmService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-      /*  //first check if any alarm is already active
+
+        //first check if any alarm is already active
         if (MyUtils.getInt(this, ONGOING_ALARM_FLAG) == 1) {
             //this means second reminder came while a alert reminder is active so we delay the
             // second reminder for 5 minutes till the first one finishes
@@ -92,7 +94,7 @@ class AlarmService : Service() {
             return super.onStartCommand(intent, flags, startId)
         }
 
-        MyUtils.putInt(this, ONGOING_ALARM_FLAG,1)*/
+        MyUtils.putInt(this, ONGOING_ALARM_FLAG,1)
 
         val reminderId = intent?.getLongExtra(REMINDER_ID, -1L)
 
@@ -179,6 +181,7 @@ class AlarmService : Service() {
             )
             notificationChannel.enableVibration(false)
             notificationChannel.description = "Notification for certain alarm reminder"
+            notificationChannel.setSound(Uri.parse("android.resource://"+this.packageName+"/"+ R.raw.tone), null)
             notificationManager.createNotificationChannel(notificationChannel)
         }
 
@@ -224,7 +227,8 @@ class AlarmService : Service() {
                 , postponeReminderPendingIntent
             )
             priority = NotificationCompat.PRIORITY_HIGH
-            setDefaults(NotificationCompat.DEFAULT_ALL)
+            setDefaults(NotificationCompat.DEFAULT_LIGHTS)
+            setSound(Uri.parse("android.resource://"+this@AlarmService.packageName+"/"+ R.raw.tone))
             setAutoCancel(true)
         }
 
@@ -237,13 +241,9 @@ class AlarmService : Service() {
         context: Context,
         reminder: Reminder
     ) {
-
-        // show notification every second so its always on screen && play audio in loop
-        mediaPlayer.start()
-
         val notificationBuilder = getNotificationBuilder(context, reminder, reminder.id)
 
-        mCountDownTimer = object : CountDownTimer(3 * 60 * 1000L, 1500) {
+        mCountDownTimer = object : CountDownTimer(2 * 60 * 1000L, 2500) {
             override fun onTick(millisUntilFinished: Long) {
                 notificationManager.notify(reminder.id.toInt(), notificationBuilder.build())
             }
@@ -252,7 +252,6 @@ class AlarmService : Service() {
                stopSelf()
             }
         }.start()
-
     }
 
 
@@ -290,14 +289,12 @@ class AlarmService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         disposable.clear()
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.stop()
-        }
+
         if (::mCountDownTimer.isInitialized) {
             mCountDownTimer.cancel()
         }
 
-      //  MyUtils.putInt(this, ONGOING_ALARM_FLAG,0)
+        MyUtils.putInt(this, ONGOING_ALARM_FLAG,0)
 
     }
 
