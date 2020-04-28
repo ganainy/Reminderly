@@ -448,7 +448,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 AndroidSchedulers.mainThread()
             ).subscribe({ todayReminders ->
 
-                println("ssssss${todayReminders.size}")
+
                 showMenuItem(todayReminders.size, R.id.today, CategoryType.TODAY)
 
                 //show persistent notification to help user add reminder from outside of app

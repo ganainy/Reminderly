@@ -98,4 +98,7 @@ dependencies {
 
     //admob
     implementation 'com.google.android.gms:play-services-ads:19.1.0'
+
+    //rx-preferences
+    implementation 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0'
 }

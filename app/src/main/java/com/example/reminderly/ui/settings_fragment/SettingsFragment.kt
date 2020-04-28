@@ -2,6 +2,7 @@ package com.example.reminderly.ui.settings_fragment
 
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
@@ -21,6 +22,7 @@ import com.example.reminderly.R
 import com.example.reminderly.Utils.*
 import com.example.reminderly.models.DndPeriod
 import com.example.reminderly.ui.mainActivity.MainActivity
+import com.f2prateek.rx.preferences2.RxSharedPreferences
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -456,12 +458,27 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         /**--*/
-        when(  MyUtils.getInt(requireContext(), ALLOW_PERSISTENT_NOTIFICATION)){
-           0-> persistentNotificationSwitch!!.isChecked = true
-           1-> persistentNotificationSwitch!!.isChecked = false
-        }
+             val pref: SharedPreferences =
+            requireContext().applicationContext
+                .getSharedPreferences("MyPref", 0)
+        val rxPreferences = RxSharedPreferences.create(pref)
+        val shouldAllowPersistentNotification: com.f2prateek.rx.preferences2.Preference<Int> =
+            rxPreferences.getInteger(ALLOW_PERSISTENT_NOTIFICATION, -1)
+
+        disposable.add(shouldAllowPersistentNotification.asObservable().subscribe {
+                    when(it){
+                0-> persistentNotificationSwitch!!.isChecked = true
+                1-> persistentNotificationSwitch!!.isChecked = false
+            }
+        })
+
     }
 
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposable.clear()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
