@@ -1,10 +1,12 @@
 package com.example.reminderly.Utils
 
-import android.app.*
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -12,9 +14,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.reminderly.R
-import com.example.reminderly.broadcast_receivers.AlarmService
 import com.example.reminderly.broadcast_receivers.NewReminderReceiver
 import com.example.reminderly.database.Reminder
+import com.example.reminderly.services.AlarmService
 import com.example.reminderly.ui.mainActivity.MainActivity
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import java.text.SimpleDateFormat
@@ -60,6 +62,7 @@ const val FIRST_TIME_USE="firstTimeUser" /*0->first app use , 1 -> app opened be
 const val SHOWN_DRAWER_GUIDE="shownDrawerGuide" /*0->we need to promote user to click the calendar button , 1 ->no need to show guide */
 const val FIRST_TIME_ADD_REMINDER="firstTimeAddReminder" /*0-> first time user is adding reminders show hints , 1-> don't show hints */
 const val APP_LANGUAGE="appLang" /*0-> same as device(default),1-> english(default) , 2-> arabic */
+const val ONGOING_ALARM_FLAG="ongoingAlarm" /*0-> no alarm ongoing right now,1-> alarm is ongoing, you should postpone second reminder */
 
 class MyUtils {
 
@@ -201,7 +204,7 @@ class MyUtils {
         }
 
          fun isAppFirstUse(context: Context):Boolean {
-            return MyUtils.getInt(context,FIRST_TIME_USE)==0
+            return getInt(context,FIRST_TIME_USE) ==0
         }
 
 
@@ -232,22 +235,53 @@ class MyUtils {
         }
 
 
+        /**this method checks if a date is in range between two dates*/
+        fun isDndPeriod(context: Context): Boolean {
+
+            //first check if dnd option is enabled
+            if (getInt(context, DND_OPTION_ENABLED) == 0) {
+                //dnd option is disabled
+                return false
+            }
+
+            val startMinute = getInt(context, DONT_DISTURB_START_MINUTES)
+            val startHour = getInt(context, DONT_DISTURB_START_HOURS)
+            val endHour = getInt(context, DONT_DISTURB_END_HOURS)
+            val endMinute = getInt(context, DONT_DISTURB_END_MINUTES)
+
+            //get current minute and hour and compare them with dnd period
+            val currentTime = Calendar.getInstance()
+
+            val dndStart = Calendar.getInstance()
+            dndStart.set(Calendar.HOUR_OF_DAY, startHour)
+            dndStart.set(Calendar.MINUTE, startMinute)
+
+            val dndEnd = Calendar.getInstance()
+            dndEnd.set(Calendar.HOUR_OF_DAY, endHour)
+            dndEnd.set(Calendar.MINUTE, endMinute)
+
+            return currentTime.after(dndStart) && currentTime.before(dndEnd)
+
+        }
+
+
+
+
+
+
         /**cancel the reminder UI (notification) depending on if its alarm or notification reminder*/
          fun closeReminder(
             reminder: Reminder,
-            reminderId: Long,
             context: Context
         ) {
-            if (reminder.reminderType == 0) {
-                //notification reminder
-               cancelNotification(reminderId, context)
-            } else if (reminder.reminderType == 1) {
-                //alarm reminder
+            if (reminder.reminderType == 1) {
+                //alarm reminder, we need to stop service to stop ringing and repeating notification
                 stopAlarmService(context)
             }
+            cancelNotification(reminder.id, context)
         }
 
-        //endregion
+            //endregion
 
         //region alarm manager
 
@@ -282,7 +316,7 @@ class MyUtils {
             context: Context?,
             triggerMillis: Long
         ) {
-            Log.d("DebugTag", "addOneTimeAlarm: ${reminderId} ,,, ${Date(triggerMillis)}")
+            Log.d("DebugTag", "addOneTimeAlarm: $reminderId ,,, ${Date(triggerMillis)}")
             val notifyIntent = Intent(context, NewReminderReceiver::class.java)
             notifyIntent.putExtra(REMINDER_ID, reminderId)
             val notifyPendingIntent = PendingIntent.getBroadcast(

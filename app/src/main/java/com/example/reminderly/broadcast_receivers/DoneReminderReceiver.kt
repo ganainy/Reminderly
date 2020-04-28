@@ -3,7 +3,6 @@ package com.example.reminderly.broadcast_receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import com.example.footy.database.ReminderDatabase
 import com.example.footy.database.ReminderDatabaseDao
@@ -36,7 +35,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
                 .observeOn(AndroidSchedulers.mainThread()).subscribe { reminder ->
 
                     //close any ongoing notification/alarm
-                MyUtils.closeReminder(reminder, reminderId, context)
+                MyUtils.closeReminder(reminder,  context)
 
                     if (reminder.repeat == 1 ){
                         //repeating reminder

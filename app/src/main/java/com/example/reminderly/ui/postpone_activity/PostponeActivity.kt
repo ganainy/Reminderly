@@ -1,10 +1,8 @@
 package com.example.reminderly.ui.postpone_activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.NumberPicker
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.footy.database.ReminderDatabase
@@ -13,11 +11,9 @@ import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.Utils.REMINDER_ID
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_postpone.*
 
 /**this activity has special theme in manifest so it is transparent && and special attributes
@@ -49,7 +45,7 @@ class PostponeActivity : AppCompatActivity() {
         disposable.add(viewModel.getReminderById(reminderId).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread()).subscribe { reminder ->
                 mReminder = reminder
-                MyUtils.closeReminder(reminder, reminderId, this)
+                MyUtils.closeReminder(reminder,this)
             })
 
 
