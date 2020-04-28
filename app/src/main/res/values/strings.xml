@@ -107,4 +107,6 @@
     <string name="load_fail_check_connection">Load failed, make sure you are connected to the internet</string>
     <string name="delay_for">Delay for..</string>
     <string name="foreground_service">A service called by reminderly app used so that alarm properly works</string>
+    <string name="remove_this_persistent_notif">Disable this notifcation</string>
+    <string name="persistent_notif_disabled">Notifcation disabled, you can turn this on again from setting</string>
 </resources>

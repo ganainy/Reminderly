@@ -454,6 +454,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 dontDisturbValue?.isEnabled = false
             }
         }
+
+        /**--*/
+        when(  MyUtils.getInt(requireContext(), ALLOW_PERSISTENT_NOTIFICATION)){
+           0-> persistentNotificationSwitch!!.isChecked = true
+           1-> persistentNotificationSwitch!!.isChecked = false
+        }
     }
 
 

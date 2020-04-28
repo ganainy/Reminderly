@@ -117,4 +117,6 @@
     <string name="load_fail_check_connection">فشل التحميل, تأكد انك متصل بالانترنت</string>
     <string name="delay_for">تأجيل لمدة..</string>
     <string name="foreground_service">خدمة تابعة لتطبيق تذكيراتي حتي يعمل التنيه بشكل سليم</string>
+    <string name="remove_this_persistent_notif">إيقاف هذه الرسالة</string>
+    <string name="persistent_notif_disabled">تم الإيقاف, يمكنك تفعيلها مره اخري من اعدادات التطبيق</string>
 </resources>

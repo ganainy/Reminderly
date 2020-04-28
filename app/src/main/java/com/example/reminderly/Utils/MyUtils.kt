@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.reminderly.R
 import com.example.reminderly.broadcast_receivers.NewReminderReceiver
+import com.example.reminderly.broadcast_receivers.PersistentNotificationReceiver
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.services.AlarmService
 import com.example.reminderly.ui.mainActivity.MainActivity
@@ -540,6 +541,10 @@ class MyUtils {
                 }
             }
 
+
+
+
+
             /**new reminder pending intent to pass to notification builder action*/
             val newReminderIntent = Intent(context, MainActivity::class.java)
             newReminderIntent.putExtra("newReminder", "")
@@ -557,6 +562,14 @@ class MyUtils {
                 1, contentIntent, PendingIntent.FLAG_UPDATE_CURRENT
             )
 
+
+            /**action to disable persistent notification*/
+            val disablePersistentNotificationIntent = Intent(context, PersistentNotificationReceiver::class.java)
+            val disablePersistentNotificationPendingIntent = PendingIntent.getBroadcast(
+                context,
+                2, disablePersistentNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
             return NotificationCompat.Builder(context, PERSISTENT_CHANNEL_ID)
                 .setContentText(notificationText)
                 .setSmallIcon(R.drawable.ic_bell_white)
@@ -568,6 +581,11 @@ class MyUtils {
                     R.drawable.ic_add_white,
                     notificationButtonText,
                     newReminderPendingIntent
+                )
+                .addAction(
+                    R.drawable.ic_delete_grey,
+                    context.getString(R.string.remove_this_persistent_notif),
+                    disablePersistentNotificationPendingIntent
                 )
         }
 
