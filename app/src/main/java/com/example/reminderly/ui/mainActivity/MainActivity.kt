@@ -36,9 +36,6 @@ import com.example.reminderly.ui.search_fragment.SearchFragment
 import com.example.reminderly.ui.settings_fragment.SettingsFragment
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetView
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayoutMediator
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -89,8 +86,6 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
         showCalendarButtonHint()
 
-        initializeAds()
-
         //handle add fab click
         binding.appContent.findViewById<FloatingActionButton>(R.id.addReminderFab)
             .setOnClickListener {
@@ -99,14 +94,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
     }
 
-    private fun initializeAds() {
-        //todo move banner ad to reminder creation fragment
-        MobileAds.initialize(this
-        ) {}
 
-        val adRequest: AdRequest = AdRequest.Builder().build()
-        binding.appContent.findViewById<AdView>(R.id.adView).loadAd(adRequest)
-    }
 
     /**this will show hint guide to promote user to click the calendar button , this will only work
      *  the first time user opens menu only*/
@@ -292,7 +280,6 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
     private fun setupDrawerContent() {
         binding.navView.setNavigationItemSelectedListener { menuItem ->
-            //todo navigate
             when (menuItem.itemId) {
                 R.id.settings -> {
                     openSettingsFragment()

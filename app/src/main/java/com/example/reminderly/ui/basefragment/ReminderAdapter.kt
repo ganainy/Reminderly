@@ -169,6 +169,7 @@ class ReminderAdapter(
                 .withAdListener(object : AdListener(){
                     override fun onAdFailedToLoad(errorCode: Int) {
                         binding.smallNativeAdTemplate.visibility= View.GONE//hide ad layout since load failed
+                        binding.loadingGroup.visibility=View.GONE //hide loading layout
                     }
                 })
                 .build()

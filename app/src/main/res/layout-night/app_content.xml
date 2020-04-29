@@ -46,7 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-            app:layout_constraintBottom_toTopOf="@+id/adView"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
 
 
@@ -64,24 +64,11 @@
             android:focusable="true"
             android:src="@drawable/ic_add_white"
             app:borderWidth="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/adView"
+
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/pager" />
 
-        <!--TODO replace this test ad unit with real ads before publishing-->
-        <com.google.android.gms.ads.AdView
-            android:id="@+id/adView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="50dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            app:adSize="BANNER"
-            android:background="@color/fragmentBackground"
-            app:adUnitId="ca-app-pub-3940256099942544/6300978111"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"/>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

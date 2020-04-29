@@ -119,5 +119,6 @@
     <string name="foreground_service">خدمة تابعة لتطبيق تذكيراتي حتي يعمل التنيه بشكل سليم</string>
     <string name="remove_this_persistent_notif">إيقاف هذه الرسالة</string>
     <string name="persistent_notif_disabled">تم الإيقاف, يمكنك تفعيلها مره اخري من اعدادات التطبيق</string>
-    <string name="add_loading">Ad is loading</string>
+    <string name="add_loading">جاري تحميل اعلان</string>
+    <string name="old_date_error">يجب ان يكون تاريخ التذكير في المستقبل</string>
 </resources>

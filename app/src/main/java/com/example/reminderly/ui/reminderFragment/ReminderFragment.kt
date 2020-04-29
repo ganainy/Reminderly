@@ -30,6 +30,8 @@ import com.example.reminderly.ui.mainActivity.ICommunication
 import com.example.reminderly.ui.reminderActivity.ReminderViewModel
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -118,8 +120,19 @@ class ReminderFragment : Fragment(), View.OnClickListener {
             reminder.text=it.toString()
         }
 
+
+        initializeAds()
+
     }
 
+
+    private fun initializeAds() {
+        MobileAds.initialize(requireContext()
+        ) {}
+
+        val adRequest: AdRequest = AdRequest.Builder().build()
+        binding.adView?.loadAd(adRequest)
+    }
 
 
     private fun initViewModel() {
@@ -341,12 +354,11 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
             return
         }
-        //todo remove comment
-        /*else if(viewModel.mReminder.createdAt.timeInMillis <= Calendar.getInstance().timeInMillis){
+       else if(viewModel.mReminder.createdAt.timeInMillis <= Calendar.getInstance().timeInMillis){
       MyUtils.showCustomToast(requireContext(),R.string.old_date_error)
 
        return
-   }*/
+   }
 
         disposable.add(viewModel.saveReminder(reminder)
             .subscribeOn(Schedulers.io())
