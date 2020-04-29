@@ -6,7 +6,6 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -30,7 +29,7 @@ class ReminderListFragment : BaseFragment() {
     private lateinit var binding: ReminderListFragmentBinding
     private lateinit var viewModel: ReminderListFragmentViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
-    private val disposable=CompositeDisposable()
+    private val disposable = CompositeDisposable()
 
     companion object {
 
@@ -58,15 +57,17 @@ class ReminderListFragment : BaseFragment() {
         val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
 
 
-         viewModelFactory=
-             ProvideDatabaseViewModelFactory(
-                 requireActivity().application,
-                 reminderDatabaseDao
-             )
-        viewModel = ViewModelProvider(this, viewModelFactory).get(ReminderListFragmentViewModel::class.java)
+        viewModelFactory =
+            ProvideDatabaseViewModelFactory(
+                requireActivity().application,
+                reminderDatabaseDao
+            )
+        viewModel =
+            ViewModelProvider(this, viewModelFactory).get(ReminderListFragmentViewModel::class.java)
 
 
     }
+
     /**
      *show reminders in recycler*/
     private fun showReminders(
@@ -106,6 +107,8 @@ class ReminderListFragment : BaseFragment() {
             }
 
             initRecycler()
+            reminderListWithHeaders.add(0, Reminder(header = 4))//add empty reminder with header value that will be used as AD in recycler
+            reminderListWithHeaders.add(1, Reminder(header = 4))//add empty reminder with header value that will be used as AD in recycler
             adapter.submitList(reminderListWithHeaders)
 
         }
@@ -118,9 +121,9 @@ class ReminderListFragment : BaseFragment() {
             ).subscribe({ reminderList ->
 
 
-             overdueReminders.clear()
-             todayReminders.clear()
-             upcomingReminders.clear()
+                overdueReminders.clear()
+                todayReminders.clear()
+                upcomingReminders.clear()
 
 
                 for (reminder in reminderList) {
@@ -139,14 +142,14 @@ class ReminderListFragment : BaseFragment() {
                 }
 
 
-          showReminders(
+                showReminders(
                     overdueReminders,
                     todayReminders,
                     upcomingReminders
                 )
 
             }, { error ->
-                MyUtils.showCustomToast(requireContext(),R.string.error_retreiving_reminder)
+                MyUtils.showCustomToast(requireContext(), R.string.error_retreiving_reminder)
 
             })
         )

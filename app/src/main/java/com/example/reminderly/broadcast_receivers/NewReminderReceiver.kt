@@ -3,6 +3,9 @@ package com.example.reminderly.broadcast_receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.PowerManager
+import android.os.PowerManager.PARTIAL_WAKE_LOCK
+import android.util.Log
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.Utils.REMINDER_ID
 import com.example.reminderly.services.AlarmService
@@ -24,17 +27,10 @@ class NewReminderReceiver : BroadcastReceiver() {
 
         val reminderId = intent.getLongExtra(REMINDER_ID, -1L)
 
-        print("timeonReceive${System.currentTimeMillis()}")
-
+        Log.d("DebugTag", "NewReminderReceiver->onReceive: ${System.currentTimeMillis()}")
         if (reminderId != -1L) {
 
-          /*  //acquire wakelock
-            val wakeLock: PowerManager.WakeLock =
-                (context.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-                    newWakeLock(PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
-                        acquire(10 * 1000L *//*10 seconds*//*)
-                    }
-                }*/
+
 
             //start alarm/notification service based on reminder type
             val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
@@ -43,13 +39,21 @@ class NewReminderReceiver : BroadcastReceiver() {
                     .observeOn(AndroidSchedulers.mainThread()).subscribe {
                         //start background service or foreground service based on reminderType
 
-                        print("timeonReceive${System.currentTimeMillis()}")
+                        Log.d("DebugTag", "NewReminderReceiver->onReceive: ${System.currentTimeMillis()}")
                         if (it.reminderType == 0) {
                             val notificationServiceIntent =
                                 Intent(context, NotificationService::class.java)
                             notificationServiceIntent.putExtra(REMINDER_ID, reminderId)
                             context.startService(notificationServiceIntent)
                         } else {
+                            //acquire wakelock
+                            val wakeLock: PowerManager.WakeLock =
+                                (context.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                                    newWakeLock(PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag").apply {
+                                        acquire(3*60*1000L /*3 minutes*/)
+                                    }
+                                }
+
                             val alarmServiceIntent = Intent(context, AlarmService::class.java)
                             alarmServiceIntent.putExtra(REMINDER_ID, reminderId)
                             context.startService(alarmServiceIntent)

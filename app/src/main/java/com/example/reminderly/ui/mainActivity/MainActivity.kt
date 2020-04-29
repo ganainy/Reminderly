@@ -100,6 +100,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
     }
 
     private fun initializeAds() {
+        //todo move banner ad to reminder creation fragment
         MobileAds.initialize(this
         ) {}
 

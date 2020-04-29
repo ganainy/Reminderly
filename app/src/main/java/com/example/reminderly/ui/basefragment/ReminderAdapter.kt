@@ -18,6 +18,7 @@ package com.example.ourchat.ui.chat
 
 
 import android.content.Context
+import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -25,7 +26,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.HeaderItemBinding
+import com.example.reminderly.databinding.NativeAdBinding
 import com.example.reminderly.databinding.ReminderItemBinding
+import com.google.android.ads.nativetemplates.NativeTemplateStyle
+import com.google.android.gms.ads.AdLoader
+import com.google.android.gms.ads.AdRequest
 
 
 class ReminderAdapter(
@@ -38,6 +43,7 @@ class ReminderAdapter(
     companion object {
         private const val TYPE_REMINDER = 0
         private const val TYPE_HEADER = 1
+        private const val TYPE_AD = 2
     }
 
 
@@ -50,6 +56,9 @@ class ReminderAdapter(
             }
             TYPE_HEADER -> {
                 HeaderViewHolder.from(parent)
+            }
+            TYPE_AD -> {
+                AdViewHolder.from(parent)
             }
             else -> throw IllegalArgumentException("Invalid view type")
         }
@@ -64,6 +73,9 @@ class ReminderAdapter(
             is HeaderViewHolder -> {
                 holder.bind(clickListener, getItem(position))
             }
+            is AdViewHolder -> {
+                holder.bind(context)
+            }
             else -> throw IllegalArgumentException("Invalid ViewHolder type")
         }
     }
@@ -74,7 +86,11 @@ class ReminderAdapter(
 
         return when (currentReminder.header) {
             0->TYPE_REMINDER
-                else->TYPE_HEADER
+                1->TYPE_HEADER
+                2->TYPE_HEADER
+                3->TYPE_HEADER
+                4->TYPE_AD
+            else -> throw Exception("unknown itemView type")
         }
 
 
@@ -121,6 +137,51 @@ class ReminderAdapter(
         }
 
     }
+
+
+    //----------------AdViewHolder------------
+    class AdViewHolder private constructor(val binding: NativeAdBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(context: Context) {
+            //download ad for each ad item in recycler
+            passAdToTemplate(binding,context)
+        }
+
+        private fun passAdToTemplate(binding: NativeAdBinding,context: Context) {
+          //  MobileAds.initialize(context, "ca-app-pub-9000402187096123~9700894615")
+            val adLoader: AdLoader = AdLoader.Builder(
+                context,
+                "ca-app-pub-3940256099942544/2247696110"
+            ) //todo replace with real native ad id
+                .forUnifiedNativeAd { unifiedNativeAd ->
+                    val styles =
+                        NativeTemplateStyle.Builder().withMainBackgroundColor(ColorDrawable(0xfff))
+                            .build()
+                    binding.smallNativeAdTemplate.setStyles(styles)
+                    binding.smallNativeAdTemplate.setNativeAd(unifiedNativeAd)
+                }
+                .build()
+            adLoader.loadAd(AdRequest.Builder().build())
+        }
+
+
+        companion object {
+            fun from(parent: ViewGroup): AdViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = NativeAdBinding.inflate(layoutInflater, parent, false)
+
+                return AdViewHolder(binding)
+            }
+
+
+
+        }
+
+    }
+
+
+
 
 }
 

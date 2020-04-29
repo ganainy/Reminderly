@@ -23,6 +23,7 @@ data class Reminder(
     var isFavorite: Boolean = false,
     var isDone: Boolean = false,
     @Ignore //used to add fake items to reminder list to be shown as Headers
+    //0->normal item , 1,2,3-> header item, 4-> native ad
     var header: Int = 0
 ) : Parcelable {
 

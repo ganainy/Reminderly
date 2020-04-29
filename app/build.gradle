@@ -101,4 +101,7 @@ dependencies {
 
     //rx-preferences
     implementation 'com.f2prateek.rx.preferences2:rx-preferences:2.0.0'
+
+    //native ads module
+    implementation project(':nativetemplates')
 }

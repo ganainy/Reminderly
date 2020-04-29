@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".MyApplication"
@@ -20,7 +21,7 @@
         <receiver
             android:name=".broadcast_receivers.PersistentNotificationReceiver"
             android:enabled="true"
-            android:exported="true"></receiver>
+            android:exported="true"/>
 
         <service
             android:name=".services.NotificationService"
