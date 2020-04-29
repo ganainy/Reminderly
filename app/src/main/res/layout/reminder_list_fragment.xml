@@ -48,7 +48,7 @@
 
 
             <androidx.recyclerview.widget.RecyclerView
-                android:visibility="gone"
+                android:visibility="invisible"
                 android:id="@+id/reminderReycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

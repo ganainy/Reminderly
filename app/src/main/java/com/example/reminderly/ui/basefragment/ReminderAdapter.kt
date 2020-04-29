@@ -20,6 +20,7 @@ package com.example.ourchat.ui.chat
 import android.content.Context
 import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -29,6 +30,7 @@ import com.example.reminderly.databinding.HeaderItemBinding
 import com.example.reminderly.databinding.NativeAdBinding
 import com.example.reminderly.databinding.ReminderItemBinding
 import com.google.android.ads.nativetemplates.NativeTemplateStyle
+import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
 
@@ -148,6 +150,7 @@ class ReminderAdapter(
             passAdToTemplate(binding,context)
         }
 
+
         private fun passAdToTemplate(binding: NativeAdBinding,context: Context) {
           //  MobileAds.initialize(context, "ca-app-pub-9000402187096123~9700894615")
             val adLoader: AdLoader = AdLoader.Builder(
@@ -155,12 +158,19 @@ class ReminderAdapter(
                 "ca-app-pub-3940256099942544/2247696110"
             ) //todo replace with real native ad id
                 .forUnifiedNativeAd { unifiedNativeAd ->
+                    binding.loadingGroup.visibility=View.GONE //hide loading layout
+                    binding.smallNativeAdTemplate.visibility= View.VISIBLE//show ad layout since load was successful
                     val styles =
                         NativeTemplateStyle.Builder().withMainBackgroundColor(ColorDrawable(0xfff))
                             .build()
                     binding.smallNativeAdTemplate.setStyles(styles)
                     binding.smallNativeAdTemplate.setNativeAd(unifiedNativeAd)
                 }
+                .withAdListener(object : AdListener(){
+                    override fun onAdFailedToLoad(errorCode: Int) {
+                        binding.smallNativeAdTemplate.visibility= View.GONE//hide ad layout since load failed
+                    }
+                })
                 .build()
             adLoader.loadAd(AdRequest.Builder().build())
         }

@@ -3,6 +3,7 @@ package com.example.reminderly.ui.reminderListFragment
 import android.content.res.Configuration
 import android.os.Bundle
 import android.text.format.DateUtils
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -107,11 +108,38 @@ class ReminderListFragment : BaseFragment() {
             }
 
             initRecycler()
-            reminderListWithHeaders.add(0, Reminder(header = 4))//add empty reminder with header value that will be used as AD in recycler
-            reminderListWithHeaders.add(1, Reminder(header = 4))//add empty reminder with header value that will be used as AD in recycler
+            addAdItemToList(reminderListWithHeaders)
             adapter.submitList(reminderListWithHeaders)
 
         }
+    }
+
+
+    /**calculate and add Ads with respect to recycler height , recycler item height so that we
+     * won't show two Ads on same screen*/
+    private fun addAdItemToList(reminderListWithHeaders: MutableList<Reminder>) {
+
+        var minHeightOfRecyclerItem: Float = if (  binding.reminderReycler.layoutManager?.javaClass==LinearLayoutManager::class.java) {
+                60f //if this is linear manager we return height of 60 since one item per row
+            }else {
+                30f//if this is grid manager we return height of 30 since two items per row
+            }
+
+
+        //convert item height from DP to pixel
+        val recyclerItemHeightPx: Int = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            minHeightOfRecyclerItem,
+            resources.displayMetrics).toInt()
+
+        //this division will indicate after how many recycler items we should an ad
+        val pushAdEvery = (binding.reminderReycler.height /   recyclerItemHeightPx)
+
+        for (i in pushAdEvery.toInt()..reminderListWithHeaders.size step pushAdEvery)
+        {
+            reminderListWithHeaders.add(i, Reminder(header = 4))//add empty reminder with header value that will be used as AD in recycler
+        }
+
     }
 
     private fun observeReminders() {
@@ -156,8 +184,8 @@ class ReminderListFragment : BaseFragment() {
     }
 
 
-    private fun initRecycler() {
-        if (recyclerInitialized) return
+    private fun initRecycler(){
+        if (recyclerInitialized) return 
 
         recyclerInitialized = true
 
@@ -173,6 +201,7 @@ class ReminderListFragment : BaseFragment() {
                 override fun getSpanSize(position: Int): Int {
                     return when (adapter.getItemViewType(position)) {
                         0 -> 1
+                        2 -> 1
                         else -> 2
                     }
                 }
