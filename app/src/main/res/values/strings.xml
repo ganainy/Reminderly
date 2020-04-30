@@ -66,7 +66,7 @@
     <string name="reminder_in_future_error">*Reminder date after postpone must be bigger than current date</string>
     <string name="done_behaviour_for_recurring_tasks">Done button behaviour for repeating reminders</string>
     <string name="from">From</string>
-    <string name="until">Until</string>
+    <string name="until">Until </string>
     <string name="wrong_dnd_period">DND end time must be after its start</string>
     <string name="dont_disturb_summary">If enabled you won\'t receive any reminders in this period</string>
     <string name="dont_disturb_value_summary">Starting from %1$s until %2$s</string>
