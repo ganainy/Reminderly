@@ -1,11 +1,13 @@
 package com.example.reminderly.broadcast_receivers
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.PowerManager
 import android.os.PowerManager.PARTIAL_WAKE_LOCK
-import android.util.Log
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.Utils.REMINDER_ID
 import com.example.reminderly.services.AlarmService
@@ -13,6 +15,7 @@ import com.example.reminderly.services.NotificationService
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import java.util.*
 
 
 /**triggered by alarm manager to show notification when reminder time comes
@@ -36,6 +39,7 @@ class NewReminderReceiver : BroadcastReceiver() {
                         //start background service or foreground service based on reminderType
 
                         if (it.reminderType == 0) {
+                            //open notification service and pass reminder id
                             val notificationServiceIntent =
                                 Intent(context, NotificationService::class.java)
                             notificationServiceIntent.putExtra(REMINDER_ID, reminderId)
@@ -49,14 +53,47 @@ class NewReminderReceiver : BroadcastReceiver() {
                                     }
                                 }
 
+                            //open alarm service and pass reminder id
                             val alarmServiceIntent = Intent(context, AlarmService::class.java)
                             alarmServiceIntent.putExtra(REMINDER_ID, reminderId)
                             context.startService(alarmServiceIntent)
+
+                            //add safety receiver after 3 minutes that will terminate alarm service
+                            //since sometimes service onDestroy is not called
+                            scheduleStopServiceReceiver(context)
                         }
                         disposable.clear()
                     })
 
 
+        }
+    }
+
+    /**force stop service after 130 second if it didn't stop after 120 second by itself*/
+    private fun scheduleStopServiceReceiver(context: Context) {
+        val stopServiceIntent = Intent(context, StopAlarmServiceReceiver::class.java)
+        val stopServicePendingIntent = PendingIntent.getBroadcast(
+            context, 111, stopServiceIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        val calendar = Calendar.getInstance().apply {
+            add(Calendar.SECOND, 130)
+        }
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager?.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                stopServicePendingIntent
+            )
+        } else {
+            alarmManager?.setExact(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                stopServicePendingIntent
+            )
         }
     }
 }

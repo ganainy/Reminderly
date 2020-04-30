@@ -19,9 +19,13 @@
         android:theme="@style/AppTheme"
         tools:replace="android:supportsRtl">
         <receiver
+            android:name=".broadcast_receivers.StopAlarmServiceReceiver"
+            android:enabled="true"
+            android:exported="false"></receiver>
+        <receiver
             android:name=".broadcast_receivers.PersistentNotificationReceiver"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
         <service
             android:name=".services.NotificationService"

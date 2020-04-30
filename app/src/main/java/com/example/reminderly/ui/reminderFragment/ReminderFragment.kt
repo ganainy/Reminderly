@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import android.speech.RecognizerIntent
 import android.text.util.Linkify
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -360,7 +359,8 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
     private fun handleSaveButton() {
 
-        if (binding.reminderEditText.text.isBlank()) {
+        //todo uncomment
+/*        if (binding.reminderEditText.text.isBlank()) {
             MyUtils.showCustomToast(requireContext(), R.string.text_empty)
 
             return
@@ -369,7 +369,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
       MyUtils.showCustomToast(requireContext(),R.string.old_date_error)
 
        return
-   }
+   }*/
 
         disposable.add(viewModel.saveReminder(reminder)
             .subscribeOn(Schedulers.io())

@@ -69,15 +69,7 @@ class AlarmService : Service() {
         return null
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        //setup notification channels
-        setupAlarmReminderNotificationChannel(applicationContext)
-        //setup ongoing service channel & notification to make this service foreground service
-        createForegroundServiceNotificationChannel()
-        sendForegroundServiceNotification()
 
-    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
@@ -106,6 +98,10 @@ class AlarmService : Service() {
                 .subscribe { reminder ->
                     startAlarmNotification(this, reminder)
                 })
+
+
+            sendForegroundServiceNotification()
+
         }
 
         /**to update passed/upcoming reminders of today (there is similar method in main activity
@@ -122,7 +118,6 @@ class AlarmService : Service() {
                 AndroidSchedulers.mainThread()
             ).subscribe({ todayReminders ->
 
-                println("ssssssssssss${todayReminders.size}")
 
                 //show persistent notification to help user add reminder from outside of app
                 /**check if user allowed showing persistent notification
@@ -168,6 +163,14 @@ class AlarmService : Service() {
 
     }
 
+
+    override fun onCreate() {
+        super.onCreate()
+        //setup notification channels
+        setupAlarmReminderNotificationChannel(applicationContext)
+        //setup ongoing service channel & notification to make this service foreground service
+        createForegroundServiceNotificationChannel()
+    }
 
     private fun setupAlarmReminderNotificationChannel(context: Context) {
        val notificationManager =
@@ -292,7 +295,7 @@ class AlarmService : Service() {
         if (::mCountDownTimer.isInitialized) {
             mCountDownTimer.cancel()
         }
-
+        Log.d("DebugTag", "AlarmService->onDestroy: ")
         MyUtils.putInt(this, ONGOING_ALARM_FLAG,0)
 
     }
