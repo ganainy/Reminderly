@@ -27,11 +27,7 @@
             app:title="@string/end_action_for_recurring_tasks"
             app:summary="@string/just_close_till_next_time"/>
 
-        <Preference
-            app:key="language_pref"
-            app:iconSpaceReserved="false"
-            app:title="@string/lang_pref_title"
-            app:summary="@string/available_langs"/>
+
 
         <SwitchPreferenceCompat
             app:key="night_mode_switch"

@@ -152,11 +152,10 @@ class ReminderAdapter(
 
 
         private fun passAdToTemplate(binding: NativeAdBinding,context: Context) {
-          //  MobileAds.initialize(context, "ca-app-pub-9000402187096123~9700894615")
             val adLoader: AdLoader = AdLoader.Builder(
                 context,
                 "ca-app-pub-3940256099942544/2247696110"
-            ) //todo replace with real native ad id
+            ) //todo replace with real native ad id from keys.xml
                 .forUnifiedNativeAd { unifiedNativeAd ->
                     binding.loadingGroup.visibility=View.GONE //hide loading layout
                     binding.smallNativeAdTemplate.visibility= View.VISIBLE//show ad layout since load was successful

@@ -43,6 +43,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_content.*
+import java.util.*
 
 private lateinit var lastUpdateOfTodayReminder: MutableList<Reminder>
 
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
 
@@ -186,6 +188,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
             openReminderFragment()
         }
 
+        //set current device locale to show time/dates in that locale
+        MyUtils.setLocale(Locale.getDefault().language)
 
     }
 
@@ -480,25 +484,6 @@ class MainActivity : AppCompatActivity(), ICommunication {
         disposable.clear()
     }
 
-
-    override fun attachBaseContext(newBase: Context?) {
-
-        when (newBase?.let { MyUtils.getInt(it, APP_LANGUAGE) }) {
-            0 -> {//same as device lang
-                super.attachBaseContext(newBase)
-            }
-            1 -> {
-                super.attachBaseContext(MyContextWrapper.wrap(newBase, "en"))
-                MyUtils.setLocale("en")
-            }
-            2 -> {
-                super.attachBaseContext(MyContextWrapper.wrap(newBase, "ar"))
-                MyUtils.setLocale("ar")
-            }
-        }
-
-
-    }
 
     /**this method called from fragments to lock/unlock drawer*/
     override fun setDrawerEnabled(enabled: Boolean) {

@@ -62,7 +62,6 @@ const val NIGHT_MODE_ENABLED="nightModeEnabled" /*0->disabled , 1 -> enabled */
 const val FIRST_TIME_USE="firstTimeUser" /*0->first app use , 1 -> app opened before */
 const val SHOWN_DRAWER_GUIDE="shownDrawerGuide" /*0->we need to promote user to click the calendar button , 1 ->no need to show guide */
 const val FIRST_TIME_ADD_REMINDER="firstTimeAddReminder" /*0-> first time user is adding reminders show hints , 1-> don't show hints */
-const val APP_LANGUAGE="appLang" /*0-> same as device(default),1-> english(default) , 2-> arabic */
 const val ONGOING_ALARM_FLAG="ongoingAlarm" /*0-> no alarm ongoing right now,1-> alarm is ongoing, you should postpone second reminder */
 
 class MyUtils {
@@ -83,8 +82,8 @@ class MyUtils {
         private var dateFormat = SimpleDateFormat("EEEE, dd MMMM")
         private var timeFormat = SimpleDateFormat("hh:mm a")
 
-        fun setLocale(localeAbrreviation:String){
-            locale=Locale(localeAbrreviation)
+        fun setLocale(localeAbbreviation:String){
+            locale=Locale(localeAbbreviation)
             dateFormat = SimpleDateFormat("EEEE, dd MMMM", locale)
             timeFormat = SimpleDateFormat("hh:mm a", locale)
         }
