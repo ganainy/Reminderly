@@ -97,7 +97,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
                 disposable.clear()
             },
             { error ->
-                MyUtils.showErrorToast(context)
+                MyUtils.showCustomToast(context,R.string.something_went_wrong)
                 disposable.clear()
             }
         ))
@@ -115,10 +115,11 @@ class DoneReminderReceiver : BroadcastReceiver() {
             AndroidSchedulers.mainThread()
         ).subscribe(
             {//complete
+                MyUtils.cancelAlarmManager(reminder.id,context)
                 MyUtils.showCustomToast(context, R.string.moved_to_done_list,Toast.LENGTH_LONG)
             },
             { error ->
-                MyUtils.showErrorToast(context)
+                MyUtils.showCustomToast(context,R.string.something_went_wrong)
             }
         ))
     }

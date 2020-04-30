@@ -396,7 +396,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
         when (requestCode) {
             SPEECH_TO_TEXT_CODE -> {
                 if (data == null) {
-                    MyUtils.showErrorToast(requireContext())
+                    MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
                     return
                 }
                 val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)

@@ -143,8 +143,7 @@ class AlarmService : Service() {
     /** if an alarm fires up when other alarm is ongoing it will be automatically delayed for 5
      * minutes until the first ends*/
     private fun postponeSecondReminder(secondReminderId: Long) {
-        Log.d("DebugTag", "postponeSecondReminder: called")
-        //cancel old alarm manager in case this was a repeating reminder it won't fire twice
+       //cancel old alarm manager in case this was a repeating reminder it won't fire twice
         MyUtils.cancelAlarmManager(secondReminderId, this)
 
 

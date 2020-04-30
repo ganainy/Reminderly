@@ -79,9 +79,10 @@ class PostponeActivity : AppCompatActivity() {
                 //update reminder with new postponed date
                 disposable.add(viewModel.updateReminder(postponedReminder).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe {
                         // set alarm
+                        MyUtils.cancelAlarmManager(mReminder.id,this@PostponeActivity )
                         MyUtils.addAlarmManager(
                             mReminder.id,
-                            applicationContext,
+                            this@PostponeActivity,
                             mReminder.createdAt.timeInMillis,
                             mReminder.repeat
                         )

@@ -24,12 +24,6 @@
         <item>Mark reminder as done</item>
     </string-array>
 
-    <string-array name="language_options_list">
-        <item>Same as device language(Default)</item>
-        <item>English</item>
-        <item>Arabic</item>
-    </string-array>
-
 
     <string-array name="done_behaviour_list">
         <item>Done reminders are saved and can be accessed through menu(default)</item>

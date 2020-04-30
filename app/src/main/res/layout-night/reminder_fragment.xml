@@ -303,7 +303,7 @@
                 android:text="@string/notify_using_notification" />
 
 
-            <!--TODO replace this test ad unit with real ads before publishing-->
+            <!--TODO replace with banner ad id in keys.xml before publishing-->
             <com.google.android.gms.ads.AdView
                 android:id="@+id/adView"
                 android:layout_width="match_parent"

@@ -27,11 +27,7 @@ class NewReminderReceiver : BroadcastReceiver() {
 
         val reminderId = intent.getLongExtra(REMINDER_ID, -1L)
 
-        Log.d("DebugTag", "NewReminderReceiver->onReceive: ${System.currentTimeMillis()}")
         if (reminderId != -1L) {
-
-
-
             //start alarm/notification service based on reminder type
             val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
             disposable.add(
@@ -39,7 +35,6 @@ class NewReminderReceiver : BroadcastReceiver() {
                     .observeOn(AndroidSchedulers.mainThread()).subscribe {
                         //start background service or foreground service based on reminderType
 
-                        Log.d("DebugTag", "NewReminderReceiver->onReceive: ${System.currentTimeMillis()}")
                         if (it.reminderType == 0) {
                             val notificationServiceIntent =
                                 Intent(context, NotificationService::class.java)

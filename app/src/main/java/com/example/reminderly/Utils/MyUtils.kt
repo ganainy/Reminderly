@@ -7,7 +7,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -216,14 +215,7 @@ class MyUtils {
             return array[itemIndex]
         }
 
-         fun showErrorToast(context: Context) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.something_went_wrong),
-                Toast.LENGTH_SHORT
-            )
-                .show()
-        }
+
 
         fun showCustomToast(context: Context,stringId:Int,length:Int =Toast.LENGTH_SHORT) {
             Toast.makeText(
@@ -316,7 +308,6 @@ class MyUtils {
             context: Context?,
             triggerMillis: Long
         ) {
-            Log.d("DebugTag", "addOneTimeAlarm: $reminderId ,,, ${Date(triggerMillis)}")
             val notifyIntent = Intent(context, NewReminderReceiver::class.java)
             notifyIntent.putExtra(REMINDER_ID, reminderId)
             val notifyPendingIntent = PendingIntent.getBroadcast(
@@ -338,10 +329,6 @@ class MyUtils {
             triggerMillis: Long,
             repeatMillis: Long
         ) {
-            Log.d(
-                "DebugTag",
-                "addPeriodicAlarm: ${reminderId} ,,, ${Date(triggerMillis)} ,,, ${Date(repeatMillis)}"
-            )
 
             val notifyIntent = Intent(context, NewReminderReceiver::class.java)
 

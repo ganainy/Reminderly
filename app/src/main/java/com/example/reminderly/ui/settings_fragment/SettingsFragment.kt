@@ -6,7 +6,6 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -64,7 +63,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
 
             override fun onNext(dndPeriod: DndPeriod) {
-                Log.d("DebugTag", "onNext: $dndPeriod")
 
                 if (::dontDisturbView.isInitialized) {
 
@@ -103,7 +101,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
 
             override fun onError(e: Throwable) {
-                MyUtils.showErrorToast(requireContext())
+                MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
             }
 
         }
@@ -349,17 +347,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         disposable.add(reminderDatabaseDao.getDoneReminders().subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { doneReminderList ->
-                Log.d("DebugTag", "deleteExistingDoneReminders: ${doneReminderList.size}")
                 for (doneReminder in doneReminderList) {
                     reminderDatabaseDao.delete(doneReminder).subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread()).subscribe({
-                            Log.d("DebugTag", "deleteExistingDoneReminders: complete")
                         },
                             { error ->
-                                Log.d(
-                                    "DebugTag",
-                                    "deleteExistingDoneReminders: error ${error.message}"
-                                )
+                              MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
                             })
                 }
             })

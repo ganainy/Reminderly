@@ -82,7 +82,6 @@
 
 
     <string name="reminder_will_work_next_time">تم إغلاق التذكير لحين موعده القادم</string>
-    <string name="reminder_is_done">تم إنهاء التذكير</string>
     <string name="moved_to_done_list">تم نقل التذكير إلي قائمه التذكيرات المنتهية ويمكنك الوصول إليه من القائمة</string>
     <string name="reminder_deleted_can_be_changed_in_settings">"تم حذف التذكير, يمكن تغيير هذا السلوك من قائمة الاعدادات "</string>
     <string name="calendar_button">زر التقويم</string>
@@ -104,16 +103,9 @@
     <string name="night_mode">تفعيل الوضع الليلي</string>
     <string name="night_mode_summary"> الوضع الليلي مناسب للاماكن منخفضة الاضاءة و قد يكون مريح اكثر للعين</string>
     <string name="dont_disturb">عدم الازعاج</string>
-    <string name="dont_disturb_option_summary">عدم الحصول على التبيهات خلال وقت معين</string>
     <string name="dont_disturb_value_title">توقيت تفعيل عدم الإزعاج</string>
     <string name="general_settings">إعدادات عامة</string>
 
-    <string name="lang_pref_title">تفضيلات اللغة</string>
-    <string name="available_langs">الإنجليزية, العربية او لغة الجهاز</string>
-    <string name="choose_language">إختر اللغة</string>
-    <string name="changes_take_effect_on_restart">سيتم تغيير اللغة بعد إعادة تشغيل التطبيق</string>
-
-    <string name="this_option_already_active">هذا الخيار نشط بالفعل, لن يحدث اى تغيير</string>
     <string name="load_fail_check_connection">فشل التحميل, تأكد انك متصل بالانترنت</string>
     <string name="delay_for">تأجيل لمدة..</string>
     <string name="foreground_service">خدمة تابعة لتطبيق تذكيراتي حتي يعمل التنيه بشكل سليم</string>
