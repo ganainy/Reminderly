@@ -104,4 +104,6 @@
     <string name="persistent_notif_disabled">Notification disabled, you can turn this on again from setting</string>
     <string name="add_loading">Ad is loading</string>
     <string name="old_date_error">Reminder date must be upcoming date</string>
+    <string name="dont_spam_ad_click">You have been temporarily banned for 15 seconds for clicking multiple ads, please only click ads that you are interested in and don\'t spam ad clicks.</string>
+    <string name="multiple_ad_click">Multiple ad click</string>
 </resources>

@@ -25,6 +25,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.reminderly.Utils.AD_CLICK_PER_SESSION
+import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
 import com.example.reminderly.databinding.HeaderItemBinding
 import com.example.reminderly.databinding.NativeAdBinding
@@ -169,6 +171,15 @@ class ReminderAdapter(
                     override fun onAdFailedToLoad(errorCode: Int) {
                         binding.smallNativeAdTemplate.visibility= View.GONE//hide ad layout since load failed
                         binding.loadingGroup.visibility=View.GONE //hide loading layout
+                    }
+
+                    override fun onAdClosed() {
+                        super.onAdClosed()
+                        //add to ad click counter so we can block user if he clicks multiple ads
+                        var adClicks = MyUtils.getInt(context, AD_CLICK_PER_SESSION)
+                        adClicks++
+                        MyUtils.putInt(context, AD_CLICK_PER_SESSION,adClicks)
+
                     }
                 })
                 .build()

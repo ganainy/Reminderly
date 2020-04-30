@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import android.speech.RecognizerIntent
 import android.text.util.Linkify
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +23,7 @@ import com.afollestad.materialdialogs.customview.getCustomView
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
+import com.example.reminderly.Utils.AD_CLICK_PER_SESSION
 import com.example.reminderly.Utils.FIRST_TIME_ADD_REMINDER
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
@@ -30,6 +32,7 @@ import com.example.reminderly.ui.mainActivity.ICommunication
 import com.example.reminderly.ui.reminderActivity.ReminderViewModel
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
+import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import io.reactivex.Observer
@@ -131,7 +134,15 @@ class ReminderFragment : Fragment(), View.OnClickListener {
         ) {}
 
         val adRequest: AdRequest = AdRequest.Builder().build()
-        binding.adView?.loadAd(adRequest)
+        binding.adView.loadAd(adRequest)
+        binding.adView.adListener=object :AdListener(){
+            override fun onAdClosed() {
+                //add to ad click counter so we can block user if he clicks multiple ads
+                var adClicks = MyUtils.getInt(requireContext(), AD_CLICK_PER_SESSION)
+                adClicks++
+                MyUtils.putInt(requireContext(), AD_CLICK_PER_SESSION,adClicks)
+            }
+        }
     }
 
 

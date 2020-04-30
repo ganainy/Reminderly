@@ -2,11 +2,14 @@ package com.example.reminderly.ui.mainActivity
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -34,6 +37,7 @@ import com.example.reminderly.ui.privacyPolicyFragment.PrivacyPolicyFragment
 import com.example.reminderly.ui.reminderFragment.ReminderFragment
 import com.example.reminderly.ui.search_fragment.SearchFragment
 import com.example.reminderly.ui.settings_fragment.SettingsFragment
+import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -87,6 +91,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
         setupDrawerContent()
 
         showCalendarButtonHint()
+
 
         //handle add fab click
         binding.appContent.findViewById<FloatingActionButton>(R.id.addReminderFab)
@@ -195,6 +200,35 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
 
 
+    /**observe ad clicks and block user temporarily if he clicked more than 3*/
+    private fun observeClickedAdCount(){
+        val pref: SharedPreferences =
+          applicationContext
+                .getSharedPreferences("MyPref", 0)
+        val rxPreferences = RxSharedPreferences.create(pref)
+        val shouldAllowPersistentNotification: com.f2prateek.rx.preferences2.Preference<Int> =
+            rxPreferences.getInteger(AD_CLICK_PER_SESSION, -1)
+
+        disposable.add(shouldAllowPersistentNotification.asObservable().subscribe {
+            if (it>=5){
+               //reset click counter
+               MyUtils.putInt(this, AD_CLICK_PER_SESSION,0)
+               //temporarily ban user for clicking 5 ads in one session
+               layoutInflater.inflate(R.layout.multiple_ad_click_ban_layout,binding.fragmentContainer,true)
+               // hide temporarily ban layout after 10 sec
+                val mCountDownTimer = object : CountDownTimer(15 * 1000L, 15000) {
+                    override fun onTick(millisUntilFinished: Long) {
+
+                    }
+                    override fun onFinish() {
+                        binding.fragmentContainer.removeAllViews()
+                    }
+                }.start()
+
+
+           }
+        })
+    }
 
 
 
@@ -416,6 +450,9 @@ class MainActivity : AppCompatActivity(), ICommunication {
         observeUpcomingReminders()
         observeOverdueReminders()
         observeTodayReminders()
+
+        observeClickedAdCount()
+
 
     }
 
