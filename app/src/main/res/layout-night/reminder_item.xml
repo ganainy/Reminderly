@@ -8,7 +8,7 @@
 
         <variable
             name="reminder"
-            type="com.example.reminderly.database.Reminder" />
+            type="dev.ganainy.reminderly.database.Reminder" />
 
         <variable
             name="clickListener"
