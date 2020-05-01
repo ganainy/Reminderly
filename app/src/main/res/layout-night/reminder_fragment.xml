@@ -303,8 +303,7 @@
                 android:text="@string/notify_using_notification" />
 
 
-            <!--TODO replace with banner ad id in keys.xml before publishing-->
-            <com.google.android.gms.ads.AdView
+              <com.google.android.gms.ads.AdView
                 android:id="@+id/adView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -313,7 +312,7 @@
                 android:background="@color/fragmentBackground"
                 android:minHeight="50dp"
                 app:adSize="BANNER"
-                app:adUnitId="ca-app-pub-3940256099942544/6300978111"
+                app:adUnitId="@string/admob_banner_unit_id"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginTop="32dp"
                 app:layout_constraintTop_toBottomOf="@+id/reminderTypeText"

@@ -365,8 +365,8 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
     private fun handleSaveButton() {
 
-        //todo uncomment
-/*        if (binding.reminderEditText.text.isBlank()) {
+
+       if (binding.reminderEditText.text.isBlank()) {
             MyUtils.showCustomToast(requireContext(), R.string.text_empty)
 
             return
@@ -375,7 +375,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
       MyUtils.showCustomToast(requireContext(),R.string.old_date_error)
 
        return
-   }*/
+   }
 
         disposable.add( isSameTimeOfAnotherAlarm(viewModel.reminder.createdAt).subscribeOn(Schedulers.io()).
         observeOn(AndroidSchedulers.mainThread()).subscribe {

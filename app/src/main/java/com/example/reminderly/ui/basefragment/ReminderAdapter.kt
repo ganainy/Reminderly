@@ -25,6 +25,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.reminderly.R
 import com.example.reminderly.Utils.AD_CLICK_PER_SESSION
 import com.example.reminderly.Utils.MyUtils
 import com.example.reminderly.database.Reminder
@@ -156,8 +157,8 @@ class ReminderAdapter(
         private fun passAdToTemplate(binding: NativeAdBinding,context: Context) {
             val adLoader: AdLoader = AdLoader.Builder(
                 context,
-                "ca-app-pub-3940256099942544/2247696110"
-            ) //todo replace with real native ad id from keys.xml
+               context.getString(R.string.admob_native_unit_id)
+            )
                 .forUnifiedNativeAd { unifiedNativeAd ->
                     binding.loadingGroup.visibility=View.GONE //hide loading layout
                     binding.smallNativeAdTemplate.visibility= View.VISIBLE//show ad layout since load was successful
