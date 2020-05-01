@@ -106,4 +106,5 @@
     <string name="old_date_error">Reminder date must be upcoming date</string>
     <string name="dont_spam_ad_click">You have been temporarily banned for 15 seconds for clicking multiple ads, please only click ads that you are interested in and don\'t spam ad clicks.</string>
     <string name="multiple_ad_click">Multiple ad click</string>
+    <string name="another_reminder_in_proximity">There is another reminder in this time proximity, try delaying/hasting the reminder for five minutes</string>
 </resources>

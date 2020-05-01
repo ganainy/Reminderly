@@ -8,14 +8,12 @@ import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.footy.database.ReminderDatabase
 import com.example.reminderly.R
 import com.example.reminderly.Utils.ALLOW_PERSISTENT_NOTIFICATION
 import com.example.reminderly.Utils.MyUtils
-import com.example.reminderly.Utils.ONGOING_ALARM_FLAG
 import com.example.reminderly.Utils.REMINDER_ID
 import com.example.reminderly.broadcast_receivers.DoneReminderReceiver
 import com.example.reminderly.database.Reminder
@@ -73,21 +71,6 @@ class AlarmService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-
-        //first check if any alarm is already active
-        if (MyUtils.getInt(this, ONGOING_ALARM_FLAG) == 1) {
-            //this means second reminder came while a alert reminder is active so we delay the
-            // second reminder for 5 minutes till the first one finishes
-            MyUtils.showCustomToast(this, R.string.another_reminder_is_showing, Toast.LENGTH_LONG)
-            val secondReminderId = intent?.getLongExtra(REMINDER_ID, -1L)
-            if (secondReminderId != null) {
-                postponeSecondReminder(secondReminderId)
-            }
-            return super.onStartCommand(intent, flags, startId)
-        }
-
-        MyUtils.putInt(this, ONGOING_ALARM_FLAG,1)
-
         val reminderId = intent?.getLongExtra(REMINDER_ID, -1L)
 
         /**only send reminder if we are not in dnd period*/
@@ -113,7 +96,7 @@ class AlarmService : Service() {
 
     private fun observeTodayReminders() {
         disposable.add(
-            reminderDatabaseDao.getDayReminders(todayMillis, nextDayMillis)
+            reminderDatabaseDao.getInTimeRangeReminders(todayMillis, nextDayMillis)
                 .subscribeOn(Schedulers.io()).observeOn(
                 AndroidSchedulers.mainThread()
             ).subscribe({ todayReminders ->
@@ -133,34 +116,6 @@ class AlarmService : Service() {
 
             })
         )
-    }
-
-    /** if an alarm fires up when other alarm is ongoing it will be automatically delayed for 5
-     * minutes until the first ends*/
-    private fun postponeSecondReminder(secondReminderId: Long) {
-       //cancel old alarm manager in case this was a repeating reminder it won't fire twice
-        MyUtils.cancelAlarmManager(secondReminderId, this)
-
-
-        disposable.add(reminderDatabaseDao.getReminderById(secondReminderId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { reminderToPostopne ->
-                val postponedReminder = MyUtils.forcePostponeReminder(reminderToPostopne, 0, 0, 5)
-                reminderDatabaseDao.update(postponedReminder).subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread()).subscribe({
-                        //update done , add its new alarm manager
-                        MyUtils.addAlarmManager(
-                            secondReminderId,
-                            this,
-                            reminderToPostopne.createdAt.timeInMillis,
-                            reminderToPostopne.repeat
-                        )
-                    }, {
-                        MyUtils.showCustomToast(this, R.string.something_went_wrong)
-                    })
-            })
-
     }
 
 
@@ -296,8 +251,6 @@ class AlarmService : Service() {
             mCountDownTimer.cancel()
         }
         Log.d("DebugTag", "AlarmService->onDestroy: ")
-        MyUtils.putInt(this, ONGOING_ALARM_FLAG,0)
-
     }
 
 }

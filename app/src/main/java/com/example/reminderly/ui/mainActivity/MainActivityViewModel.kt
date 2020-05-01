@@ -1,7 +1,6 @@
 package com.example.reminderly.ui.mainActivity
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import com.example.reminderly.database.Reminder
@@ -49,7 +48,7 @@ class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):V
     }
 
     fun getTodayReminders(): Observable<MutableList<Reminder>> {
-        return database.getDayReminders(todayMillis,nextDayMillis)
+        return database.getInTimeRangeReminders(todayMillis,nextDayMillis)
     }
 
     fun getCategoryReminders(categoryType: CategoryType): Observable<MutableList<Reminder>> {
@@ -63,7 +62,7 @@ class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):V
     }
 
     fun getRemindersAtDate(dateStart: Calendar, dateEnd: Calendar): Observable<MutableList<Reminder>> {
-        return database.getDayReminders(dateStart.timeInMillis,dateEnd.timeInMillis)
+        return database.getInTimeRangeReminders(dateStart.timeInMillis,dateEnd.timeInMillis)
     }
 
 

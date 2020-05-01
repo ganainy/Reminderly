@@ -61,7 +61,6 @@ const val NIGHT_MODE_ENABLED="nightModeEnabled" /*0->disabled , 1 -> enabled */
 const val FIRST_TIME_USE="firstTimeUser" /*0->first app use , 1 -> app opened before */
 const val SHOWN_DRAWER_GUIDE="shownDrawerGuide" /*0->we need to promote user to click the calendar button , 1 ->no need to show guide */
 const val FIRST_TIME_ADD_REMINDER="firstTimeAddReminder" /*0-> first time user is adding reminders show hints , 1-> don't show hints */
-const val ONGOING_ALARM_FLAG="ongoingAlarm" /*0-> no alarm ongoing right now,1-> alarm is ongoing, you should postpone second reminder */
 const val AD_CLICK_PER_SESSION="adClickPerSession" /*count clicked ad to temporarily ban user after certain amount*/
 class MyUtils {
 

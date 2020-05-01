@@ -27,7 +27,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
         val reminderId = intent.extras?.get(REMINDER_ID) as Long
         val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
 
-        println("DebugTag,DoneReminderReceiver-> $reminderId")
+
         //get reminder by id and set it to done or just close this notification and reminder will
         // work normally in next repeat if it is repeating alarm
         disposable.add(
@@ -37,19 +37,28 @@ class DoneReminderReceiver : BroadcastReceiver() {
                     //close any ongoing notification/alarm
                 MyUtils.closeReminder(reminder,  context)
 
-                    if (reminder.repeat == 1 ){
+                    if (reminder.repeat != 0 ){
                         //repeating reminder
                         if (shouldTemporaryCancelAlarmReminder(context)){
                             //we should just stop the alarm service and not delete reminder(already did that by calling MyUtils.closeReminder())
                             MyUtils.showCustomToast(context, R.string.reminder_will_work_next_time)
                         }else{
                             //make the reminder done (won't fire alarm again)
-                            markReminderAsDone(reminder, context, reminderDatabaseDao)
+                            //now check do we delete done reminders or keep them
+                            //this is one time reminder
+                            if (shouldDeleteDoneReminders(context)) {
+                                //delete reminder
+                                deleteReminder(reminderDatabaseDao, reminder, context)
+                            } else {
+                                //make the reminder done (won't fire alarm/notification again)
+                                markReminderAsDone(reminder, context, reminderDatabaseDao)
+                            }
+
                         }
 
                     }else
                     {
-                        //this is notification reminder
+                        //this is one time reminder
                         if (shouldDeleteDoneReminders(context)) {
                             //delete reminder
                             deleteReminder(reminderDatabaseDao, reminder, context)
@@ -109,7 +118,6 @@ class DoneReminderReceiver : BroadcastReceiver() {
         context: Context,
         reminderDatabaseDao: ReminderDatabaseDao
     ) {
-        println("this is not called right?")
         reminder.isDone = true
         disposable.add(reminderDatabaseDao.update(reminder).subscribeOn(Schedulers.io()).observeOn(
             AndroidSchedulers.mainThread()
@@ -117,9 +125,11 @@ class DoneReminderReceiver : BroadcastReceiver() {
             {//complete
                 MyUtils.cancelAlarmManager(reminder.id,context)
                 MyUtils.showCustomToast(context, R.string.moved_to_done_list,Toast.LENGTH_LONG)
+                disposable.clear()
             },
             { error ->
                 MyUtils.showCustomToast(context,R.string.something_went_wrong)
+                disposable.clear()
             }
         ))
     }

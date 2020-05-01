@@ -39,20 +39,6 @@ class NotificationService : Service() {
 
         val reminderId = intent?.getLongExtra(REMINDER_ID, -1L)
 
-        //first check if any alarm is already active
-  /*      if (MyUtils.getInt(this, ONGOING_ALARM_FLAG) == 1) {
-            //this means second reminder came while a alert reminder is active so we delay the
-            // second reminder for 5 minutes till the first one finishes
-            MyUtils.showCustomToast(this, R.string.another_reminder_is_showing, Toast.LENGTH_LONG)
-            val secondReminderId = intent?.getLongExtra(REMINDER_ID, -1L)
-            if (secondReminderId != null) {
-                postponeSecondReminder(secondReminderId)
-            }
-            return super.onStartCommand(intent, flags, startId)
-        }*/
-
-
-
         /**only send reminder if we are not in dnd period*/
         if (reminderId != null && reminderId != -1L && !MyUtils.isDndPeriod(this)) {
             sendReminderNotification(reminderId, applicationContext)
