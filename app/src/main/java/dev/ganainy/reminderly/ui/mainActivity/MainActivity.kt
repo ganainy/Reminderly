@@ -1,7 +1,9 @@
 package dev.ganainy.reminderly.ui.mainActivity
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.Menu
@@ -18,6 +20,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
+import com.afollestad.materialdialogs.MaterialDialog
 import com.example.footy.database.ReminderDatabase
 import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.getkeepsafe.taptargetview.TapTarget
@@ -308,6 +311,9 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 R.id.about -> {
                     openAboutFragment()
                 }
+                R.id.rate_app -> {
+                    showRateAppDialog()
+                }
             }
             binding.drawerLayout.closeDrawers()
             true
@@ -325,6 +331,39 @@ class MainActivity : AppCompatActivity(), ICommunication {
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
             }
+    }
+
+    private fun showRateAppDialog() {
+        MaterialDialog(this).show {
+            message(R.string.take_moment_to_rate_app)
+            icon(R.drawable.ic_star_yellow)
+           title(R.string.rate_app)
+            positiveButton(R.string.proceed_to_store,click={
+                openAppOnGooglePlay()
+            })
+            negativeButton(R.string.cancel,click = {
+                it.cancel()
+            })
+        }
+    }
+
+    private fun openAppOnGooglePlay() {
+
+        try {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=$packageName")
+                )
+            )
+        } catch (anfe: ActivityNotFoundException) {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+                )
+            )
+        }
     }
 
     private fun openAboutFragment() {
@@ -430,6 +469,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
 
         /**get done/upcoming/overdue/today reminders from db and show menu item if there is reminders  */
         observeDoneReminders()
+
         observeUpcomingReminders()
         observeOverdueReminders()
         observeTodayReminders()
@@ -459,7 +499,6 @@ class MainActivity : AppCompatActivity(), ICommunication {
             viewModel.getTodayReminders().subscribeOn(Schedulers.io()).observeOn(
                 AndroidSchedulers.mainThread()
             ).subscribe({ todayReminders ->
-
 
                 showMenuItem(todayReminders.size, R.id.today, CategoryType.TODAY)
 
@@ -499,8 +538,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
         )
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         disposable.clear()
     }
 

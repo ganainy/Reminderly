@@ -107,4 +107,7 @@
     <string name="dont_spam_ad_click">You have been temporarily banned for 15 seconds for clicking multiple ads, please only click ads that you are interested in and don\'t spam ad clicks.</string>
     <string name="multiple_ad_click">Multiple ad click</string>
     <string name="another_reminder_in_proximity">There is another reminder in this time proximity, try delaying/hasting the reminder for five minutes</string>
+    <string name="rate_app">Rate app</string>
+    <string name="take_moment_to_rate_app">Your review helps us a lot, thanks for taking a moment to rate us</string>
+    <string name="proceed_to_store">Proceed to store</string>
 </resources>

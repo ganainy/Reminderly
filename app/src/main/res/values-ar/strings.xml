@@ -116,4 +116,7 @@
     <string name="dont_spam_ad_click">لقد حصلت على حظر مؤقت 15 ثانيه بسبب ضغط كثير من الاعلانات, من فضلك فقط افتح الاعلانات الى تكون مهتم بها.</string>
     <string name="multiple_ad_click">ضغط عدة إعلانات</string>
     <string name="another_reminder_in_proximity">هناك تذكير أخر قريب من هذا الوقت, حاول تأخير التذكير او تبكيره خمس دقائق</string>
+    <string name="rate_app">تقييم التطبيق</string>
+    <string name="take_moment_to_rate_app">تقييمك لنا يصنع الفارق, شكرا لك</string>
+    <string name="proceed_to_store">فتح المتجر</string>
 </resources>

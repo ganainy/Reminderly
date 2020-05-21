@@ -51,6 +51,13 @@
             android:title="@string/privacy_policy"
             />
 
+        <item
+            android:id="@+id/rate_app"
+            android:checked="false"
+            android:icon="@drawable/ic_star_grey"
+            android:title="@string/rate_app"
+            />
+
 
     </group>
 
