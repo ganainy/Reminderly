@@ -22,6 +22,7 @@ import dev.ganainy.reminderly.ui.postpone_activity.PostponeActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 private const val NOTIFICATION_REMINDER_CHANNEL_ID = "notification_reminder_notification_channel"
 private val disposable = CompositeDisposable()
@@ -36,6 +37,10 @@ class NotificationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        Timber.d("Timber, service called")
+        val count=MyUtils.getInt(this,"service")
+        MyUtils.putInt(this,"service",count+1)
 
         val reminderId = intent?.getLongExtra(REMINDER_ID, -1L)
 

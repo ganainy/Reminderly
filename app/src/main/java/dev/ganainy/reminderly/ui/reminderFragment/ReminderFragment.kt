@@ -13,7 +13,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -365,6 +364,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
     private fun handleSaveButton() {
 
+/*TODO uncomment
 
        if (binding.reminderEditText.text.isBlank()) {
             MyUtils.showCustomToast(requireContext(), R.string.text_empty)
@@ -376,15 +376,16 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
        return
    }
+*/
 
         disposable.add( isSameTimeOfAnotherAlarm(viewModel.reminder.createdAt).subscribeOn(Schedulers.io()).
         observeOn(AndroidSchedulers.mainThread()).subscribe {
             Log.d("DebugTag", "ReminderFragment->handleSaveButton: ${it.size}")
-            if (it.size>0){
+            /*TODO uncomment if (it.size>0){
                 //there is another reminders near this reminder time so don't allow operation
                 MyUtils.showCustomToast(requireContext(),R.string.another_reminder_in_proximity,
                     Toast.LENGTH_LONG)
-            }else{
+            }else{*/
                viewModel.saveReminder( viewModel.reminder)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -408,7 +409,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
                         }
                     )
-            }
+           /* }*/
         })
 
 

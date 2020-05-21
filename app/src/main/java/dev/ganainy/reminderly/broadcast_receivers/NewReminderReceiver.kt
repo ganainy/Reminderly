@@ -9,12 +9,14 @@ import android.os.Build
 import android.os.PowerManager
 import android.os.PowerManager.PARTIAL_WAKE_LOCK
 import com.example.footy.database.ReminderDatabase
+import dev.ganainy.reminderly.Utils.MyUtils
 import dev.ganainy.reminderly.Utils.REMINDER_ID
 import dev.ganainy.reminderly.services.AlarmService
 import dev.ganainy.reminderly.services.NotificationService
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import java.util.*
 
 
@@ -31,6 +33,10 @@ class NewReminderReceiver : BroadcastReceiver() {
         val reminderId = intent.getLongExtra(REMINDER_ID, -1L)
 
         if (reminderId != -1L) {
+            Timber.d("Timber, receiver called")
+            val count= MyUtils.getInt(context,"rec")
+            MyUtils.putInt(context,"rec",count+1)
+
             //start alarm/notification service based on reminder type
             val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
             disposable.add(

@@ -1,14 +1,9 @@
 package dev.ganainy.reminderly.ui.mainActivity
 
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.os.PowerManager
-import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -75,7 +70,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
             setupAppForFirstTimeUse()
         }
 
-        requestIgnoteBatteryOptimization()
+
 
         checkNightMode()
 
@@ -143,18 +138,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
         }
     }
 
-    private fun requestIgnoteBatteryOptimization() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val intent = Intent()
-            val packageName = packageName
-            val pm: PowerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-                intent.data = Uri.parse("package:$packageName")
-                startActivity(intent)
-            }
-        }
-    }
+
 
     private fun checkNightMode() {
         val isNightModeEnabled = MyUtils.getInt(this, NIGHT_MODE_ENABLED)
