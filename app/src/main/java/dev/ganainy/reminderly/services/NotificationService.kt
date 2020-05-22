@@ -12,25 +12,21 @@ import android.os.IBinder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
-import com.example.footy.database.ReminderDatabase
 import dev.ganainy.reminderly.R
 import dev.ganainy.reminderly.Utils.MyUtils
-import dev.ganainy.reminderly.Utils.REMINDER_ID
+import dev.ganainy.reminderly.Utils.MyUtils.Companion.getReminderFromString
+import dev.ganainy.reminderly.Utils.MyUtils.Companion.getStringFromReminder
+import dev.ganainy.reminderly.Utils.REMINDER
 import dev.ganainy.reminderly.broadcast_receivers.DoneReminderReceiver
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.ui.postpone_activity.PostponeActivity
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 private const val NOTIFICATION_REMINDER_CHANNEL_ID = "notification_reminder_notification_channel"
-private val disposable = CompositeDisposable()
 
 class NotificationService : Service() {
 
     private  val notificationManager by lazy {  getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager }
-    private val reminderDatabaseDao by lazy {  ReminderDatabase.getInstance(this).reminderDatabaseDao}
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -42,11 +38,12 @@ class NotificationService : Service() {
         val count=MyUtils.getInt(this,"service")
         MyUtils.putInt(this,"service",count+1)
 
-        val reminderId = intent?.getLongExtra(REMINDER_ID, -1L)
+        val reminderString = intent?.getStringExtra(REMINDER)
+        val reminder=reminderString?.getReminderFromString()?: return super.onStartCommand(intent, flags, startId)
 
         /**only send reminder if we are not in dnd period*/
-        if (reminderId != null && reminderId != -1L && !MyUtils.isDndPeriod(this)) {
-            sendReminderNotification(reminderId, applicationContext)
+        if (!MyUtils.isDndPeriod(this)) {
+            sendReminderNotification(reminder, applicationContext)
             stopSelf()
         }
 
@@ -62,36 +59,28 @@ class NotificationService : Service() {
 
     /**Create and send notification with unique id so we can cancel it later*/
     private fun sendReminderNotification(
-        reminderId: Long,
+        reminder: Reminder,
         context: Context
     ) {
 
-        //get reminder text using reminder id
-        disposable.add(reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { reminder ->
-
                 val notificationBuilder = getNotificationBuilder(
                     context,
-                    reminder,
-                    reminderId
+                    reminder
                 )
                 notificationManager.notify(reminder.id.toInt(), notificationBuilder.build())
-            })
-    }
-
-
+            }
 
 
     private fun getNotificationBuilder(
         context: Context,
-        reminder: Reminder,
-        reminderId: Long
+        reminder: Reminder
     ): NotificationCompat.Builder {
+
+        val reminderId = reminder.id
 
         //postpone reminder pending to pass to notification builder as action
         val postponeReminderIntent = Intent(context, PostponeActivity::class.java)
-        postponeReminderIntent.putExtra(REMINDER_ID, reminderId)
+        postponeReminderIntent.putExtra(REMINDER, reminder.getStringFromReminder())
         postponeReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val postponeReminderPendingIntent = PendingIntent.getActivity(
             context,
@@ -100,7 +89,7 @@ class NotificationService : Service() {
 
         //new reminder pending intent to pass to notification builder as action
         val endReminderIntent = Intent(context, DoneReminderReceiver::class.java)
-        endReminderIntent.putExtra(REMINDER_ID, reminderId)
+        endReminderIntent.putExtra(REMINDER, reminder.getStringFromReminder())
         endReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val endReminderPendingIntent = PendingIntent.getBroadcast(
             context,

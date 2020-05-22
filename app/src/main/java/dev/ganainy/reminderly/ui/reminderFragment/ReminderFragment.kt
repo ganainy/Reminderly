@@ -391,14 +391,13 @@ class ReminderFragment : Fragment(), View.OnClickListener {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                         { reminderId ->
+                            viewModel.reminder.id=reminderId
                             //this reminder could be an update for existing reminder so we cancel any ongoing alarms
-                            MyUtils.cancelAlarmManager(reminderId, context)
+                            MyUtils.cancelAlarmManager(viewModel.reminder, context)
                             // set alarm manager
                             MyUtils.addAlarmManager(
-                                reminderId,
-                                context,
-                                viewModel.reminder.createdAt.timeInMillis,
-                                viewModel.reminder.repeat
+                                viewModel.reminder,
+                                context
                             )
 
                             requireActivity().onBackPressed()

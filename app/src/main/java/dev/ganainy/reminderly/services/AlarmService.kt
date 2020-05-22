@@ -7,14 +7,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import com.example.footy.database.ReminderDatabase
 import dev.ganainy.reminderly.R
 import dev.ganainy.reminderly.Utils.ALLOW_PERSISTENT_NOTIFICATION
 import dev.ganainy.reminderly.Utils.MyUtils
-import dev.ganainy.reminderly.Utils.REMINDER_ID
+import dev.ganainy.reminderly.Utils.MyUtils.Companion.getReminderFromString
+import dev.ganainy.reminderly.Utils.MyUtils.Companion.getStringFromReminder
+import dev.ganainy.reminderly.Utils.REMINDER
 import dev.ganainy.reminderly.broadcast_receivers.DoneReminderReceiver
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.ui.postpone_activity.PostponeActivity
@@ -58,9 +59,8 @@ class AlarmService : Service() {
 
     private val disposable = CompositeDisposable()
     private lateinit var mCountDownTimer: CountDownTimer
-    private val reminderDatabaseDao by lazy {  ReminderDatabase.getInstance(this).reminderDatabaseDao}
-    private  val notificationManager by lazy {getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager }
-
+    private val reminderDatabaseDao by lazy { ReminderDatabase.getInstance(this).reminderDatabaseDao }
+    private val notificationManager by lazy { getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager }
 
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -68,21 +68,20 @@ class AlarmService : Service() {
     }
 
 
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        val reminderId = intent?.getLongExtra(REMINDER_ID, -1L)
+        val reminderString =
+            intent?.getStringExtra(REMINDER)
+        val reminder = reminderString?.getReminderFromString() ?: return super.onStartCommand(
+            intent,
+            flags,
+            startId
+        )
 
         /**only send reminder if we are not in dnd period*/
-        if (reminderId != null && reminderId != -1L && !MyUtils.isDndPeriod(this)) {
-            disposable.add(reminderDatabaseDao.getReminderById(reminderId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { reminder ->
-                    startAlarmNotification(this, reminder)
-                })
+        if (!MyUtils.isDndPeriod(this)) {
 
-
+            startAlarmNotification(this, reminder)
             sendForegroundServiceNotification()
 
         }
@@ -98,23 +97,23 @@ class AlarmService : Service() {
         disposable.add(
             reminderDatabaseDao.getInTimeRangeReminders(todayMillis, nextDayMillis)
                 .subscribeOn(Schedulers.io()).observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe({ todayReminders ->
+                    AndroidSchedulers.mainThread()
+                ).subscribe({ todayReminders ->
 
 
-                //show persistent notification to help user add reminder from outside of app
-                /**check if user allowed showing persistent notification
-                 * 0-> allowed (default)
-                 * 1-> not allowed
-                 */
-                if (MyUtils.getInt(this, ALLOW_PERSISTENT_NOTIFICATION) == 0) {
-                    MyUtils.sendPersistentNotification(applicationContext, todayReminders)
-                }
+                    //show persistent notification to help user add reminder from outside of app
+                    /**check if user allowed showing persistent notification
+                     * 0-> allowed (default)
+                     * 1-> not allowed
+                     */
+                    if (MyUtils.getInt(this, ALLOW_PERSISTENT_NOTIFICATION) == 0) {
+                        MyUtils.sendPersistentNotification(applicationContext, todayReminders)
+                    }
 
-            }, { error ->
-                MyUtils.showCustomToast(this, R.string.error_retreiving_reminder)
+                }, { error ->
+                    MyUtils.showCustomToast(this, R.string.error_retreiving_reminder)
 
-            })
+                })
         )
     }
 
@@ -128,7 +127,7 @@ class AlarmService : Service() {
     }
 
     private fun setupAlarmReminderNotificationChannel(context: Context) {
-       val notificationManager =
+        val notificationManager =
             context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Create a NotificationChannel
@@ -138,7 +137,10 @@ class AlarmService : Service() {
             )
             notificationChannel.enableVibration(false)
             notificationChannel.description = "Notification for certain alarm reminder"
-            notificationChannel.setSound(Uri.parse("android.resource://"+this.packageName+"/"+ R.raw.tone), null)
+            notificationChannel.setSound(
+                Uri.parse("android.resource://" + this.packageName + "/" + R.raw.tone),
+                null
+            )
             notificationManager.createNotificationChannel(notificationChannel)
         }
 
@@ -147,26 +149,25 @@ class AlarmService : Service() {
 
     private fun getNotificationBuilder(
         context: Context,
-        reminder: Reminder,
-        reminderId: Long
+        reminder: Reminder
     ): NotificationCompat.Builder {
 
         //postpone reminder pending to pass to notification builder as action
         val postponeReminderIntent = Intent(context, PostponeActivity::class.java)
-        postponeReminderIntent.putExtra(REMINDER_ID, reminderId)
+        postponeReminderIntent.putExtra(REMINDER, reminder.getStringFromReminder())
         postponeReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val postponeReminderPendingIntent = PendingIntent.getActivity(
             context,
-            reminderId.toInt(), postponeReminderIntent, PendingIntent.FLAG_ONE_SHOT
+            reminder.id.toInt(), postponeReminderIntent, PendingIntent.FLAG_ONE_SHOT
         )
 
         //new reminder pending intent to pass to notification builder as action
         val endReminderIntent = Intent(context, DoneReminderReceiver::class.java)
-        endReminderIntent.putExtra(REMINDER_ID, reminderId)
+        endReminderIntent.putExtra(REMINDER, reminder.getStringFromReminder())
         endReminderIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val endReminderPendingIntent = PendingIntent.getBroadcast(
             context,
-            reminderId.toInt(), endReminderIntent, PendingIntent.FLAG_ONE_SHOT
+            reminder.id.toInt(), endReminderIntent, PendingIntent.FLAG_ONE_SHOT
         )
 
         val notificationBuilder = NotificationCompat.Builder(context, ALARM_REMINDER_CHANNEL_ID)
@@ -185,7 +186,7 @@ class AlarmService : Service() {
             )
             priority = NotificationCompat.PRIORITY_HIGH
             setDefaults(NotificationCompat.DEFAULT_LIGHTS)
-            setSound(Uri.parse("android.resource://"+this@AlarmService.packageName+"/"+ R.raw.tone))
+            setSound(Uri.parse("android.resource://" + this@AlarmService.packageName + "/" + R.raw.tone))
             setAutoCancel(true)
         }
 
@@ -198,7 +199,7 @@ class AlarmService : Service() {
         context: Context,
         reminder: Reminder
     ) {
-        val notificationBuilder = getNotificationBuilder(context, reminder, reminder.id)
+        val notificationBuilder = getNotificationBuilder(context, reminder)
 
         mCountDownTimer = object : CountDownTimer(2 * 60 * 1000L, 2500) {
             override fun onTick(millisUntilFinished: Long) {
@@ -206,7 +207,7 @@ class AlarmService : Service() {
             }
 
             override fun onFinish() {
-               stopSelf()
+                stopSelf()
             }
         }.start()
     }
@@ -229,14 +230,15 @@ class AlarmService : Service() {
     /**notification so that service is treated as foreground service*/
     private fun sendForegroundServiceNotification() {
 
-        val notification: Notification = NotificationCompat.Builder(this, FOREGROUND_SERVICE_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_settings_grey)
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.foreground_service))
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setOngoing(true)
-            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .build()
+        val notification: Notification =
+            NotificationCompat.Builder(this, FOREGROUND_SERVICE_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_settings_grey)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(getString(R.string.foreground_service))
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOngoing(true)
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                .build()
 
         startForeground(ONGOING_SERVICE_ID, notification)
 
@@ -250,7 +252,6 @@ class AlarmService : Service() {
         if (::mCountDownTimer.isInitialized) {
             mCountDownTimer.cancel()
         }
-        Log.d("DebugTag", "AlarmService->onDestroy: ")
     }
 
 }

@@ -39,10 +39,8 @@ class BootCompletedIntentReceiver : BroadcastReceiver() {
              .subscribe { activeReminderList ->
                 Observable.fromIterable(activeReminderList).subscribe { reminder ->
                     MyUtils.addAlarmManager(
-                        reminder.id,
-                        context,
-                        reminder.createdAt.timeInMillis,
-                        reminder.repeat
+                        reminder,
+                        context
                     )
                    Timber.d("DebugTag, BootCompletedIntentReceiver->restartUpcomingAlarms: ${Thread.currentThread()}")
                 }

@@ -8,8 +8,19 @@ import io.reactivex.Completable
 
 class BaseFragmentViewModel(app:Application, val database:ReminderDatabaseDao) : ViewModel() {
 
-    fun updateReminder(reminder: Reminder) :Completable{
+    fun updateReminderFavorite(reminder: Reminder) :Completable{
+        reminder.isFavorite =
+            !reminder.isFavorite //change favorite value then update in database
       return database.update(reminder)
+    }
+
+    fun updateReminder(reminder: Reminder) :Completable{
+               return database.update(reminder)
+    }
+
+    fun updateReminderDone(reminder: Reminder) :Completable{
+        reminder.isDone = true
+        return database.update(reminder)
     }
 
     fun deleteReminder(reminder: Reminder): Completable {

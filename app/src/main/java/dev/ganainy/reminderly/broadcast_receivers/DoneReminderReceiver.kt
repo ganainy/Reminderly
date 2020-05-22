@@ -10,7 +10,8 @@ import dev.ganainy.reminderly.R
 import dev.ganainy.reminderly.Utils.DONE_ACTION_FOR_REMINDERS
 import dev.ganainy.reminderly.Utils.DONE_ACTION_FOR_REPEATING_REMINDERS
 import dev.ganainy.reminderly.Utils.MyUtils
-import dev.ganainy.reminderly.Utils.REMINDER_ID
+import dev.ganainy.reminderly.Utils.MyUtils.Companion.getReminderFromString
+import dev.ganainy.reminderly.Utils.REMINDER
 import dev.ganainy.reminderly.database.Reminder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -24,15 +25,16 @@ class DoneReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
 
-        val reminderId = intent.extras?.get(REMINDER_ID) as Long
+        val reminderString = intent.getStringExtra(REMINDER)
+        val reminder=reminderString.getReminderFromString() ?: return
+
+
         val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao
+
 
 
         //get reminder by id and set it to done or just close this notification and reminder will
         // work normally in next repeat if it is repeating alarm
-        disposable.add(
-            reminderDatabaseDao.getReminderById(reminderId).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe { reminder ->
 
                     //close any ongoing notification/alarm
                 MyUtils.closeReminder(reminder,  context)
@@ -69,9 +71,9 @@ class DoneReminderReceiver : BroadcastReceiver() {
 
                     }
 
-            })
+            }
 
-    }
+
 
 
     /**
@@ -123,7 +125,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
             AndroidSchedulers.mainThread()
         ).subscribe(
             {//complete
-                MyUtils.cancelAlarmManager(reminder.id,context)
+                MyUtils.cancelAlarmManager(reminder,context)
                 MyUtils.showCustomToast(context, R.string.moved_to_done_list,Toast.LENGTH_LONG)
                 disposable.clear()
             },

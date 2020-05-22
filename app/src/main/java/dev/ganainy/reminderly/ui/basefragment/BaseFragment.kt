@@ -69,9 +69,8 @@ open class BaseFragment : Fragment() {
             }
 
             override fun onFavoriteClick(reminder: Reminder, position: Int) {
-                reminder.isFavorite =
-                    !reminder.isFavorite //change favorite value then update in database
-                disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
+
+                disposable.add(viewModel.updateReminderFavorite(reminder).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { /*task completed*/ })
 
@@ -103,7 +102,6 @@ open class BaseFragment : Fragment() {
             gridItems(items) { _, index, item ->
                 when (index) {
                     0 -> {
-                        /**make reminder done and update in db && show toast*/
                         handleDoneClick(reminder)
                     }
                     1 -> {
@@ -132,7 +130,7 @@ open class BaseFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe( { MyUtils.showCustomToast(requireContext(),R.string.reminder_deleted)
                 //cancel alarm of this reminder
-                MyUtils.cancelAlarmManager(reminder.id,context)
+                MyUtils.cancelAlarmManager(reminder,context)
             },{
                     error->
                 (MyUtils.showCustomToast(requireContext(),R.string.reminder_delete_failed))
@@ -187,7 +185,7 @@ open class BaseFragment : Fragment() {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe {
                             // set alarm
-                            MyUtils.addAlarmManager(reminder.id,context,reminder.createdAt.timeInMillis,reminder.repeat)
+                            MyUtils.addAlarmManager(reminder,context)
                             adapter.notifyItemChanged(position)
 
                             MyUtils.showCustomToast(requireContext(),R.string.reminder_postponed)
@@ -232,13 +230,12 @@ open class BaseFragment : Fragment() {
 
 
 
-
+    /**make reminder done and update in db && show toast*/
     private fun handleDoneClick(reminder: Reminder) {
-        reminder.isDone = true
-        disposable.add(viewModel.updateReminder(reminder).subscribeOn(Schedulers.io())
+        disposable.add(viewModel.updateReminderDone(reminder).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                MyUtils.cancelAlarmManager(reminder.id,context)
+                MyUtils.cancelAlarmManager(reminder,context)
                 MyUtils.showCustomToast(requireContext(),R.string.marked_as_done)
             })
     }

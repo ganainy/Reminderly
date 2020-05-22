@@ -12,6 +12,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import com.google.gson.Gson
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import dev.ganainy.reminderly.R
 import dev.ganainy.reminderly.broadcast_receivers.NewReminderReceiver
@@ -19,6 +20,7 @@ import dev.ganainy.reminderly.broadcast_receivers.PersistentNotificationReceiver
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.services.AlarmService
 import dev.ganainy.reminderly.ui.mainActivity.MainActivity
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -51,7 +53,7 @@ const val DONE_ACTION_FOR_REMINDERS ="doneActionForReminders"
 private const val PERSISTENT_CHANNEL_ID = "primary_notification_channel"
 const val PERSISTENT_NOTIFICATION_ID = 0
 
-const val REMINDER_ID="reminder_Id"
+const val REMINDER="reminder"
 const val DONT_DISTURB_START_HOURS="dontDisturbStartHours"
 const val DONT_DISTURB_START_MINUTES="dontDisturbStartMinutes"
 const val DONT_DISTURB_END_HOURS="dontDisturbEndHours"
@@ -277,79 +279,79 @@ class MyUtils {
         //region alarm manager
 
         /**setup alarm manager to trigger NewReminderReceiver on reminder date*/
-        fun addAlarmManager(reminderId: Long, context: Context?, triggerMillis: Long, repeat: Int) {
+        fun addAlarmManager(reminder:Reminder, context: Context?) {
             //add new onetime alarm OR repeat alarm depending on repeat value
-            when (repeat) {
+            Timber.d("DebugTag, MyUtils->addAlarmManager: ${reminder}")
+
+            when (reminder.repeat) {
                 0 -> {//one time reminder
-                    addOneTimeAlarm(reminderId, context, triggerMillis)
+                    addOneTimeAlarm(reminder, context)
                 }
                 1 -> { //every hour reminder
-                    addPeriodicAlarm(reminderId, context, triggerMillis, 3600 * 1000)
+                    addPeriodicAlarm(reminder, context, 3600 * 1000)
                 }
                 2 -> { //every day reminder
-                    addPeriodicAlarm(reminderId, context, triggerMillis, 3600 * 1000 * 24)
+                    addPeriodicAlarm(reminder, context, 3600 * 1000 * 24)
                 }
                 3 -> { //every week reminder
-                    addPeriodicAlarm(reminderId, context, triggerMillis, 3600 * 1000 * 24 * 7)
+                    addPeriodicAlarm(reminder, context, 3600 * 1000 * 24 * 7)
                 }
                 4 -> { //every month reminder
-                    addPeriodicAlarm(reminderId, context, triggerMillis, 3600 * 1000 * 24 * 30L)
+                    addPeriodicAlarm(reminder, context,  3600 * 1000 * 24 * 30L)
                 }
                 5 -> { //every year reminder
-                    addPeriodicAlarm(reminderId, context, triggerMillis, 3600 * 1000 * 24 * 365L)
+                    addPeriodicAlarm(reminder, context,  3600 * 1000 * 24 * 365L)
                 }
             }
         }
 
 
         private fun addOneTimeAlarm(
-            reminderId: Long,
-            context: Context?,
-            triggerMillis: Long
+            reminder: Reminder,
+            context: Context?
         ) {
             val notifyIntent = Intent(context, NewReminderReceiver::class.java)
-            notifyIntent.putExtra(REMINDER_ID, reminderId)
+            notifyIntent.putExtra(REMINDER, reminder.getStringFromReminder())
             val notifyPendingIntent = PendingIntent.getBroadcast(
-                context, reminderId.toInt(), notifyIntent,
+                context, reminder.id.toInt(), notifyIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
             val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                alarmManager?.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMillis, notifyPendingIntent)
+                alarmManager?.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, reminder.createdAt.timeInMillis, notifyPendingIntent)
             } else {
-                alarmManager?.setExact(AlarmManager.RTC_WAKEUP, triggerMillis, notifyPendingIntent)
+                alarmManager?.setExact(AlarmManager.RTC_WAKEUP, reminder.createdAt.timeInMillis, notifyPendingIntent)
             }
         }
 
 
         private fun addPeriodicAlarm(
-            reminderId: Long,
+            reminder: Reminder,
             context: Context?,
-            triggerMillis: Long,
             repeatMillis: Long
         ) {
 
             val notifyIntent = Intent(context, NewReminderReceiver::class.java)
 
-            notifyIntent.putExtra(REMINDER_ID, reminderId)
+            notifyIntent.putExtra(REMINDER, reminder.getStringFromReminder())
 
-            val notifyPendingIntent = PendingIntent.getBroadcast(context, reminderId.toInt(), notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val notifyPendingIntent = PendingIntent.getBroadcast(context, reminder.id.toInt(), notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
             val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
 
-            alarmManager?.setRepeating(AlarmManager.RTC_WAKEUP, triggerMillis, repeatMillis, notifyPendingIntent)
+            alarmManager?.setRepeating(AlarmManager.RTC_WAKEUP, reminder.createdAt.timeInMillis, repeatMillis, notifyPendingIntent)
 
         }
 
 
         fun cancelAlarmManager(
-            reminderId: Long,
+            reminder: Reminder,
             context: Context?
         ) {
             val notifyIntent = Intent(context, NewReminderReceiver::class.java)
-            notifyIntent.putExtra(REMINDER_ID, reminderId)
+            notifyIntent.putExtra(REMINDER, reminder.getStringFromReminder())
             val notifyPendingIntent = PendingIntent.getBroadcast(
-                context, reminderId.toInt(), notifyIntent,
+                context, reminder.id.toInt(), notifyIntent,
                 PendingIntent.FLAG_ONE_SHOT
             )
             val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
@@ -582,6 +584,29 @@ class MyUtils {
 
         //endregion
 
+        //region gson
+
+        var gson: Gson?=null
+
+        fun getJson(): Gson {
+
+            if (gson==null){
+                gson= Gson()
+            }
+            return gson as Gson
+        }
+
+
+        fun Reminder.getStringFromReminder():String{
+            return getJson().toJson(this)
+        }
+
+        fun String.getReminderFromString():Reminder{
+            return getJson().fromJson(this,Reminder::class.java)
+        }
+    }
+
+        //endregion
 
     }
 
@@ -589,4 +614,3 @@ class MyUtils {
 
 
 
-}
