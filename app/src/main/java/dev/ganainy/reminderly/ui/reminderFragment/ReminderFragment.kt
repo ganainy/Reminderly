@@ -380,7 +380,6 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
         disposable.add( isSameTimeOfAnotherAlarm(viewModel.reminder.createdAt).subscribeOn(Schedulers.io()).
         observeOn(AndroidSchedulers.mainThread()).subscribe {
-            Log.d("DebugTag", "ReminderFragment->handleSaveButton: ${it.size}")
             /*TODO uncomment if (it.size>0){
                 //there is another reminders near this reminder time so don't allow operation
                 MyUtils.showCustomToast(requireContext(),R.string.another_reminder_in_proximity,
@@ -400,6 +399,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
                                 context
                             )
 
+                            MyUtils.showCustomToast(requireContext(), R.string.reminder_added_successfully)
                             requireActivity().onBackPressed()
                         },
                         {   //error

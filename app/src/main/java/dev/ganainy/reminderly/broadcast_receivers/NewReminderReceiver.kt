@@ -15,7 +15,6 @@ import dev.ganainy.reminderly.Utils.REMINDER
 import dev.ganainy.reminderly.services.AlarmService
 import dev.ganainy.reminderly.services.NotificationService
 import io.reactivex.disposables.CompositeDisposable
-import timber.log.Timber
 import java.util.*
 
 
@@ -35,8 +34,7 @@ class NewReminderReceiver : BroadcastReceiver() {
 
 
 
-            Timber.d("Timber, receiver called $reminder")
-            val count= MyUtils.getInt(context,"rec")
+             val count= MyUtils.getInt(context,"rec")
             MyUtils.putInt(context,"rec",count+1)
 
                         //start background service or foreground service based on reminderType

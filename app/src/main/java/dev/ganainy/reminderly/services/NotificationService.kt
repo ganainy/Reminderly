@@ -20,7 +20,6 @@ import dev.ganainy.reminderly.Utils.REMINDER
 import dev.ganainy.reminderly.broadcast_receivers.DoneReminderReceiver
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.ui.postpone_activity.PostponeActivity
-import timber.log.Timber
 
 private const val NOTIFICATION_REMINDER_CHANNEL_ID = "notification_reminder_notification_channel"
 
@@ -34,8 +33,7 @@ class NotificationService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        Timber.d("Timber, service called")
-        val count=MyUtils.getInt(this,"service")
+          val count=MyUtils.getInt(this,"service")
         MyUtils.putInt(this,"service",count+1)
 
         val reminderString = intent?.getStringExtra(REMINDER)

@@ -281,7 +281,6 @@ class MyUtils {
         /**setup alarm manager to trigger NewReminderReceiver on reminder date*/
         fun addAlarmManager(reminder:Reminder, context: Context?) {
             //add new onetime alarm OR repeat alarm depending on repeat value
-            Timber.d("DebugTag, MyUtils->addAlarmManager: ${reminder}")
 
             when (reminder.repeat) {
                 0 -> {//one time reminder

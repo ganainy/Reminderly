@@ -9,7 +9,6 @@ import dev.ganainy.reminderly.Utils.MyUtils
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import java.util.*
 
 /**reschedule alarms after device is rebooted or on app onCreate*/
@@ -22,7 +21,6 @@ class BootCompletedIntentReceiver : BroadcastReceiver() {
                 RESTART_ALARAMS
             )
         ) {
-            Timber.d("DebugTag, BootCompletedIntentReceiver->onReceive: ${Thread.currentThread()}")
 
             restartUpcomingAlarms(context)
         }
@@ -42,8 +40,7 @@ class BootCompletedIntentReceiver : BroadcastReceiver() {
                         reminder,
                         context
                     )
-                   Timber.d("DebugTag, BootCompletedIntentReceiver->restartUpcomingAlarms: ${Thread.currentThread()}")
-                }
+                  }
                 compositeDisposable.clear()
             })
     }
