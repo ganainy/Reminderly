@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import android.speech.RecognizerIntent
 import android.text.util.Linkify
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,12 +34,8 @@ import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.databinding.ReminderFragmentBinding
 import dev.ganainy.reminderly.ui.mainActivity.ICommunication
 import dev.ganainy.reminderly.ui.reminderActivity.ReminderViewModel
-import io.reactivex.Observable
-import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.reminder_fragment.*
 import java.util.*
 
@@ -50,11 +45,10 @@ const val SELECT_PHONE_NUMBER = 2
 /**used to create new reminders or edit existing ones*/
 class ReminderFragment : Fragment(), View.OnClickListener {
 
+    private val disposable = CompositeDisposable()
     private lateinit var viewModel: ReminderViewModel
     private lateinit var viewModelFactory: ReminderViewModelFactory
     private lateinit var binding: ReminderFragmentBinding
-    private val disposable = CompositeDisposable()
-    private lateinit var reminderObserver:Observer<Reminder>
     private val dateSetListener =
         DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
 
@@ -93,43 +87,30 @@ class ReminderFragment : Fragment(), View.OnClickListener {
         super.onActivityCreated(savedInstanceState)
 
         initViewModel()
-
-
-        reminderObserver = object : Observer<Reminder>{
-            override fun onComplete() {
-            }
-
-            override fun onSubscribe(d: Disposable) {
-            }
-
-            override fun onNext(t: Reminder) {
-                Log.d("DebugTag", "ReminderFragment->onActivityCreated: ${ t}")
-                initViews()
-            }
-
-            override fun onError(e: Throwable) {
-            }
-
-        }
-
-
-        if (arguments?.get("reminder") != null) {  //navigating from reminders list fragment
-             viewModel.reminder = arguments?.get("reminder") as Reminder
-
-            }
-        reminderObserver.onNext( viewModel.reminder)
-
         setupListeners()
         showHints()
+
+        /**if opening existing reminder show it ,savedInstanceState==null so rotation won't discard
+         * changes made before recreating fragment */
+        if (arguments?.get("reminder") != null &&savedInstanceState==null) {
+            //navigating from reminders list fragment
+             viewModel.reminderSubject.onNext( arguments?.get("reminder") as Reminder)
+            }
+
+
+        /**once reminder changes reflect changes on UI*/
+        disposable.add(viewModel.reminderSubject.subscribe ({reminder ->
+            initViews(reminder)
+        },{
+            MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
+        }))
 
 
         binding.reminderEditText.addTextChangedListener {
             viewModel.reminder.text=it.toString()
         }
 
-
         initializeAds()
-
     }
 
 
@@ -153,7 +134,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
     private fun initViewModel() {
         val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
         viewModelFactory =
-            ReminderViewModelFactory(requireActivity().application,  Reminder(), reminderDatabaseDao)
+            ReminderViewModelFactory(requireActivity().application,reminderDatabaseDao)
         viewModel = ViewModelProvider(this, viewModelFactory).get(ReminderViewModel::class.java)
     }
 
@@ -215,20 +196,20 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
 
 
-    private fun initViews() {
-        binding.reminderEditText.setText( viewModel.reminder.text)
-        binding.dateText.text = MyUtils.formatDate(Date( viewModel.reminder.createdAt.timeInMillis))
-        binding.timeText.text = MyUtils.formatTime(Date( viewModel.reminder.createdAt.timeInMillis))
-        binding.repeatText.text = MyUtils.convertRepeat(requireContext(), viewModel.reminder.repeat)
+    private fun initViews(reminder:Reminder) {
+        binding.reminderEditText.setText( reminder.text)
+        binding.dateText.text = MyUtils.formatDate(Date( reminder.createdAt.timeInMillis))
+        binding.timeText.text = MyUtils.formatTime(Date( reminder.createdAt.timeInMillis))
+        binding.repeatText.text = MyUtils.convertRepeat(requireContext(), reminder.repeat)
 
-        binding.priorityText.text = MyUtils.convertPriority(requireContext(), viewModel.reminder.priority)
-        binding.reminderTypeText.text = MyUtils.convertReminderType(requireContext(), viewModel.reminder.reminderType)
+        binding.priorityText.text = MyUtils.convertPriority(requireContext(), reminder.priority)
+        binding.reminderTypeText.text = MyUtils.convertReminderType(requireContext(), reminder.reminderType)
         /**make numbers in edit text clickable & navigate to phone pad on click*/
         Linkify.addLinks(binding.reminderEditText, Linkify.PHONE_NUMBERS)
 
-        setupPriorityBackgroundColor( viewModel.reminder.priority)
-        setupRepeatImage( viewModel.reminder.repeat)
-        setupReminderTypeImage( viewModel.reminder.reminderType)
+        setupPriorityBackgroundColor( reminder.priority)
+        setupRepeatImage( reminder.repeat)
+        setupReminderTypeImage( reminder.reminderType)
     }
 
 
@@ -277,7 +258,8 @@ class ReminderFragment : Fragment(), View.OnClickListener {
                 // Invoked when the user selects an item
                 binding.reminderTypeText.text = text
                 viewModel.reminder.reminderType=index
-                reminderObserver.onNext( viewModel.reminder)
+                viewModel.updateReminder()
+
                 setupReminderTypeImage(index)
             }
             positiveButton(R.string.confirm)
@@ -295,7 +277,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
             ) { dialog, index, text ->
                 // Invoked when the user selects an item
                 viewModel.reminder.priority=index
-                reminderObserver.onNext( viewModel.reminder)
+                viewModel.updateReminder()
                 binding.priorityText.text = text
                 setupPriorityBackgroundColor(index)
             }
@@ -315,7 +297,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
                 // Invoked when the user selects an item
                 binding.repeatText.text = text
                 viewModel.reminder.repeat=index
-                reminderObserver.onNext( viewModel.reminder)
+                viewModel.updateReminder()
                 setupRepeatImage(index)
             }
             positiveButton(R.string.confirm)
@@ -378,16 +360,14 @@ class ReminderFragment : Fragment(), View.OnClickListener {
    }
 */
 
-        disposable.add( isSameTimeOfAnotherAlarm(viewModel.reminder.createdAt).subscribeOn(Schedulers.io()).
-        observeOn(AndroidSchedulers.mainThread()).subscribe {
+        disposable.add( viewModel.isSameTimeOfAnotherAlarm().observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
             /*TODO uncomment if (it.size>0){
                 //there is another reminders near this reminder time so don't allow operation
                 MyUtils.showCustomToast(requireContext(),R.string.another_reminder_in_proximity,
                     Toast.LENGTH_LONG)
             }else{*/
-               viewModel.saveReminder( viewModel.reminder)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+               viewModel.saveReminder().observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                         { reminderId ->
                             viewModel.reminder.id=reminderId
@@ -414,16 +394,6 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
 
 
-    }
-
-    /**check if there is another reminder from createdAt -3 min until createdAt +3min*/
-    private fun isSameTimeOfAnotherAlarm(createdAt: Calendar): Observable<MutableList<Reminder>> {
-
-
-        return viewModel.getInTimeRangeAlarmReminders(
-            createdAt.timeInMillis-(1000*60*3), //3 minutes
-            createdAt.timeInMillis+(1000*60*3) //3 minutes
-        )
     }
 
 
@@ -515,7 +485,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
             set(Calendar.MINUTE, minute)
         }
 
-        reminderObserver.onNext( viewModel.reminder)
+        viewModel.updateReminder()
     }
 
 
@@ -529,7 +499,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
             set(Calendar.MONTH, month)
             set(Calendar.DAY_OF_MONTH, day)
         }
-        reminderObserver.onNext( viewModel.reminder)
+        viewModel.updateReminder()
 
     }
 

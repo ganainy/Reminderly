@@ -20,7 +20,6 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.footy.database.ReminderDatabaseDao
-import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.ui.reminderActivity.ReminderViewModel
 
 /**
@@ -28,7 +27,6 @@ import dev.ganainy.reminderly.ui.reminderActivity.ReminderViewModel
  */
 class ReminderViewModelFactory(
     private val app: Application,
-    private val reminder: Reminder,
     private val database: ReminderDatabaseDao
 ) : ViewModelProvider.Factory {
     @Suppress("unchecked_cast")
@@ -36,7 +34,6 @@ class ReminderViewModelFactory(
         if (modelClass.isAssignableFrom(ReminderViewModel::class.java)) {
             return ReminderViewModel(
                 app,
-                reminder,
                 database
             ) as T
         }

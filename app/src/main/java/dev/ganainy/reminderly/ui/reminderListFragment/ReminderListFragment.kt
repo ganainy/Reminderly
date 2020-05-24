@@ -22,7 +22,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 
 class ReminderListFragment : BaseFragment() {
 
-    private var recyclerInitialized = false
     private lateinit var binding: ReminderListFragmentBinding
     private lateinit var viewModel: ReminderListFragmentViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
@@ -46,6 +45,8 @@ class ReminderListFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
 
         initViewModel()
+        initAdapter()
+        initRecycler()
 
         viewModel.reminderListSubject.observeOn(AndroidSchedulers.mainThread()).subscribe{ reminderListFormatted ->
             showReminders(reminderListFormatted)
@@ -56,7 +57,8 @@ class ReminderListFragment : BaseFragment() {
         }
 
         viewModel.emptyListSubject.observeOn(AndroidSchedulers.mainThread()).subscribe{isListEmpty ->
-            showEmptyUi()
+            if (isListEmpty)showEmptyUi()
+            else hideEmptyUi()
         }
 
     }
@@ -75,12 +77,7 @@ class ReminderListFragment : BaseFragment() {
     }
 
 
-    private fun initRecycler(): Boolean {
-        if (recyclerInitialized) return true
-
-        recyclerInitialized = true
-
-        initAdapter()
+    private fun initRecycler() {
 
         binding.reminderReycler.setHasFixedSize(true)
         binding.reminderReycler.adapter = adapter
@@ -104,21 +101,19 @@ class ReminderListFragment : BaseFragment() {
             binding.reminderReycler.layoutManager = LinearLayoutManager(requireContext())
         }
 
-        return false
     }
 
 
     private fun showReminders(formattedReminderList: MutableList<Reminder>) {
 
-            binding.noRemindersGroup.visibility = View.GONE
-            binding.reminderReycler.visibility = View.VISIBLE
-
-           initRecycler()
-                //recycler already initialized just refresh position
+        //recycler already initialized just refresh position
                 adapter.submitList(formattedReminderList)
                 adapter.notifyDataSetChanged()
+    }
 
-
+    private fun hideEmptyUi() {
+        binding.noRemindersGroup.visibility = View.GONE
+        binding.reminderReycler.visibility = View.VISIBLE
     }
 
     private fun showEmptyUi(){

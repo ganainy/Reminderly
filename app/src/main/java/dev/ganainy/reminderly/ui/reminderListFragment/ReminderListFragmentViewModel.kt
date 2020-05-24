@@ -15,7 +15,6 @@ class ReminderListFragmentViewModel(app: Application, val database: ReminderData
     ViewModel() {
 
 
-
     private val overdueReminders = mutableListOf<Reminder>()
     private val todayReminders = mutableListOf<Reminder>()
     private val upcomingReminders = mutableListOf<Reminder>()
@@ -33,63 +32,63 @@ class ReminderListFragmentViewModel(app: Application, val database: ReminderData
 
     /**get all active reminders(not done) from db and order them & add headers
      * (overdue-today-upcoming) & ads */
-    fun getAllRemindersFormatted() {
-        disposable.add(database.getActiveReminders().subscribeOn(Schedulers.io())
-            .subscribe({ reminderList ->
+    private fun getAllRemindersFormatted() {
+        disposable.add(
+            database.getActiveReminders().subscribeOn(Schedulers.io())
+                .subscribe({ reminderList ->
 
-                overdueReminders.clear()
-                todayReminders.clear()
-                upcomingReminders.clear()
-                reminderListWithHeaders.clear()
+                    overdueReminders.clear()
+                    todayReminders.clear()
+                    upcomingReminders.clear()
+                    reminderListWithHeaders.clear()
 
 
-                for (reminder in reminderList) {
-                    val currentCalendar = Calendar.getInstance()
-                    when {
-                        DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
-                            todayReminders.add(reminder)
+                    for (reminder in reminderList) {
+                        val currentCalendar = Calendar.getInstance()
+                        when {
+                            DateUtils.isToday(reminder.createdAt.timeInMillis) -> {
+                                todayReminders.add(reminder)
+                            }
+                            reminder.createdAt.before(currentCalendar) -> {
+                                overdueReminders.add(reminder)
+                            }
+                            else -> {
+                                upcomingReminders.add(reminder)
+                            }
                         }
-                        reminder.createdAt.before(currentCalendar) -> {
-                            overdueReminders.add(reminder)
+                    }
+
+                    if (overdueReminders.isNotEmpty()) {
+                        reminderListWithHeaders.add(Reminder(header = 1))//add empty reminder with header value that will be used as header in recycler
+                        for (reminder in overdueReminders) {
+                            reminderListWithHeaders.add(reminder)
                         }
-                        else -> {
-                            upcomingReminders.add(reminder)
+                    }
+                    if (todayReminders.isNotEmpty()) {
+                        reminderListWithHeaders.add(Reminder(header = 2))//add empty reminder with header value that will be used as header in recycler
+                        for (reminder in todayReminders) {
+                            reminderListWithHeaders.add(reminder)
                         }
                     }
-                }
-
-                if (overdueReminders.isNotEmpty()) {
-                    reminderListWithHeaders.add(Reminder(header = 1))//add empty reminder with header value that will be used as header in recycler
-                    for (reminder in overdueReminders) {
-                        reminderListWithHeaders.add(reminder)
+                    if (upcomingReminders.isNotEmpty()) {
+                        reminderListWithHeaders.add(Reminder(header = 3))//add empty reminder with header value that will be used as header in recycler
+                        for (reminder in upcomingReminders) {
+                            reminderListWithHeaders.add(reminder)
+                        }
                     }
-                }
-                if (todayReminders.isNotEmpty()) {
-                    reminderListWithHeaders.add(Reminder(header = 2))//add empty reminder with header value that will be used as header in recycler
-                    for (reminder in todayReminders) {
-                        reminderListWithHeaders.add(reminder)
+
+                    addAdItemToList(reminderListWithHeaders)
+
+                    if (reminderListWithHeaders.size == 0) {
+                        emptyListSubject.onNext(true)
+                    } else {
+                        emptyListSubject.onNext(false)
+                        reminderListSubject.onNext(reminderListWithHeaders)
                     }
-                }
-                if (upcomingReminders.isNotEmpty()) {
-                    reminderListWithHeaders.add(Reminder(header = 3))//add empty reminder with header value that will be used as header in recycler
-                    for (reminder in upcomingReminders) {
-                        reminderListWithHeaders.add(reminder)
-                    }
-                }
 
-                addAdItemToList(reminderListWithHeaders)
-
-                if (reminderListWithHeaders.size == 0) {
-                    emptyListSubject.onNext(true)
-                } else {
-                    reminderListSubject.onNext(reminderListWithHeaders)
-                    Timber.d("DebugTag, ReminderListFragmentViewModel->getAllRemindersFormatted: ${reminderListWithHeaders.size}")
-
-                }
-
-            }, { error ->
-                errorSubject.onNext(error.message.toString())
-            })
+                }, { error ->
+                    errorSubject.onNext(error.message.toString())
+                })
         )
 
 
