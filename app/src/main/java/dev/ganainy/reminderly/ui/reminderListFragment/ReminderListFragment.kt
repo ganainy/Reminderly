@@ -44,9 +44,11 @@ class ReminderListFragment : BaseFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        initViewModel()
         initAdapter()
         initRecycler()
+        initViewModel()
+
+        viewModel.getAllRemindersFormatted()
 
         viewModel.reminderListSubject.observeOn(AndroidSchedulers.mainThread()).subscribe{ reminderListFormatted ->
             showReminders(reminderListFormatted)
@@ -105,10 +107,9 @@ class ReminderListFragment : BaseFragment() {
 
 
     private fun showReminders(formattedReminderList: MutableList<Reminder>) {
-
         //recycler already initialized just refresh position
                 adapter.submitList(formattedReminderList)
-                adapter.notifyDataSetChanged()
+                adapter.notifyItemRangeChanged(0,formattedReminderList.size)
     }
 
     private fun hideEmptyUi() {
@@ -119,6 +120,12 @@ class ReminderListFragment : BaseFragment() {
     private fun showEmptyUi(){
             binding.noRemindersGroup.visibility = View.VISIBLE
             binding.reminderReycler.visibility = View.GONE
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.disposable.clear()
     }
 
 }

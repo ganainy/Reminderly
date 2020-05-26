@@ -34,7 +34,6 @@ import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.databinding.ReminderFragmentBinding
 import dev.ganainy.reminderly.ui.mainActivity.ICommunication
 import dev.ganainy.reminderly.ui.reminderActivity.ReminderViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.reminder_fragment.*
 import java.util.*
@@ -94,8 +93,29 @@ class ReminderFragment : Fragment(), View.OnClickListener {
          * changes made before recreating fragment */
         if (arguments?.get("reminder") != null &&savedInstanceState==null) {
             //navigating from reminders list fragment
-             viewModel.reminderSubject.onNext( arguments?.get("reminder") as Reminder)
+            val reminderToEdit = arguments?.get("reminder") as Reminder
+            viewModel.reminderSubject.onNext(reminderToEdit)
+             viewModel.reminder=reminderToEdit
             }
+
+        /**triggered by view model to cancel alarm for certain reminder*/
+        disposable.add(viewModel.cancelAlarmSubject.subscribe { reminder ->
+            MyUtils.cancelAlarmManager(reminder, requireContext())
+        })
+
+        /**triggered by view model to add alarm for certain reminder*/
+        disposable.add(viewModel.cancelAlarmSubject.subscribe { reminder ->
+            MyUtils.addAlarmManager(viewModel.reminder, context) })
+
+        /**triggered by view model to add alarm for certain reminder*/
+        disposable.add(viewModel.toastSubject.subscribe { stringResourceId ->
+            MyUtils.showCustomToast(requireContext(), stringResourceId)
+        })
+
+        /**triggered by view model to add alarm for certain reminder*/
+        disposable.add(viewModel.backSubject.subscribe { shouldBack ->
+            requireActivity().onBackPressed()
+        })
 
 
         /**once reminder changes reflect changes on UI*/
@@ -113,7 +133,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
         initializeAds()
     }
 
-
+    /**add ad banner in bottom of UI*/
     private fun initializeAds() {
         MobileAds.initialize(requireContext()
         ) {}
@@ -130,14 +150,12 @@ class ReminderFragment : Fragment(), View.OnClickListener {
         }
     }
 
-
     private fun initViewModel() {
         val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
         viewModelFactory =
             ReminderViewModelFactory(requireActivity().application,reminderDatabaseDao)
         viewModel = ViewModelProvider(this, viewModelFactory).get(ReminderViewModel::class.java)
     }
-
 
     /**setup reminder type image based on its value*/
     private fun setupReminderTypeImage(reminderType: Int) {
@@ -228,7 +246,6 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
     }
 
-
     private fun openSpeechToTextDialog() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         intent.putExtra(
@@ -247,7 +264,6 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
         }
     }
-
 
     private fun handleReminderTypeImageClick() {
         MaterialDialog(requireContext()).show {
@@ -342,60 +358,6 @@ class ReminderFragment : Fragment(), View.OnClickListener {
         ).show()
 
     }
-
-
-    private fun handleSaveButton() {
-
-/*TODO uncomment
-
-       if (binding.reminderEditText.text.isBlank()) {
-            MyUtils.showCustomToast(requireContext(), R.string.text_empty)
-
-            return
-        }
-       else if(viewModel.reminder.createdAt.timeInMillis <= Calendar.getInstance().timeInMillis){
-      MyUtils.showCustomToast(requireContext(),R.string.old_date_error)
-
-       return
-   }
-*/
-
-        disposable.add( viewModel.isSameTimeOfAnotherAlarm().observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-            /*TODO uncomment if (it.size>0){
-                //there is another reminders near this reminder time so don't allow operation
-                MyUtils.showCustomToast(requireContext(),R.string.another_reminder_in_proximity,
-                    Toast.LENGTH_LONG)
-            }else{*/
-               viewModel.saveReminder().observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { reminderId ->
-                            viewModel.reminder.id=reminderId
-                            //this reminder could be an update for existing reminder so we cancel any ongoing alarms
-                            MyUtils.cancelAlarmManager(viewModel.reminder, context)
-                            // set alarm manager
-                            MyUtils.addAlarmManager(
-                                viewModel.reminder,
-                                context
-                            )
-
-                            MyUtils.showCustomToast(requireContext(), R.string.reminder_added_successfully)
-                            requireActivity().onBackPressed()
-                        },
-                        {   //error
-                                error ->
-                            MyUtils.showCustomToast(requireContext(), R.string.error_saving_reminder)
-
-                        }
-                    )
-           /* }*/
-        })
-
-
-
-
-    }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -508,14 +470,15 @@ class ReminderFragment : Fragment(), View.OnClickListener {
 
     override fun onStop() {
         super.onStop()
-        disposable.clear()
-
         /**this will be invoked to un-lock drawer only if parent of this fragment is main*/
         (requireActivity() as? ICommunication)?.setDrawerEnabled(true)
 
-
         MyUtils.hideKeyboard(requireActivity(), binding.saveFab)
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        disposable.clear()
     }
 
 
@@ -553,7 +516,7 @@ class ReminderFragment : Fragment(), View.OnClickListener {
                 requireActivity().onBackPressed()
             }
             R.id.saveFab -> {
-                handleSaveButton()
+                viewModel.handleSaveButton()
             }
             R.id.keyboardImage -> {
                 changeKeyboardVisibility()

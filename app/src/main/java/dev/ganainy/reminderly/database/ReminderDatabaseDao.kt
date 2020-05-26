@@ -70,7 +70,7 @@ interface ReminderDatabaseDao {
     fun getInTimeRangeReminders(startDayMillis: Long, endDayMillis:Long): Observable<MutableList<Reminder>>
 
     @Query("SELECT * FROM reminder_table WHERE (createdAt>=:startDayMillis AND createdAt<=:endDayMillis AND isDone==0 AND reminderType==1)")
-    fun getInTimeRangeAlarmReminders(startDayMillis: Long, endDayMillis:Long): Observable<MutableList<Reminder>>
+    fun getInTimeRangeAlarmReminders(startDayMillis: Long, endDayMillis:Long): Single<MutableList<Reminder>>
 
 }
 

@@ -1,5 +1,6 @@
 package dev.ganainy.reminderly.ui.basefragment
 
+import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -24,15 +25,11 @@ import dev.ganainy.reminderly.R
 import dev.ganainy.reminderly.Utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.ui.mainActivity.ICommunication
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 
 
 open class BaseFragment : Fragment() {
 
     lateinit var adapter: ReminderAdapter
-    private val disposable = CompositeDisposable()
     private lateinit var viewModel: BaseFragmentViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
 
@@ -45,19 +42,48 @@ open class BaseFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(param1: String, param2: String) = BaseFragment()
+        fun newInstance() = BaseFragment()
     }
 
+    @SuppressLint("CheckResult")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
+        initViewModel()
+
+        /**triggered by viewmodel on reminder update*/
+        viewModel.updatePositionSubject.subscribe{ position ->
+             adapter.notifyItemChanged(position)
+        }
+
+        /**triggered by viewmodel when it needs to show some toast*/
+        viewModel.toastSubject.subscribe {stringResourceId ->
+           MyUtils.showCustomToast(requireContext(),stringResourceId)
+        }
+
+        /**triggered by viewmodel when it needs to cancel alarm related to certain reminder*/
+        viewModel.cancelAlarmSubject.subscribe{reminderToCancelAlarmOf ->
+            MyUtils.cancelAlarmManager(reminderToCancelAlarmOf, requireContext())
+        }
+
+        /**triggered by viewmodel when it needs to add alarm related to certain reminder*/
+        viewModel.addAlarmSubject.subscribe { reminderToAddAlarmTo ->
+            MyUtils.addAlarmManager(reminderToAddAlarmTo,requireContext())
+
+        }
+
+
+    }
+
+    private fun initViewModel() {
+        val reminderDatabaseDao =  ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
 
         viewModelFactory =
-            ProvideDatabaseViewModelFactory(
-                requireActivity().application,
-                reminderDatabaseDao
-            )
+
+                ProvideDatabaseViewModelFactory(
+                    requireActivity().application,
+                    reminderDatabaseDao
+                )
 
         viewModel = ViewModelProvider(this, viewModelFactory).get(BaseFragmentViewModel::class.java)
     }
@@ -69,16 +95,10 @@ open class BaseFragment : Fragment() {
             }
 
             override fun onFavoriteClick(reminder: Reminder, position: Int) {
-
-                disposable.add(viewModel.updateReminderFavorite(reminder).subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { /*task completed*/ })
-
-                adapter.notifyItemChanged(position)
+                viewModel.updateReminderFavorite(reminder,position)
             }
 
             override fun onMenuClick(reminder: Reminder,position: Int) {
-
                 showOptionsSheet(reminder,position)
             }
 
@@ -102,7 +122,7 @@ open class BaseFragment : Fragment() {
             gridItems(items) { _, index, item ->
                 when (index) {
                     0 -> {
-                        handleDoneClick(reminder)
+                        viewModel.markReminderAsDone(reminder,position)
                     }
                     1 -> {
                         postponeReminder(reminder,position)
@@ -117,7 +137,7 @@ open class BaseFragment : Fragment() {
                         shareReminder(reminder)
                     }
                     5->{
-                        deleteReminder(reminder)
+                        viewModel.deleteReminder(reminder,position)
                     }
 
                 }
@@ -125,18 +145,7 @@ open class BaseFragment : Fragment() {
         }
     }
 
-    private fun deleteReminder(reminder: Reminder) {
-        disposable.add(viewModel.deleteReminder(reminder).subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe( { MyUtils.showCustomToast(requireContext(),R.string.reminder_deleted)
-                //cancel alarm of this reminder
-                MyUtils.cancelAlarmManager(reminder,context)
-            },{
-                    error->
-                (MyUtils.showCustomToast(requireContext(),R.string.reminder_delete_failed))
-            }))
 
-    }
 
     private fun shareReminder(reminder: Reminder) {
         val sendIntent: Intent = Intent().apply {
@@ -149,7 +158,7 @@ open class BaseFragment : Fragment() {
         startActivity(shareIntent)
     }
 
-    private fun MaterialDialog.copyToClipboard(reminder: Reminder) {
+    private fun copyToClipboard(reminder: Reminder) {
         val clipboard =
             requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("label", reminder.text)
@@ -176,23 +185,7 @@ open class BaseFragment : Fragment() {
         val dialog = MaterialDialog(requireContext()).show {
             customView(R.layout.custom_postpone_dialog)
             positiveButton(R.string.confirm) {
-
-               val postponedReminder= MyUtils.postponeReminder(reminder,context, day, hour,minute )
-                if (postponedReminder==null){
-                    //postpone failed do nothing
-                }else{
-                    disposable.add(viewModel.updateReminder(postponedReminder).subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe {
-                            // set alarm
-                            MyUtils.addAlarmManager(reminder,context)
-                            adapter.notifyItemChanged(position)
-
-                            MyUtils.showCustomToast(requireContext(),R.string.reminder_postponed)
-                        })
-                }
-
-
+             viewModel.postponeReminder(reminder,day,hour,minute,position)
             }
             negativeButton(R.string.cancel)
             title(0, getString(R.string.select_time))
@@ -227,28 +220,5 @@ open class BaseFragment : Fragment() {
 
 
     }
-
-
-
-    /**make reminder done and update in db && show toast*/
-    private fun handleDoneClick(reminder: Reminder) {
-        disposable.add(viewModel.updateReminderDone(reminder).subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                MyUtils.cancelAlarmManager(reminder,context)
-                MyUtils.showCustomToast(requireContext(),R.string.marked_as_done)
-            })
-    }
-
-
-    override fun onStop() {
-        super.onStop()
-        disposable.clear()
-
-    }
-
-
-
-
 
 }

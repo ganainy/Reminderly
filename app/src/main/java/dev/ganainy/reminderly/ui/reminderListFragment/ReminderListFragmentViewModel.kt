@@ -8,7 +8,6 @@ import dev.ganainy.reminderly.database.Reminder
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import timber.log.Timber
 import java.util.*
 
 class ReminderListFragmentViewModel(app: Application, val database: ReminderDatabaseDao) :
@@ -19,20 +18,17 @@ class ReminderListFragmentViewModel(app: Application, val database: ReminderData
     private val todayReminders = mutableListOf<Reminder>()
     private val upcomingReminders = mutableListOf<Reminder>()
     private val reminderListWithHeaders = mutableListOf<Reminder>()
-    private val disposable = CompositeDisposable()
+     val disposable = CompositeDisposable()
+
 
 
     val reminderListSubject = BehaviorSubject.create<MutableList<Reminder>>()
     val errorSubject = BehaviorSubject.create<String>()
     val emptyListSubject = BehaviorSubject.create<Boolean>()
 
-    init {
-        getAllRemindersFormatted()
-    }
-
     /**get all active reminders(not done) from db and order them & add headers
      * (overdue-today-upcoming) & ads */
-    private fun getAllRemindersFormatted() {
+    fun getAllRemindersFormatted() {
         disposable.add(
             database.getActiveReminders().subscribeOn(Schedulers.io())
                 .subscribe({ reminderList ->
@@ -109,8 +105,4 @@ class ReminderListFragmentViewModel(app: Application, val database: ReminderData
     }
 
 
-    override fun onCleared() {
-        super.onCleared()
-        disposable.clear()
-    }
 }

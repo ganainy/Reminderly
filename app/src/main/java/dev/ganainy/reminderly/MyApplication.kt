@@ -14,7 +14,7 @@ import dev.ganainy.reminderly.Utils.MyUtils
 import dev.ganainy.reminderly.broadcast_receivers.BootCompletedIntentReceiver
 import timber.log.Timber
 
-const val RESTART_ALARAMS="restartAlarms"
+const val RESTART_ALARAMS = "restartAlarms"
 
 class MyApplication : Application() {
     override fun onCreate() {
@@ -22,7 +22,7 @@ class MyApplication : Application() {
         //init this library to show database
         Stetho.initializeWithDefaults(this)
         //reset ad click count with new app session
-        MyUtils.putInt(applicationContext, AD_CLICK_PER_SESSION,0)
+        MyUtils.putInt(applicationContext, AD_CLICK_PER_SESSION, 0)
         //init timber
         Timber.plant(Timber.DebugTree())
 
@@ -30,12 +30,12 @@ class MyApplication : Application() {
         requestIgnoreBatteryOptimization()
 
         //alarms are deleted when app is swiped from recent so we add them again on application creation
-        val restartAlarmIntent= Intent(this,BootCompletedIntentReceiver::class.java)
-        restartAlarmIntent.putExtra(RESTART_ALARAMS,"")
+        val restartAlarmIntent = Intent(this, BootCompletedIntentReceiver::class.java)
+        restartAlarmIntent.putExtra(RESTART_ALARAMS, "")
         sendBroadcast(restartAlarmIntent)
 
-        val rec= MyUtils.getInt(this,"rec")
-        val service= MyUtils.getInt(this,"service")
+        val rec = MyUtils.getInt(this, "rec")
+        val service = MyUtils.getInt(this, "service")
         Timber.d("Timber, receiver calls $rec ....sercvice calls $service")
     }
 

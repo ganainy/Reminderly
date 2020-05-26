@@ -1,5 +1,6 @@
 package dev.ganainy.reminderly.ui.favoritesFragment
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,14 +16,11 @@ import dev.ganainy.reminderly.Utils.MyUtils
 import dev.ganainy.reminderly.databinding.FavoritesFragmentBinding
 import dev.ganainy.reminderly.ui.basefragment.BaseFragment
 import dev.ganainy.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+
 
 class FavoritesFragment : BaseFragment() {
 
-    private var recyclerIntialized = false
-    private val disposable = CompositeDisposable()
+
     private lateinit var viewModel: FavoriteFragmentViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
 
@@ -40,9 +38,35 @@ class FavoritesFragment : BaseFragment() {
         return binding.root
     }
 
+    @SuppressLint("CheckResult")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        initAdapter()
+        initRecycler()
+        initViewModel()
+
+        viewModel.reminderListSubject.subscribe{favoriteReminderList->
+            adapter.submitList(favoriteReminderList)
+            adapter.notifyItemRangeChanged(0,favoriteReminderList.size)
+        }
+
+        viewModel.errorSubject.subscribe {
+            MyUtils.showCustomToast(requireContext(), R.string.error_retreiving_favorite_reminder)
+        }
+
+        viewModel.emptyListSubject.subscribe {isEmptyList ->
+            if (isEmptyList){
+                showEmptyUi()
+            }else{
+                hideEmptyUi()
+            }
+        }
+
+
+    }
+
+    private fun initViewModel() {
         val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
 
         viewModelFactory =
@@ -51,52 +75,11 @@ class FavoritesFragment : BaseFragment() {
                 reminderDatabaseDao
             )
 
-        viewModel = ViewModelProvider(this, viewModelFactory).get(FavoriteFragmentViewModel::class.java)
-
-        /**get favorite reminders from db and pass them to favorites fragment  */
-        observeFavoriteReminders()
-
-    }
-
-
-
-    private fun observeFavoriteReminders() {
-        disposable.add(
-            viewModel.getFavoriteReminders().subscribeOn(Schedulers.io()).observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe({ favoriteReminderList ->
-
-                /**if all favorite reminders are empty show empty layout,else show recycler*/
-                if (favoriteReminderList.isEmpty()) {
-
-                    binding.noRemindersGroup.visibility = View.VISIBLE
-                    binding.reminderReycler.visibility = View.INVISIBLE
-
-                } else {
-
-                    binding.noRemindersGroup.visibility = View.INVISIBLE
-                    binding.reminderReycler.visibility = View.VISIBLE
-
-
-                    initRecycler()
-                    adapter.submitList(favoriteReminderList)
-
-                }
-
-
-            }, { error ->
-                MyUtils.showCustomToast(requireContext(),R.string.error_retreiving_favorite_reminder)
-
-            })
-        )
+        viewModel =
+            ViewModelProvider(this, viewModelFactory).get(FavoriteFragmentViewModel::class.java)
     }
 
     private fun initRecycler() {
-        if (recyclerIntialized) return
-
-        recyclerIntialized = true
-
-        initAdapter()
 
         binding.reminderReycler.setHasFixedSize(true)
         binding.reminderReycler.adapter = adapter
@@ -118,14 +101,17 @@ class FavoritesFragment : BaseFragment() {
         } else {
             binding.reminderReycler.layoutManager = LinearLayoutManager(requireContext())
         }
-
-
     }
 
-
-    override fun onStop() {
-        super.onStop()
-        disposable.clear()
+    private fun showEmptyUi(){
+        binding.noRemindersGroup.visibility = View.VISIBLE
+        binding.reminderReycler.visibility = View.GONE
     }
+
+    private fun hideEmptyUi(){
+        binding.noRemindersGroup.visibility = View.GONE
+        binding.reminderReycler.visibility = View.VISIBLE
+    }
+
 
 }
