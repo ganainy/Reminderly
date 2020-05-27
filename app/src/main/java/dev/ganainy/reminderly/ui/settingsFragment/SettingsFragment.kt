@@ -29,6 +29,7 @@ import io.reactivex.subjects.PublishSubject
 
 class SettingsFragment : PreferenceFragmentCompat() {
 //todo finish refactoring
+    //github push
     private lateinit var viewModel:SettingsViewModel
     private lateinit var viewModelFactory:ProvideDatabaseViewModelFactory
 
