@@ -8,10 +8,10 @@ import android.content.Intent
 import android.os.Build
 import android.os.PowerManager
 import android.os.PowerManager.PARTIAL_WAKE_LOCK
-import dev.ganainy.reminderly.Utils.MyUtils
-import dev.ganainy.reminderly.Utils.MyUtils.Companion.getReminderFromString
-import dev.ganainy.reminderly.Utils.MyUtils.Companion.getStringFromReminder
-import dev.ganainy.reminderly.Utils.REMINDER
+import dev.ganainy.reminderly.utils.MyUtils
+import dev.ganainy.reminderly.utils.MyUtils.Companion.getReminderFromString
+import dev.ganainy.reminderly.utils.MyUtils.Companion.getStringFromReminder
+import dev.ganainy.reminderly.utils.REMINDER
 import dev.ganainy.reminderly.services.AlarmService
 import dev.ganainy.reminderly.services.NotificationService
 import io.reactivex.disposables.CompositeDisposable

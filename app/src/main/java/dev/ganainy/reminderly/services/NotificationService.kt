@@ -13,13 +13,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.MyUtils
-import dev.ganainy.reminderly.Utils.MyUtils.Companion.getReminderFromString
-import dev.ganainy.reminderly.Utils.MyUtils.Companion.getStringFromReminder
-import dev.ganainy.reminderly.Utils.REMINDER
+import dev.ganainy.reminderly.utils.MyUtils
+import dev.ganainy.reminderly.utils.MyUtils.Companion.getReminderFromString
+import dev.ganainy.reminderly.utils.MyUtils.Companion.getStringFromReminder
+import dev.ganainy.reminderly.utils.REMINDER
 import dev.ganainy.reminderly.broadcast_receivers.DoneReminderReceiver
 import dev.ganainy.reminderly.database.Reminder
-import dev.ganainy.reminderly.ui.postpone_activity.PostponeActivity
+import dev.ganainy.reminderly.ui.postponeActivity.PostponeActivity
 
 private const val NOTIFICATION_REMINDER_CHANNEL_ID = "notification_reminder_notification_channel"
 

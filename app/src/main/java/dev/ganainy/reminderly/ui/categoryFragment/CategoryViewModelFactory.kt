@@ -14,24 +14,27 @@
  *  limitations under the License.
  */
 
-package dev.ganainy.reminderly.ui.basefragment
+package dev.ganainy.reminderly.ui.categoryFragment
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.footy.database.ReminderDatabaseDao
+import java.util.*
 
 /**
  * Simple ViewModel factory that provides the database and context to the ViewModel.
  */
-class ProvideDatabaseViewModelFactory(
+class CategoryViewModelFactory(
     private val application: Application,
-    private val database: ReminderDatabaseDao
+    private val database: ReminderDatabaseDao,
+    private val dayCalendar:Calendar
 ) : ViewModelProvider.Factory {
     @Suppress("unchecked_cast")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
        try {
-           return modelClass.getConstructor(Application::class.java,ReminderDatabaseDao::class.java).newInstance(application,database)
+           return modelClass.getConstructor(Application::class.java,ReminderDatabaseDao::class.java,Calendar::class.java)
+               .newInstance(application,database,dayCalendar)
        }catch (e:InstantiationException){
            throw Exception("InstantiationException, cannot create instance of $modelClass")
        }catch (e:IllegalAccessException){

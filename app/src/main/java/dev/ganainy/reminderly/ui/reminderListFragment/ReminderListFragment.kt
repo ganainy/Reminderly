@@ -11,11 +11,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.footy.database.ReminderDatabase
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.MyUtils
+import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.databinding.ReminderListFragmentBinding
-import dev.ganainy.reminderly.ui.basefragment.BaseFragment
-import dev.ganainy.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
+import dev.ganainy.reminderly.ui.baseFragment.BaseFragment
+import dev.ganainy.reminderly.ui.baseFragment.ProvideDatabaseViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 

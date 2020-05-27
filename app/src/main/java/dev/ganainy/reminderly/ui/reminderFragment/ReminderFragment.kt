@@ -27,9 +27,9 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.AD_CLICK_PER_SESSION
-import dev.ganainy.reminderly.Utils.FIRST_TIME_ADD_REMINDER
-import dev.ganainy.reminderly.Utils.MyUtils
+import dev.ganainy.reminderly.utils.AD_CLICK_PER_SESSION
+import dev.ganainy.reminderly.utils.FIRST_TIME_ADD_REMINDER
+import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.databinding.ReminderFragmentBinding
 import dev.ganainy.reminderly.ui.mainActivity.ICommunication

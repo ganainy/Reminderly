@@ -1,4 +1,4 @@
-package dev.ganainy.reminderly
+package dev.ganainy.reminderly.miscellaneous
 
 import android.app.Application
 import android.content.Context
@@ -9,8 +9,8 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import com.facebook.stetho.Stetho
-import dev.ganainy.reminderly.Utils.AD_CLICK_PER_SESSION
-import dev.ganainy.reminderly.Utils.MyUtils
+import dev.ganainy.reminderly.utils.AD_CLICK_PER_SESSION
+import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.broadcast_receivers.BootCompletedIntentReceiver
 import timber.log.Timber
 

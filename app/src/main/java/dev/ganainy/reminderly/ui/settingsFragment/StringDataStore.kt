@@ -1,4 +1,4 @@
-package dev.ganainy.reminderly.ui.settings_fragment
+package dev.ganainy.reminderly.ui.settingsFragment
 
 import android.content.Context
 import android.content.SharedPreferences

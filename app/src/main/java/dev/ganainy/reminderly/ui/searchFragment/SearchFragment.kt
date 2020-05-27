@@ -1,4 +1,4 @@
-package dev.ganainy.reminderly.ui.search_fragment
+package dev.ganainy.reminderly.ui.searchFragment
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -14,20 +14,16 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.footy.database.ReminderDatabase
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.MyUtils
-import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.databinding.SearchFragmentBinding
-import dev.ganainy.reminderly.ui.basefragment.BaseFragment
-import dev.ganainy.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
-import io.reactivex.android.schedulers.AndroidSchedulers
+import dev.ganainy.reminderly.ui.baseFragment.BaseFragment
+import dev.ganainy.reminderly.ui.baseFragment.ProvideDatabaseViewModelFactory
+import dev.ganainy.reminderly.utils.MyUtils
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 
 class SearchFragment : BaseFragment() {
     private lateinit var binding: SearchFragmentBinding
     private lateinit var viewModelFactory:ProvideDatabaseViewModelFactory
     private val disposable= CompositeDisposable()
-    private var recyclerInitialized=false
 
     companion object {
         fun newInstance() = SearchFragment()
@@ -46,20 +42,53 @@ class SearchFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+
+        initAdapter()
+        initRecycler()
         initViewModel()
 
+        /**show keyboard to make search more convenient*/
         binding.searchEditText.requestFocus()
         MyUtils.showKeyboard(requireContext())
-        binding.searchEditText.afterTextChanged {
-            observeReminders(it)
-        }
 
+        binding.searchEditText.afterTextChanged {
+            viewModel.searchWithQuery(it)
+        }
 
         binding.backButton.setOnClickListener {
             MyUtils.hideKeyboard(requireContext(),binding.searchEditText)
             requireActivity().onBackPressed()
         }
 
+
+        disposable.add(viewModel.emptyListSubject.subscribe {isFilteredListEmpty->
+            if (isFilteredListEmpty)showEmptyUi()
+            else hideEmptyUi()
+        })
+
+        disposable.add(viewModel.filteredListSubject.subscribe {filteredReminderList->
+            adapter.submitList(filteredReminderList)
+            adapter.notifyDataSetChanged()
+        })
+
+        disposable.add(viewModel.toastSubject.subscribe {stringResourceId->
+            MyUtils.showCustomToast(requireContext(),stringResourceId)
+        })
+
+
+
+
+    }
+
+    private fun hideEmptyUi() {
+        binding.noRemindersGroup.visibility = View.GONE
+        binding.reminderReycler.visibility = View.VISIBLE
+    }
+
+    private fun showEmptyUi() {
+        binding.noRemindersGroup.visibility = View.VISIBLE
+        binding.reminderReycler.visibility = View.GONE
     }
 
     private fun initViewModel() {
@@ -75,47 +104,12 @@ class SearchFragment : BaseFragment() {
     }
 
 
-    private fun observeReminders(query: String) {
-        disposable.add(
-            viewModel.getAllReminders().subscribeOn(Schedulers.io()).observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe({ reminderList ->
 
-                val filteredReminderList= mutableListOf<Reminder>()
-                for (reminder in reminderList){
-                    if (reminder.text.contains(query)){
-                        filteredReminderList.add(reminder)
-                    }
-                }
-
-                if (filteredReminderList.isEmpty()||binding.searchEditText.text.isBlank()){
-
-                    binding.noRemindersGroup.visibility = View.VISIBLE
-                    binding.reminderReycler.visibility = View.GONE
-                }else{
-                    binding.noRemindersGroup.visibility = View.GONE
-                    binding.reminderReycler.visibility = View.VISIBLE
-                    initRecycler()
-                    adapter.submitList(filteredReminderList)
-                }
-
-
-
-
-            }, { error ->
-                MyUtils.showCustomToast(requireContext(),R.string.error_retreiving_reminder)
-
-            })
-        )
-    }
 
 
     private fun initRecycler() {
-        if (recyclerInitialized) return
 
-        recyclerInitialized = true
 
-        initAdapter()
 
         binding.reminderReycler.setHasFixedSize(true)
         binding.reminderReycler.adapter = adapter
@@ -142,13 +136,14 @@ class SearchFragment : BaseFragment() {
     }
 
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         disposable.clear()
     }
 
 }
 
+/**extention function to simplify listening to edittext changes*/
 fun EditText.afterTextChanged(afterTextChanged: (String) -> Unit) {
     this.addTextChangedListener(object : TextWatcher {
         override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {

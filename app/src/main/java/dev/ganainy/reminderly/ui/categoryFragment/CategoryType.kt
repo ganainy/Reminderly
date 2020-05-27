@@ -1,4 +1,4 @@
-package dev.ganainy.reminderly.ui.category_reminders
+package dev.ganainy.reminderly.ui.categoryFragment
 
 enum class CategoryType {
     DONE,UPCOMING,OVERDUE,TODAY, DATE

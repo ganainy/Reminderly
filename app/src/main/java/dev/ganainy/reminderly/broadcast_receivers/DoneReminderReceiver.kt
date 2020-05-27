@@ -7,11 +7,11 @@ import android.widget.Toast
 import com.example.footy.database.ReminderDatabase
 import com.example.footy.database.ReminderDatabaseDao
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.DONE_ACTION_FOR_REMINDERS
-import dev.ganainy.reminderly.Utils.DONE_ACTION_FOR_REPEATING_REMINDERS
-import dev.ganainy.reminderly.Utils.MyUtils
-import dev.ganainy.reminderly.Utils.MyUtils.Companion.getReminderFromString
-import dev.ganainy.reminderly.Utils.REMINDER
+import dev.ganainy.reminderly.utils.DONE_ACTION_FOR_REMINDERS
+import dev.ganainy.reminderly.utils.DONE_ACTION_FOR_REPEATING_REMINDERS
+import dev.ganainy.reminderly.utils.MyUtils
+import dev.ganainy.reminderly.utils.MyUtils.Companion.getReminderFromString
+import dev.ganainy.reminderly.utils.REMINDER
 import dev.ganainy.reminderly.database.Reminder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

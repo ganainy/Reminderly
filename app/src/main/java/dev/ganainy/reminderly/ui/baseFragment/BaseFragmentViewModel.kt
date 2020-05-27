@@ -1,10 +1,10 @@
-package dev.ganainy.reminderly.ui.basefragment
+package dev.ganainy.reminderly.ui.baseFragment
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.MyUtils
+import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

@@ -1,9 +1,10 @@
-package dev.ganainy.reminderly.Utils
+package dev.ganainy.reminderly.miscellaneous
 
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import dev.ganainy.reminderly.R
+import dev.ganainy.reminderly.utils.MyUtils
 import java.util.*
 
 

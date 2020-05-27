@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.example.footy.database.ReminderDatabase
-import dev.ganainy.reminderly.RESTART_ALARAMS
-import dev.ganainy.reminderly.Utils.MyUtils
+import dev.ganainy.reminderly.miscellaneous.RESTART_ALARAMS
+import dev.ganainy.reminderly.utils.MyUtils
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers

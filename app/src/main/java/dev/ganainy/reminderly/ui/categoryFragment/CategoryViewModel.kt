@@ -1,12 +1,12 @@
-package dev.ganainy.reminderly.ui.category_reminders
+package dev.ganainy.reminderly.ui.categoryFragment
 
 import android.annotation.SuppressLint
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
+import dev.ganainy.reminderly.utils.MyUtils
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -89,7 +89,7 @@ class CategoryViewModel(val app: Application, val database: ReminderDatabaseDao,
 
 
     private fun getDoneReminders(): Observable<MutableList<Reminder>> {
-        return database.getDoneReminders()
+        return database.getDoneRemindersObservable()
     }
 
     private fun getUpcomingReminders(): Observable<MutableList<Reminder>> {

@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.ALLOW_PERSISTENT_NOTIFICATION
-import dev.ganainy.reminderly.Utils.MyUtils
+import dev.ganainy.reminderly.utils.ALLOW_PERSISTENT_NOTIFICATION
+import dev.ganainy.reminderly.utils.MyUtils
 
 class PersistentNotificationReceiver : BroadcastReceiver() {
 

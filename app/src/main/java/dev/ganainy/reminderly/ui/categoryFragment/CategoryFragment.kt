@@ -1,4 +1,4 @@
-package dev.ganainy.reminderly.ui.category_reminders
+package dev.ganainy.reminderly.ui.categoryFragment
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -13,10 +13,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.footy.database.ReminderDatabase
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.MyUtils
+import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.databinding.CategoryFragmentBinding
-import dev.ganainy.reminderly.ui.basefragment.BaseFragment
+import dev.ganainy.reminderly.ui.baseFragment.BaseFragment
 import dev.ganainy.reminderly.ui.mainActivity.ICommunication
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

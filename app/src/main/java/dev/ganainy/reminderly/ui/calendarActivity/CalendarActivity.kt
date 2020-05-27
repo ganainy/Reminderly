@@ -8,12 +8,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.example.footy.database.ReminderDatabase
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.MyUtils
+import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.databinding.ActivityCalendarBinding
-import dev.ganainy.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
-import dev.ganainy.reminderly.ui.category_reminders.CategoryFragment
-import dev.ganainy.reminderly.ui.category_reminders.CategoryType
+import dev.ganainy.reminderly.ui.baseFragment.ProvideDatabaseViewModelFactory
+import dev.ganainy.reminderly.ui.categoryFragment.CategoryFragment
+import dev.ganainy.reminderly.ui.categoryFragment.CategoryType
 import dev.ganainy.reminderly.ui.mainActivity.ICommunication
 import dev.ganainy.reminderly.ui.reminderFragment.ReminderFragment
 import io.reactivex.disposables.CompositeDisposable

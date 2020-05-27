@@ -29,7 +29,7 @@ class ReminderListFragmentViewModel(app: Application, val database: ReminderData
      * (overdue-today-upcoming) & ads */
     @SuppressLint("CheckResult")
     fun getAllRemindersFormatted() {
-            database.getActiveReminders().subscribeOn(Schedulers.io())
+            database.getActiveRemindersObservable().subscribeOn(Schedulers.io())
                 .subscribe({ reminderList ->
 
                     overdueReminders.clear()

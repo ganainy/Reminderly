@@ -1,4 +1,4 @@
-package dev.ganainy.reminderly.ui.basefragment
+package dev.ganainy.reminderly.ui.baseFragment
 
 import android.annotation.SuppressLint
 import android.content.ClipData
@@ -22,7 +22,7 @@ import com.example.footy.database.ReminderDatabase
 import com.example.ourchat.ui.chat.ReminderAdapter
 import com.example.ourchat.ui.chat.ReminderClickListener
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.MyUtils
+import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.ui.mainActivity.ICommunication
 

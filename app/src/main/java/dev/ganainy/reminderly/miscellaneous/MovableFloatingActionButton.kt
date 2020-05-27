@@ -1,4 +1,4 @@
-package dev.ganainy.reminderly
+package dev.ganainy.reminderly.miscellaneous
 
 import android.content.Context
 import android.util.AttributeSet
@@ -79,9 +79,9 @@ class MovableFloatingActionButton : FloatingActionButton, OnTouchListener {
             val upRawY = motionEvent.rawY
             val upDX = upRawX - downRawX
             val upDY = upRawY - downRawY
-            if (Math.abs(upDX) < dev.ganainy.reminderly.MovableFloatingActionButton.Companion.CLICK_DRAG_TOLERANCE && Math.abs(
+            if (Math.abs(upDX) < CLICK_DRAG_TOLERANCE && Math.abs(
                     upDY
-                ) < dev.ganainy.reminderly.MovableFloatingActionButton.Companion.CLICK_DRAG_TOLERANCE
+                ) < CLICK_DRAG_TOLERANCE
             ) { // A click
                 performClick()
             } else { // A drag

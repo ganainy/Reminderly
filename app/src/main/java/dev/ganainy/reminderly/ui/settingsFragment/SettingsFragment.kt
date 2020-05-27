@@ -1,7 +1,6 @@
-package dev.ganainy.reminderly.ui.settings_fragment
+package dev.ganainy.reminderly.ui.settingsFragment
 
 import android.app.TimePickerDialog
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.graphics.Color
@@ -10,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -19,19 +19,18 @@ import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.example.footy.database.ReminderDatabase
 import com.f2prateek.rx.preferences2.RxSharedPreferences
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.Utils.*
 import dev.ganainy.reminderly.models.DndPeriod
+import dev.ganainy.reminderly.ui.baseFragment.ProvideDatabaseViewModelFactory
 import dev.ganainy.reminderly.ui.mainActivity.MainActivity
-import io.reactivex.Observer
-import io.reactivex.android.schedulers.AndroidSchedulers
+import dev.ganainy.reminderly.utils.*
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 
 
 class SettingsFragment : PreferenceFragmentCompat() {
-
+//todo finish refactoring
+    private lateinit var viewModel:SettingsViewModel
+    private lateinit var viewModelFactory:ProvideDatabaseViewModelFactory
 
     private val persistentNotificationSwitch by lazy { findPreference<SwitchPreferenceCompat>("persistent_notification") }
     private val dontDisturbSwitch by lazy { findPreference<SwitchPreferenceCompat>("don't_disturb_switch") }
@@ -54,68 +53,71 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         setupSelections()
 
+        initViewModel()
 
-        val observer = object : Observer<DndPeriod> {
-            override fun onComplete() {
-            }
 
-            override fun onSubscribe(d: Disposable) {
-            }
 
-            override fun onNext(dndPeriod: DndPeriod) {
+        disposable.add(subject.subscribe ({dndPeriod->
+            if (::dontDisturbView.isInitialized) {
 
-                if (::dontDisturbView.isInitialized) {
-
-                    //setup values in views
-                    dontDisturbView.findViewById<TextView>(R.id.startTextView).text =
-                        MyUtils.formatTime(
-                            dndPeriod.startHour,
-                            dndPeriod.startMinute
-                        )
-                    dontDisturbView.findViewById<TextView>(R.id.endTextView).text =
-                        MyUtils.formatTime(
-                            dndPeriod.endHour,
-                            dndPeriod.endMinute
-                        )
-                }
-
-                //update dontdisturb summary to show the correct duration
-                dontDisturbValue?.summary = resources.getString(
-                    R.string.dont_disturb_value_summary, MyUtils.formatTime(
+                //setup values in views
+                dontDisturbView.findViewById<TextView>(R.id.startTextView).text =
+                    MyUtils.formatTime(
                         dndPeriod.startHour,
                         dndPeriod.startMinute
-                    ), MyUtils.formatTime(
+                    )
+                dontDisturbView.findViewById<TextView>(R.id.endTextView).text =
+                    MyUtils.formatTime(
                         dndPeriod.endHour,
                         dndPeriod.endMinute
                     )
+            }
+
+            //update dontdisturb summary to show the correct duration
+            dontDisturbValue?.summary = resources.getString(
+                R.string.dont_disturb_value_summary, MyUtils.formatTime(
+                    dndPeriod.startHour,
+                    dndPeriod.startMinute
+                ), MyUtils.formatTime(
+                    dndPeriod.endHour,
+                    dndPeriod.endMinute
                 )
+            )
 
-                //save selected start time to shared pref
-                MyUtils.putInt(requireContext(), DONT_DISTURB_START_HOURS, dndPeriod.startHour)
-                MyUtils.putInt(requireContext(), DONT_DISTURB_START_MINUTES, dndPeriod.startMinute)
+            //save selected start time to shared pref
+            MyUtils.putInt(requireContext(), DONT_DISTURB_START_HOURS, dndPeriod.startHour)
+            MyUtils.putInt(requireContext(), DONT_DISTURB_START_MINUTES, dndPeriod.startMinute)
 
-                //save selected end time to shared pref
-                MyUtils.putInt(requireContext(), DONT_DISTURB_END_HOURS, dndPeriod.endHour)
-                MyUtils.putInt(requireContext(), DONT_DISTURB_END_MINUTES, dndPeriod.endMinute)
+            //save selected end time to shared pref
+            MyUtils.putInt(requireContext(), DONT_DISTURB_END_HOURS, dndPeriod.endHour)
+            MyUtils.putInt(requireContext(), DONT_DISTURB_END_MINUTES, dndPeriod.endMinute)
 
-            }
+        },{
+            MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
+        }))
 
-            override fun onError(e: Throwable) {
-                MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
-            }
-
-        }
-
-        subject.subscribe(observer)
 
         dndTime.startMinute = MyUtils.getInt(requireContext(), DONT_DISTURB_START_MINUTES)
         dndTime.startHour = MyUtils.getInt(requireContext(), DONT_DISTURB_START_HOURS)
         dndTime.endHour = MyUtils.getInt(requireContext(), DONT_DISTURB_END_HOURS)
         dndTime.endMinute = MyUtils.getInt(requireContext(), DONT_DISTURB_END_MINUTES)
-
         subject.onNext(dndTime)
 
 
+
+
+        disposable.add(viewModel.toastSubject.subscribe {stringResourceId->
+            MyUtils.showCustomToast(requireContext(), stringResourceId)
+        })
+
+
+
+    }
+
+    private fun initViewModel() {
+        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
+        viewModelFactory = ProvideDatabaseViewModelFactory(requireActivity().application,reminderDatabaseDao)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(SettingsViewModel::class.java)
     }
 
 
@@ -172,7 +174,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                                 R.array.done_behaviour_list, 1
                             )
 
-                            deleteExistingDoneReminders()
+                            viewModel.deleteExistingDoneReminders()
 
                         }
                     }
@@ -260,8 +262,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     }
 
-    private fun observeTodayReminders(requireContext: Context) {
-    }
 
     private fun showEndTimePicker() {
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, min ->
@@ -342,21 +342,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         return false
     }
 
-    private fun deleteExistingDoneReminders() {
-        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
-        disposable.add(reminderDatabaseDao.getDoneReminders().subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { doneReminderList ->
-                for (doneReminder in doneReminderList) {
-                    reminderDatabaseDao.delete(doneReminder).subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread()).subscribe({
-                        },
-                            { error ->
-                              MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
-                            })
-                }
-            })
-    }
+
 
     //setup settings' summaries based on saved values in shared pref
     private fun setupSelections() {

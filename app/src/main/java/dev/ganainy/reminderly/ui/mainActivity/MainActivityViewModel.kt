@@ -35,7 +35,7 @@ class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):V
         }
 
     fun getDoneReminders(): Observable<MutableList<Reminder>> {
-        return database.getDoneReminders()
+        return database.getDoneRemindersObservable()
     }
 
     fun getUpcomingReminders(): Observable<MutableList<Reminder>> {

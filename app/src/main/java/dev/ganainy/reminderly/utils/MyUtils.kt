@@ -1,4 +1,4 @@
-package dev.ganainy.reminderly.Utils
+package dev.ganainy.reminderly.utils
 
 import android.app.AlarmManager
 import android.app.NotificationChannel
@@ -286,10 +286,6 @@ class MyUtils {
             return currentTime.after(dndStart) && currentTime.before(dndEnd)
 
         }
-
-
-
-
 
 
         /**cancel the reminder UI (notification) depending on if its alarm or notification reminder*/
