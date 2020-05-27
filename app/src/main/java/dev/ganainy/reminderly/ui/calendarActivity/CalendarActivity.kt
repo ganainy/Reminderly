@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.example.footy.database.ReminderDatabase
-import com.prolificinteractive.materialcalendarview.CalendarDay
 import dev.ganainy.reminderly.R
 import dev.ganainy.reminderly.Utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
@@ -17,37 +16,34 @@ import dev.ganainy.reminderly.ui.category_reminders.CategoryFragment
 import dev.ganainy.reminderly.ui.category_reminders.CategoryType
 import dev.ganainy.reminderly.ui.mainActivity.ICommunication
 import dev.ganainy.reminderly.ui.reminderFragment.ReminderFragment
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import java.util.*
 
-
+const val CATEGORY_FRAGMENT = "categoryFragment"
+const val REMINDER_FRAGMENT = "reminderFragment"
 class CalendarActivity : AppCompatActivity() ,ICommunication{
 
     private val todayDecorator = TodayDecorator()
-
-    private lateinit var calendarDays: MutableList<CalendarDay>
     private lateinit var binding: ActivityCalendarBinding
-
     private val disposable = CompositeDisposable()
     private lateinit var viewModel: CalendarViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = DataBindingUtil.setContentView(
-            this,
-            R.layout.activity_calendar
-        )
-
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_calendar)
 
         initViewModel()
 
-        observeActiveReminders()
+        viewModel.getDaysContainingReminders()
+
+
+        binding.calendarView.setOnDateChangedListener { _, clickedCalendarDay, _: Boolean ->
+            viewModel.onCalendarDayClicked(clickedCalendarDay)
+        }
+
+
 
 
         //set background for today date in calendar
@@ -57,46 +53,37 @@ class CalendarActivity : AppCompatActivity() ,ICommunication{
         //don't mark clicked day in calendar
        // binding.calendarView.selectionMode=MaterialCalendarView.SELECTION_MODE_NONE
 
-        //handle click of calendar view
-        binding.calendarView.setOnDateChangedListener { _, clickedCalendarDay, _: Boolean ->
-            if (::calendarDays.isInitialized) {
-                for (calendarDay in calendarDays) {
-                    if (clickedCalendarDay == calendarDay) {
-                        /**if clicked calendar in calendarDays this means clicked date has reminders
-                         * so open category fragment and show them*/
-                        openCategoryFragment(MyUtils.calendarDayToCalendar(clickedCalendarDay))
-                        return@setOnDateChangedListener
-                    }
+        /**handle error passed from viewmodel via errorSubject*/
+        disposable.add(viewModel.errorSubject.subscribe {errorString ->
+            MyUtils.showCustomToast(this, R.string.error_retreiving_reminder)
+        })
+
+
+        /**handle navigating passed from viewmodel via fragmentCalendarSubject*/
+        disposable.add(viewModel.fragmentCalendarSubject.subscribe {
+            when(it.first){
+                CATEGORY_FRAGMENT->{
+                    openCategoryFragment(it.second)
                 }
-                /**if clicked calendar not in calendarDays this means clicked date has no reminders
-                 * so open new reminder fragment with this date*/
-                openReminderFragment(Reminder(
-                    createdAt = MyUtils.calendarDayToCalendar(
-                        clickedCalendarDay
-                    )
-                ))
-
+                REMINDER_FRAGMENT->{
+                    openReminderFragment(Reminder(createdAt = it.second))
+                }
             }
+        })
+
+        /**get days that has reminders and add DOT to them on calendar*/
+        disposable.add(viewModel.activeReminderListSubject.subscribe {calendarDays->
+            binding.calendarView.addDecorator(
+                DotDecorator(
+                    Color.RED,
+                    calendarDays
+                )
+            )
+            binding.calendarView.invalidateDecorators()
+        })
+
+
         }
-
-    }
-
-    /**pass the calendar to category fragment to get all reminders in that day*/
-    private fun openCategoryFragment(clickedCalendar: Calendar) {
-        val ft = supportFragmentManager.beginTransaction()
-        ft.add(
-            R.id.fragmentContainer,
-            CategoryFragment.newInstance(
-                CategoryType.DATE,
-                clickedCalendar
-            ),
-            "categoryFragment"
-        )
-        ft.addToBackStack(null)
-        ft.commit()
-    }
-
-
 
     private fun initViewModel() {
         val reminderDatabaseDao = ReminderDatabase.getInstance(this).reminderDatabaseDao
@@ -107,28 +94,6 @@ class CalendarActivity : AppCompatActivity() ,ICommunication{
             )
         viewModel =
             ViewModelProvider(this, viewModelFactory).get(CalendarViewModel::class.java)
-    }
-
-    private fun observeActiveReminders() {
-        disposable.add(
-            viewModel.getActiveReminders().subscribeOn(Schedulers.io()).observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe({ activeReminderList ->
-
-                calendarDays = MyUtils.getCalendarDays(activeReminderList)
-                binding.calendarView.addDecorator(
-                   dev.ganainy.reminderly.ui.calendarActivity.DotDecorator(
-                        Color.RED,
-                        calendarDays
-                    )
-                )
-                binding.calendarView.invalidateDecorators()
-
-            }, { error ->
-                MyUtils.showCustomToast(this@CalendarActivity,R.string.error_retreiving_reminder)
-
-            })
-        )
     }
 
     override fun setDrawerEnabled(enabled: Boolean) {
@@ -156,8 +121,23 @@ class CalendarActivity : AppCompatActivity() ,ICommunication{
       }
     }
 
-    override fun onStop() {
-        super.onStop()
+    /**pass the calendar to category fragment to get all reminders in that day*/
+    private fun openCategoryFragment(clickedCalendar: Calendar) {
+        val ft = supportFragmentManager.beginTransaction()
+        ft.add(
+            R.id.fragmentContainer,
+            CategoryFragment.newInstance(
+                CategoryType.DATE,
+                clickedCalendar
+            ),
+            "categoryFragment"
+        )
+        ft.addToBackStack(null)
+        ft.commit()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         disposable.clear()
     }
 }

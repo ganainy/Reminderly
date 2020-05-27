@@ -1,11 +1,11 @@
 package dev.ganainy.reminderly.ui.reminderListFragment
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.text.format.DateUtils
 import androidx.lifecycle.ViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import dev.ganainy.reminderly.database.Reminder
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.util.*
@@ -18,7 +18,6 @@ class ReminderListFragmentViewModel(app: Application, val database: ReminderData
     private val todayReminders = mutableListOf<Reminder>()
     private val upcomingReminders = mutableListOf<Reminder>()
     private val reminderListWithHeaders = mutableListOf<Reminder>()
-     val disposable = CompositeDisposable()
 
 
 
@@ -28,8 +27,8 @@ class ReminderListFragmentViewModel(app: Application, val database: ReminderData
 
     /**get all active reminders(not done) from db and order them & add headers
      * (overdue-today-upcoming) & ads */
+    @SuppressLint("CheckResult")
     fun getAllRemindersFormatted() {
-        disposable.add(
             database.getActiveReminders().subscribeOn(Schedulers.io())
                 .subscribe({ reminderList ->
 
@@ -85,7 +84,6 @@ class ReminderListFragmentViewModel(app: Application, val database: ReminderData
                 }, { error ->
                     errorSubject.onNext(error.message.toString())
                 })
-        )
 
 
     }

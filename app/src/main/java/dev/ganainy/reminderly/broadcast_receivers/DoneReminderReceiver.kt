@@ -26,7 +26,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
 
 
         val reminderString = intent.getStringExtra(REMINDER)
-        val reminder=reminderString.getReminderFromString() ?: return
+        val reminder=reminderString?.getReminderFromString() ?: return
 
 
         val reminderDatabaseDao = ReminderDatabase.getInstance(context).reminderDatabaseDao

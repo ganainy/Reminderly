@@ -53,7 +53,7 @@ open class BaseFragment : Fragment() {
 
         /**triggered by viewmodel on reminder update*/
         viewModel.updatePositionSubject.subscribe{ position ->
-             adapter.notifyItemChanged(position)
+            adapter.notifyItemChanged(position)
         }
 
         /**triggered by viewmodel when it needs to show some toast*/

@@ -1,6 +1,5 @@
 package dev.ganainy.reminderly.ui.reminderListFragment
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,6 +17,7 @@ import dev.ganainy.reminderly.databinding.ReminderListFragmentBinding
 import dev.ganainy.reminderly.ui.basefragment.BaseFragment
 import dev.ganainy.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 
 
 class ReminderListFragment : BaseFragment() {
@@ -25,6 +25,8 @@ class ReminderListFragment : BaseFragment() {
     private lateinit var binding: ReminderListFragmentBinding
     private lateinit var viewModel: ReminderListFragmentViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
+    val disposable = CompositeDisposable()
+
 
     companion object {
         fun newInstance() = ReminderListFragment()
@@ -40,7 +42,7 @@ class ReminderListFragment : BaseFragment() {
     }
 
 
-    @SuppressLint("CheckResult") //subscription already handled in viewModel
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
@@ -50,18 +52,24 @@ class ReminderListFragment : BaseFragment() {
 
         viewModel.getAllRemindersFormatted()
 
-        viewModel.reminderListSubject.observeOn(AndroidSchedulers.mainThread()).subscribe{ reminderListFormatted ->
-            showReminders(reminderListFormatted)
-        }
+        disposable.add(
+            viewModel.reminderListSubject.observeOn(AndroidSchedulers.mainThread())
+                .subscribe { reminderListFormatted ->
+                    showReminders(reminderListFormatted)
+                })
 
-        viewModel.errorSubject.observeOn(AndroidSchedulers.mainThread()).subscribe{errorString->
-            MyUtils.showCustomToast(requireContext(), R.string.error_retreiving_reminder)
-        }
+        disposable.add(
+            viewModel.errorSubject.observeOn(AndroidSchedulers.mainThread())
+                .subscribe { errorString ->
+                    MyUtils.showCustomToast(requireContext(), R.string.error_retreiving_reminder)
+                })
 
-        viewModel.emptyListSubject.observeOn(AndroidSchedulers.mainThread()).subscribe{isListEmpty ->
-            if (isListEmpty)showEmptyUi()
-            else hideEmptyUi()
-        }
+        disposable.add(
+            viewModel.emptyListSubject.observeOn(AndroidSchedulers.mainThread())
+                .subscribe { isListEmpty ->
+                    if (isListEmpty) showEmptyUi()
+                    else hideEmptyUi()
+                })
 
     }
 
@@ -108,8 +116,8 @@ class ReminderListFragment : BaseFragment() {
 
     private fun showReminders(formattedReminderList: MutableList<Reminder>) {
         //recycler already initialized just refresh position
-                adapter.submitList(formattedReminderList)
-                adapter.notifyItemRangeChanged(0,formattedReminderList.size)
+        adapter.submitList(formattedReminderList)
+        adapter.notifyDataSetChanged()
     }
 
     private fun hideEmptyUi() {
@@ -117,15 +125,15 @@ class ReminderListFragment : BaseFragment() {
         binding.reminderReycler.visibility = View.VISIBLE
     }
 
-    private fun showEmptyUi(){
-            binding.noRemindersGroup.visibility = View.VISIBLE
-            binding.reminderReycler.visibility = View.GONE
+    private fun showEmptyUi() {
+        binding.noRemindersGroup.visibility = View.VISIBLE
+        binding.reminderReycler.visibility = View.GONE
     }
 
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.disposable.clear()
+        disposable.clear()
     }
 
 }
