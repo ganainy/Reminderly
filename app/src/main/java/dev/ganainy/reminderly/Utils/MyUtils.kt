@@ -20,7 +20,6 @@ import dev.ganainy.reminderly.broadcast_receivers.PersistentNotificationReceiver
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.services.AlarmService
 import dev.ganainy.reminderly.ui.mainActivity.MainActivity
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -153,6 +152,37 @@ class MyUtils {
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
         }
+
+        //takes date and return the very last second of it
+        fun getEndOfCalendarDay(calendar: Calendar): Calendar {
+           val nextDayCalendar by lazy {  Calendar.getInstance().apply {
+                set(Calendar.YEAR, calendar.get(Calendar.YEAR))
+                set(Calendar.MONTH, calendar.get(Calendar.MONTH))
+                set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH))
+                set(Calendar.HOUR_OF_DAY, 23)
+                set(Calendar.MINUTE, 59)
+                set(Calendar.SECOND, 59)
+                set(Calendar.MILLISECOND, 999)
+            }
+            }
+            return nextDayCalendar
+        }
+
+        //takes date and return the very first second of it
+        fun getStartOfCalendarDay(calendar: Calendar): Calendar {
+            val startOfDayCalendar by lazy {  Calendar.getInstance().apply {
+                set(Calendar.YEAR, calendar.get(Calendar.YEAR))
+                set(Calendar.MONTH, calendar.get(Calendar.MONTH))
+                set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH))
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            }
+            return startOfDayCalendar
+        }
+
         //endregion
 
         //region keyboard

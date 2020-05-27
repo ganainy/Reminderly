@@ -405,7 +405,7 @@ class MainActivity : AppCompatActivity(), ICommunication {
             val ft = supportFragmentManager.beginTransaction()
             ft.add(
                 R.id.fragmentContainer,
-                CategoryFragment.newInstance(categoryType, null),
+                CategoryFragment.newInstance(categoryType, Calendar.getInstance()),
                 "categoryFragment"
             )
             ft.addToBackStack(null)

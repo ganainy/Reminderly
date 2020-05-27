@@ -14,32 +14,31 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.footy.database.ReminderDatabase
 import dev.ganainy.reminderly.R
 import dev.ganainy.reminderly.Utils.MyUtils
+import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.databinding.CategoryFragmentBinding
 import dev.ganainy.reminderly.ui.basefragment.BaseFragment
-import dev.ganainy.reminderly.ui.basefragment.ProvideDatabaseViewModelFactory
 import dev.ganainy.reminderly.ui.mainActivity.ICommunication
-import dev.ganainy.reminderly.ui.mainActivity.MainActivityViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import java.util.*
 
+const val CATEGORY_TYPE="categoryType"
+const val CALENDAR="calendar"
 class CategoryFragment : BaseFragment() {
 
     private val disposable = CompositeDisposable()
     private lateinit var binding: CategoryFragmentBinding
-    private var recyclerInitialized = false
-    private lateinit var viewModel: MainActivityViewModel
-    private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
+    private lateinit var viewModel: CategoryViewModel
+    private lateinit var viewModelFactory: CategoryViewModelFactory
 
     companion object {
         fun newInstance(
             categoryType: CategoryType,
-            calendar: Calendar?
+            calendar: Calendar
         ): CategoryFragment {
             val fragment = CategoryFragment()
-            fragment.arguments = bundleOf("categoryType" to categoryType,
-                "calendar" to calendar)
+            fragment.arguments = bundleOf(CATEGORY_TYPE to categoryType,
+                CALENDAR to calendar)
             return fragment
         }
     }
@@ -59,73 +58,65 @@ class CategoryFragment : BaseFragment() {
 
 
         /**reminders passed from activity*/
-        val categoryType = arguments?.getSerializable("categoryType")  as CategoryType
+        val categoryType = arguments?.getSerializable(CATEGORY_TYPE)  as CategoryType
 
         setupToolbar(categoryType)
-
-        initViewModel()
+        initAdapter()
+        initRecycler()
+        val dayCalendar = arguments?.getSerializable(CALENDAR) as Calendar
+        initViewModel(dayCalendar)
 
         /**get reminders on single date(if caller is calendar activity) or get reminders of certain
          * category(if caller is main activity)*/
         if (categoryType==CategoryType.DATE) {
-            getRemindersWithDate(arguments?.getSerializable("calendar")  as Calendar)
+            viewModel.getSpecificDateReminders()
         } else {
-            getReminders(categoryType)
+            viewModel.getSpecificCategoryReminders(categoryType)
         }
-
-    }
-
-    /**Get all calendars from the start of the passed calendar day to end of it*/
-    private fun getRemindersWithDate(dateStart: Calendar) {
-
-
-
-        val dateEnd=Calendar.getInstance().apply {
-            set(Calendar.YEAR,dateStart.get(Calendar.YEAR))
-            set(Calendar.MONTH,dateStart.get(Calendar.MONTH))
-            set(Calendar.DAY_OF_MONTH,dateStart.get(Calendar.DAY_OF_MONTH))
-            set(Calendar.HOUR_OF_DAY,23)
-            set(Calendar.MINUTE,59)
-            set(Calendar.SECOND,59)
-            set(Calendar.MILLISECOND,999)
-        }
-
-
 
 
         disposable.add(
-            viewModel.getRemindersAtDate(dateStart,dateEnd).subscribeOn(Schedulers.io()).observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe({ dateReminders ->
+            viewModel.reminderListSubject.observeOn(AndroidSchedulers.mainThread())
+                .subscribe { reminderListFormatted ->
+                    showReminders(reminderListFormatted)
+                })
 
+        disposable.add(
+            viewModel.toastSubject.observeOn(AndroidSchedulers.mainThread())
+                .subscribe { stringResourceId ->
+                    MyUtils.showCustomToast(requireContext(),stringResourceId)
+                })
 
-                if (dateReminders.isEmpty()) {
+        disposable.add(
+            viewModel.emptyListSubject.observeOn(AndroidSchedulers.mainThread())
+                .subscribe { isListEmpty ->
+                    if (isListEmpty) showEmptyUi()
+                    else hideEmptyUi()
+                })
 
-                    binding.noRemindersGroup.visibility = View.VISIBLE
-                    binding.reminderReycler.visibility = View.GONE
-
-                } else {
-
-                    /**show title with reminders date*/
-                    binding.toolbar.title=resources.getString(R.string.date_reminders,(
-                            MyUtils.formatDate(dateReminders[0].createdAt.time)))
-
-                    binding.noRemindersGroup.visibility = View.GONE
-                    binding.reminderReycler.visibility = View.VISIBLE
-
-
-                    initRecycler()
-                    adapter.submitList(dateReminders)
-                }
-
-            }, { error ->
-                MyUtils.showCustomToast(requireContext(),R.string.error_retreiving_reminder)
-
-            })
-        )
-
+        disposable.add(viewModel.toolbarSubject.subscribe {toolbarTitle->
+            binding.toolbar.title=toolbarTitle
+        })
 
     }
+
+
+    private fun showReminders(formattedReminderList: MutableList<Reminder>) {
+        //recycler already initialized just refresh position
+        adapter.submitList(formattedReminderList)
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun hideEmptyUi() {
+        binding.noRemindersGroup.visibility = View.GONE
+        binding.reminderReycler.visibility = View.VISIBLE
+    }
+
+    private fun showEmptyUi() {
+        binding.noRemindersGroup.visibility = View.VISIBLE
+        binding.reminderReycler.visibility = View.GONE
+    }
+
 
     private fun setupToolbar(categoryType: CategoryType) {
         (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
@@ -139,71 +130,23 @@ class CategoryFragment : BaseFragment() {
 
         (requireActivity() as AppCompatActivity).supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white)
         (requireActivity() as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
     }
 
-    private fun initViewModel() {
-        val reminderDatabaseDao =
-            ReminderDatabase.getInstance(requireActivity()).reminderDatabaseDao
+
+    private fun initViewModel(dayCalendar: Calendar) {
+        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
+
         viewModelFactory =
-            ProvideDatabaseViewModelFactory(
+            CategoryViewModelFactory(
                 requireActivity().application,
-                reminderDatabaseDao
+                reminderDatabaseDao,
+                dayCalendar
             )
         viewModel =
-            ViewModelProvider(
-                requireActivity(),
-                viewModelFactory
-            ).get(MainActivityViewModel::class.java)
+            ViewModelProvider(this, viewModelFactory).get(CategoryViewModel::class.java)
     }
-
-
-    /**get all reminder in certain category(done/upcoming/today/overdue)*/
-    private fun getReminders(categoryType: CategoryType) {
-
-
-        disposable.add(
-            viewModel.getCategoryReminders(categoryType).subscribeOn(Schedulers.io()).observeOn(
-                AndroidSchedulers.mainThread()
-            ).subscribe({ categoryReminders ->
-
-
-                if (categoryReminders.isEmpty()) {
-
-                    binding.noRemindersGroup.visibility = View.VISIBLE
-                    binding.reminderReycler.visibility = View.GONE
-
-                } else {
-
-
-                    binding.noRemindersGroup.visibility = View.GONE
-                    binding.reminderReycler.visibility = View.VISIBLE
-
-
-                    initRecycler()
-                    adapter.submitList(categoryReminders)
-                }
-
-
-            }, { error ->
-                MyUtils.showCustomToast(requireContext(),R.string.error_retreiving_reminder)
-
-            })
-        )
-
-
-
-
-
-    }
-
 
     private fun initRecycler() {
-        if (recyclerInitialized) return
-
-        recyclerInitialized = true
-
-        initAdapter()
 
         binding.reminderReycler.setHasFixedSize(true)
         binding.reminderReycler.adapter = adapter
@@ -241,9 +184,12 @@ class CategoryFragment : BaseFragment() {
         super.onStop()
         /**this will be invoked to un-lock drawer only if parent of this fragment is main*/
         (requireActivity() as? ICommunication)?.setDrawerEnabled(true)
-        disposable.clear()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        disposable.clear()
+    }
 
 }
 

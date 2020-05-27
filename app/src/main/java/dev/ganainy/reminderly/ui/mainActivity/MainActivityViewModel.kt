@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import dev.ganainy.reminderly.database.Reminder
-import dev.ganainy.reminderly.ui.category_reminders.CategoryType
 import io.reactivex.Observable
 import java.util.*
 
@@ -51,19 +50,7 @@ class MainActivityViewModel(app:Application,val database: ReminderDatabaseDao):V
         return database.getInTimeRangeReminders(todayMillis,nextDayMillis)
     }
 
-    fun getCategoryReminders(categoryType: CategoryType): Observable<MutableList<Reminder>> {
-      return  when(categoryType){
-            CategoryType.TODAY ->{getTodayReminders()}
-            CategoryType.OVERDUE ->{getOverdueReminders()}
-            CategoryType.UPCOMING ->{getUpcomingReminders()}
-            CategoryType.DONE ->{getDoneReminders()}
-          else -> throw Exception("did you pass certain date category by mistake?")
-        }
-    }
 
-    fun getRemindersAtDate(dateStart: Calendar, dateEnd: Calendar): Observable<MutableList<Reminder>> {
-        return database.getInTimeRangeReminders(dateStart.timeInMillis,dateEnd.timeInMillis)
-    }
 
 
 }
