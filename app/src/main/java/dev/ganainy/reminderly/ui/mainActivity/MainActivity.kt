@@ -28,7 +28,6 @@ import com.getkeepsafe.taptargetview.TapTargetView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.utils.*
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.databinding.ActivityMainBinding
 import dev.ganainy.reminderly.ui.baseFragment.ProvideDatabaseViewModelFactory
@@ -39,6 +38,7 @@ import dev.ganainy.reminderly.ui.privacyPolicyFragment.PrivacyPolicyFragment
 import dev.ganainy.reminderly.ui.reminderFragment.ReminderFragment
 import dev.ganainy.reminderly.ui.searchFragment.SearchFragment
 import dev.ganainy.reminderly.ui.settingsFragment.SettingsFragment
+import dev.ganainy.reminderly.utils.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -59,9 +59,8 @@ class MainActivity : AppCompatActivity(), ICommunication {
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        checkNightMode()
         super.onCreate(savedInstanceState)
-
 
         binding = DataBindingUtil.setContentView(
             this,
@@ -73,9 +72,6 @@ class MainActivity : AppCompatActivity(), ICommunication {
             setupAppForFirstTimeUse()
         }
 
-
-
-        checkNightMode()
 
         setupToolbar()
 

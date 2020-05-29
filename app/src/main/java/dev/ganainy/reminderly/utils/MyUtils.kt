@@ -12,6 +12,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import com.f2prateek.rx.preferences2.RxSharedPreferences
 import com.google.gson.Gson
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import dev.ganainy.reminderly.R
@@ -37,35 +38,40 @@ import java.util.*
  *  1-> done reminders are deleted
  *  */
 
-const val DONE_ACTION_FOR_REPEATING_REMINDERS ="doneActionForRepeatingReminders"
+const val DONE_ACTION_FOR_REPEATING_REMINDERS = "doneActionForRepeatingReminders"
 /* 0-> just cancel this notification and it will work normally in next repeat (default) ,
   1-> end the whole reminder*/
 
-const val ALLOW_PERSISTENT_NOTIFICATION ="allowPersistent_notification"
+const val ALLOW_PERSISTENT_NOTIFICATION = "allowPersistent_notification"
 /* 0-> allowed (default) , 1-> not allowed*/
 
-const val DONE_ACTION_FOR_REMINDERS ="doneActionForReminders"
+const val DONE_ACTION_FOR_REMINDERS = "doneActionForReminders"
 /*0-> done reminder are saved and can be accessed through menu (default) ,  1-> done reminders are deleted*/
-
 
 
 private const val PERSISTENT_CHANNEL_ID = "primary_notification_channel"
 const val PERSISTENT_NOTIFICATION_ID = 0
 
-const val REMINDER="reminder"
-const val DONT_DISTURB_START_HOURS="dontDisturbStartHours"
-const val DONT_DISTURB_START_MINUTES="dontDisturbStartMinutes"
-const val DONT_DISTURB_END_HOURS="dontDisturbEndHours"
-const val DONT_DISTURB_END_MINUTES="dontDisturbEndMinutes"
-const val DND_OPTION_ENABLED="dndOptionEnabled" /*0->disabled , 1 -> enabled */
-const val NIGHT_MODE_ENABLED="nightModeEnabled" /*0->disabled , 1 -> enabled */
-const val FIRST_TIME_USE="firstTimeUser" /*0->first app use , 1 -> app opened before */
-const val SHOWN_DRAWER_GUIDE="shownDrawerGuide" /*0->we need to promote user to click the calendar button , 1 ->no need to show guide */
-const val FIRST_TIME_ADD_REMINDER="firstTimeAddReminder" /*0-> first time user is adding reminders show hints , 1-> don't show hints */
-const val AD_CLICK_PER_SESSION="adClickPerSession" /*count clicked ad to temporarily ban user after certain amount*/
+const val REMINDER = "reminder"
+const val DONT_DISTURB_START_HOURS = "dontDisturbStartHours"
+const val DONT_DISTURB_START_MINUTES = "dontDisturbStartMinutes"
+const val DONT_DISTURB_END_HOURS = "dontDisturbEndHours"
+const val DONT_DISTURB_END_MINUTES = "dontDisturbEndMinutes"
+const val DND_OPTION_ENABLED = "dndOptionEnabled" /*0->disabled , 1 -> enabled */
+const val NIGHT_MODE_ENABLED = "nightModeEnabled" /*0->disabled , 1 -> enabled */
+const val FIRST_TIME_USE = "firstTimeUser" /*0->first app use , 1 -> app opened before */
+const val SHOWN_DRAWER_GUIDE =
+    "shownDrawerGuide" /*0->we need to promote user to click the calendar button , 1 ->no need to show guide */
+const val FIRST_TIME_ADD_REMINDER =
+    "firstTimeAddReminder" /*0-> first time user is adding reminders show hints , 1-> don't show hints */
+const val AD_CLICK_PER_SESSION =
+    "adClickPerSession" /*count clicked ad to temporarily ban user after certain amount*/
+
 class MyUtils {
 
     companion object {
+
+        private lateinit var RXSHAREDPREF: RxSharedPreferences
 
         private val currentDate: Date
             get() {
@@ -73,16 +79,15 @@ class MyUtils {
             }
 
 
-
         //region date
 
-        private  lateinit var locale:Locale
+        private lateinit var locale: Locale
 
         private var dateFormat = SimpleDateFormat("EEEE, dd MMMM")
         private var timeFormat = SimpleDateFormat("hh:mm a")
 
-        fun setLocale(localeAbbreviation:String){
-            locale=Locale(localeAbbreviation)
+        fun setLocale(localeAbbreviation: String) {
+            locale = Locale(localeAbbreviation)
             dateFormat = SimpleDateFormat("EEEE, dd MMMM", locale)
             timeFormat = SimpleDateFormat("hh:mm a", locale)
         }
@@ -103,10 +108,10 @@ class MyUtils {
             return timeFormat.format(date)
         }
 
-        fun formatTime(hour: Int,minute: Int): String {
-            val calendar=Calendar.getInstance()
-            calendar.set(Calendar.HOUR_OF_DAY,hour)
-            calendar.set(Calendar.MINUTE,minute)
+        fun formatTime(hour: Int, minute: Int): String {
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY, hour)
+            calendar.set(Calendar.MINUTE, minute)
             return timeFormat.format(calendar.time)
         }
 
@@ -155,30 +160,32 @@ class MyUtils {
 
         //takes date and return the very last second of it
         fun getEndOfCalendarDay(calendar: Calendar): Calendar {
-           val nextDayCalendar by lazy {  Calendar.getInstance().apply {
-                set(Calendar.YEAR, calendar.get(Calendar.YEAR))
-                set(Calendar.MONTH, calendar.get(Calendar.MONTH))
-                set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH))
-                set(Calendar.HOUR_OF_DAY, 23)
-                set(Calendar.MINUTE, 59)
-                set(Calendar.SECOND, 59)
-                set(Calendar.MILLISECOND, 999)
-            }
+            val nextDayCalendar by lazy {
+                Calendar.getInstance().apply {
+                    set(Calendar.YEAR, calendar.get(Calendar.YEAR))
+                    set(Calendar.MONTH, calendar.get(Calendar.MONTH))
+                    set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH))
+                    set(Calendar.HOUR_OF_DAY, 23)
+                    set(Calendar.MINUTE, 59)
+                    set(Calendar.SECOND, 59)
+                    set(Calendar.MILLISECOND, 999)
+                }
             }
             return nextDayCalendar
         }
 
         //takes date and return the very first second of it
         fun getStartOfCalendarDay(calendar: Calendar): Calendar {
-            val startOfDayCalendar by lazy {  Calendar.getInstance().apply {
-                set(Calendar.YEAR, calendar.get(Calendar.YEAR))
-                set(Calendar.MONTH, calendar.get(Calendar.MONTH))
-                set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH))
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }
+            val startOfDayCalendar by lazy {
+                Calendar.getInstance().apply {
+                    set(Calendar.YEAR, calendar.get(Calendar.YEAR))
+                    set(Calendar.MONTH, calendar.get(Calendar.MONTH))
+                    set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH))
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
             }
             return startOfDayCalendar
         }
@@ -220,35 +227,34 @@ class MyUtils {
         fun convertRepeat(context: Context, repeat: Int): String {
             val repeatArray = context.resources.getStringArray(R.array.repeat_items)
             return repeatArray[repeat]
-            }
+        }
 
 
-        fun convertPriority(context: Context,priority: Int): String {
+        fun convertPriority(context: Context, priority: Int): String {
             val repeatArray = context.resources.getStringArray(R.array.priority_items)
             return repeatArray[priority]
         }
 
-        fun convertReminderType(context: Context,type: Int): String {
+        fun convertReminderType(context: Context, type: Int): String {
             val repeatArray = context.resources.getStringArray(R.array.notify_type_items)
             return repeatArray[type]
         }
 
-         fun isAppFirstUse(context: Context):Boolean {
-            return getInt(context,FIRST_TIME_USE) ==0
+        fun isAppFirstUse(context: Context): Boolean {
+            return getInt(context, FIRST_TIME_USE) == 0
         }
 
 
         /**@param arrayName should be in form R.array.___
          * @return string from the given resources array
          * */
-        fun getStringFromResourceArray(context: Context,arrayName:Int,itemIndex:Int):String{
+        fun getStringFromResourceArray(context: Context, arrayName: Int, itemIndex: Int): String {
             val array: Array<String> = context.resources.getStringArray(arrayName)
             return array[itemIndex]
         }
 
 
-
-        fun showCustomToast(context: Context,stringId:Int,length:Int =Toast.LENGTH_SHORT) {
+        fun showCustomToast(context: Context, stringId: Int, length: Int = Toast.LENGTH_SHORT) {
             Toast.makeText(
                 context,
                 context.getString(stringId),
@@ -289,7 +295,7 @@ class MyUtils {
 
 
         /**cancel the reminder UI (notification) depending on if its alarm or notification reminder*/
-         fun closeReminder(
+        fun closeReminder(
             reminder: Reminder,
             context: Context
         ) {
@@ -300,12 +306,12 @@ class MyUtils {
             cancelNotification(reminder.id, context)
         }
 
-            //endregion
+        //endregion
 
         //region alarm manager
 
         /**setup alarm manager to trigger NewReminderReceiver on reminder date*/
-        fun addAlarmManager(reminder:Reminder, context: Context?) {
+        fun addAlarmManager(reminder: Reminder, context: Context?) {
             //add new onetime alarm OR repeat alarm depending on repeat value
 
             when (reminder.repeat) {
@@ -322,10 +328,10 @@ class MyUtils {
                     addPeriodicAlarm(reminder, context, 3600 * 1000 * 24 * 7)
                 }
                 4 -> { //every month reminder
-                    addPeriodicAlarm(reminder, context,  3600 * 1000 * 24 * 30L)
+                    addPeriodicAlarm(reminder, context, 3600 * 1000 * 24 * 30L)
                 }
                 5 -> { //every year reminder
-                    addPeriodicAlarm(reminder, context,  3600 * 1000 * 24 * 365L)
+                    addPeriodicAlarm(reminder, context, 3600 * 1000 * 24 * 365L)
                 }
             }
         }
@@ -343,9 +349,17 @@ class MyUtils {
             )
             val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                alarmManager?.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, reminder.createdAt.timeInMillis, notifyPendingIntent)
+                alarmManager?.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    reminder.createdAt.timeInMillis,
+                    notifyPendingIntent
+                )
             } else {
-                alarmManager?.setExact(AlarmManager.RTC_WAKEUP, reminder.createdAt.timeInMillis, notifyPendingIntent)
+                alarmManager?.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    reminder.createdAt.timeInMillis,
+                    notifyPendingIntent
+                )
             }
         }
 
@@ -360,11 +374,21 @@ class MyUtils {
 
             notifyIntent.putExtra(REMINDER, reminder.getStringFromReminder())
 
-            val notifyPendingIntent = PendingIntent.getBroadcast(context, reminder.id.toInt(), notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val notifyPendingIntent = PendingIntent.getBroadcast(
+                context,
+                reminder.id.toInt(),
+                notifyIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
 
             val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
 
-            alarmManager?.setRepeating(AlarmManager.RTC_WAKEUP, reminder.createdAt.timeInMillis, repeatMillis, notifyPendingIntent)
+            alarmManager?.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                reminder.createdAt.timeInMillis,
+                repeatMillis,
+                notifyPendingIntent
+            )
 
         }
 
@@ -384,7 +408,7 @@ class MyUtils {
 
         }
 
-         fun cancelNotification(reminderId: Long, context: Context?) {
+        fun cancelNotification(reminderId: Long, context: Context?) {
             val notificationManager =
                 context?.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             notificationManager?.cancel(reminderId.toInt())
@@ -393,7 +417,6 @@ class MyUtils {
         //endregion
 
         //region general utils
-
 
 
         fun postponeReminder(
@@ -417,7 +440,7 @@ class MyUtils {
 
             return if (reminder.createdAt.before(Calendar.getInstance())) {
                 if (context != null) {
-                    showCustomToast(context,R.string.must_be_upcoming_date)
+                    showCustomToast(context, R.string.must_be_upcoming_date)
                 }
                 //remove added duration since reminder won't be updated
                 reminder.createdAt.apply {
@@ -448,7 +471,7 @@ class MyUtils {
                 add(Calendar.HOUR_OF_DAY, hour)
                 add(Calendar.MINUTE, minute)
             }
-             return reminder
+            return reminder
         }
 
         /**stop the notification or any ongoing ringing alarm on showing postpone dialog*/
@@ -461,7 +484,7 @@ class MyUtils {
 
         //region shared preferences
 
-        fun putString(context: Context,key:String,data:String){
+        fun putString(context: Context, key: String, data: String) {
             val pref: SharedPreferences =
                 context.applicationContext
                     .getSharedPreferences("MyPref", 0)
@@ -473,14 +496,14 @@ class MyUtils {
             editor.apply()
         }
 
-        fun getString(context: Context,key:String):String?{
+        fun getString(context: Context, key: String): String? {
             val pref: SharedPreferences =
                 context.applicationContext
                     .getSharedPreferences("MyPref", 0)
-           return pref.getString(key, null)
+            return pref.getString(key, null)
         }
 
-        fun putInt(context: Context,key:String,data:Int){
+        fun putInt(context: Context, key: String, data: Int) {
             val pref: SharedPreferences =
                 context.applicationContext
                     .getSharedPreferences("MyPref", 0)
@@ -492,20 +515,30 @@ class MyUtils {
             editor.apply()
         }
 
-        fun getInt(context: Context,key:String):Int{
+        fun getInt(context: Context, key: String): Int {
             val pref: SharedPreferences =
                 context.applicationContext
                     .getSharedPreferences("MyPref", 0)
             return pref.getInt(key, 0) //0 is default value which matches default value of settings
         }
 
+        fun getRxPreferences(application: Context): RxSharedPreferences {
+            if (!::RXSHAREDPREF.isInitialized){
+            val pref: SharedPreferences =
+                application.getSharedPreferences("MyPref", 0)
+                RXSHAREDPREF = RxSharedPreferences.create(pref)
+            }
+            return RXSHAREDPREF
+        }
+
         //endregion
 
         //region notification
         /**show persistent notification to allow user to add reminder if app is closed*/
-        fun sendPersistentNotification(context: Context,todayReminders: MutableList<Reminder> ) {
+        fun sendPersistentNotification(context: Context, todayReminders: MutableList<Reminder>) {
 
-             val mNotifyManager = context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
+            val mNotifyManager =
+                context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
 
             if (android.os.Build.VERSION.SDK_INT >=
                 android.os.Build.VERSION_CODES.O
@@ -519,14 +552,16 @@ class MyUtils {
                 mNotifyManager.createNotificationChannel(notificationChannel)
             }
 
-            val notificationBuilder = getPersistentNotificationBuilder(context,todayReminders)
+            val notificationBuilder = getPersistentNotificationBuilder(context, todayReminders)
             mNotifyManager.notify(PERSISTENT_NOTIFICATION_ID, notificationBuilder?.build())
 
         }
 
 
-
-        private fun getPersistentNotificationBuilder(context: Context,todayReminders: MutableList<Reminder>): NotificationCompat.Builder? {
+        private fun getPersistentNotificationBuilder(
+            context: Context,
+            todayReminders: MutableList<Reminder>
+        ): NotificationCompat.Builder? {
             val notificationButtonText = when (todayReminders.size) {
                 0 -> context.resources.getString(R.string.add_reminders)
                 else -> context.resources.getString(R.string.add_other_reminders)
@@ -554,9 +589,6 @@ class MyUtils {
             }
 
 
-
-
-
             /**new reminder pending intent to pass to notification builder action*/
             val newReminderIntent = Intent(context, MainActivity::class.java)
             newReminderIntent.putExtra("newReminder", "")
@@ -576,7 +608,8 @@ class MyUtils {
 
 
             /**action to disable persistent notification*/
-            val disablePersistentNotificationIntent = Intent(context, PersistentNotificationReceiver::class.java)
+            val disablePersistentNotificationIntent =
+                Intent(context, PersistentNotificationReceiver::class.java)
             val disablePersistentNotificationPendingIntent = PendingIntent.getBroadcast(
                 context,
                 2, disablePersistentNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
@@ -603,7 +636,8 @@ class MyUtils {
 
 
         fun cancelPersistentNotification(context: Context) {
-            val mNotifyManager = context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
+            val mNotifyManager =
+                context.getSystemService(AppCompatActivity.NOTIFICATION_SERVICE) as NotificationManager
             mNotifyManager.cancel(PERSISTENT_NOTIFICATION_ID)
         }
 
@@ -611,29 +645,29 @@ class MyUtils {
 
         //region gson
 
-        var gson: Gson?=null
+        var gson: Gson? = null
 
         fun getJson(): Gson {
 
-            if (gson==null){
-                gson= Gson()
+            if (gson == null) {
+                gson = Gson()
             }
             return gson as Gson
         }
 
 
-        fun Reminder.getStringFromReminder():String{
+        fun Reminder.getStringFromReminder(): String {
             return getJson().toJson(this)
         }
 
-        fun String.getReminderFromString():Reminder{
-            return getJson().fromJson(this,Reminder::class.java)
+        fun String.getReminderFromString(): Reminder {
+            return getJson().fromJson(this, Reminder::class.java)
         }
     }
 
-        //endregion
+    //endregion
 
-    }
+}
 
 
 
