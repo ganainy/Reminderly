@@ -21,7 +21,6 @@ class SearchViewModel(app: Application, val database: ReminderDatabaseDao) : Vie
     @SuppressLint("CheckResult")
     fun searchWithQuery(query: String) {
         database.getActiveRemindersSingle().subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
             .flatMapObservable {
                 Observable.fromIterable(it)
             }
@@ -29,6 +28,7 @@ class SearchViewModel(app: Application, val database: ReminderDatabaseDao) : Vie
                 reminder.text.contains(query)
             }
             .toList()
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ filteredReminderList ->
                 if (filteredReminderList.isEmpty()) {
                     emptyListSubject.onNext(true)

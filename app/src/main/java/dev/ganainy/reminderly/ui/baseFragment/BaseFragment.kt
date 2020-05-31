@@ -22,14 +22,17 @@ import com.example.footy.database.ReminderDatabase
 import com.example.ourchat.ui.chat.ReminderAdapter
 import com.example.ourchat.ui.chat.ReminderClickListener
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.ui.mainActivity.ICommunication
+import dev.ganainy.reminderly.utils.MyUtils
+import io.reactivex.disposables.CompositeDisposable
+import timber.log.Timber
 
 
 open class BaseFragment : Fragment() {
 
     lateinit var adapter: ReminderAdapter
+    private val disposable = CompositeDisposable()
     private lateinit var viewModel: BaseFragmentViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
 
@@ -52,25 +55,37 @@ open class BaseFragment : Fragment() {
         initViewModel()
 
         /**triggered by viewmodel on reminder update*/
-        viewModel.updatePositionSubject.subscribe{ position ->
+        disposable.add(viewModel.updatePositionSubject.subscribe({ position ->
             adapter.notifyItemChanged(position)
-        }
+        },{
+            MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
+            Timber.d("${it}")
+        }))
 
         /**triggered by viewmodel when it needs to show some toast*/
-        viewModel.toastSubject.subscribe {stringResourceId ->
+        disposable.add(viewModel.toastSubject.subscribe ({stringResourceId ->
            MyUtils.showCustomToast(requireContext(),stringResourceId)
-        }
+        },{
+            MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
+            Timber.d("${it}")
+        }))
 
         /**triggered by viewmodel when it needs to cancel alarm related to certain reminder*/
-        viewModel.cancelAlarmSubject.subscribe{reminderToCancelAlarmOf ->
+        disposable.add(viewModel.cancelAlarmSubject.subscribe({reminderToCancelAlarmOf ->
             MyUtils.cancelAlarmManager(reminderToCancelAlarmOf, requireContext())
-        }
+        },{
+            MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
+            Timber.d("${it}")
+        }))
 
         /**triggered by viewmodel when it needs to add alarm related to certain reminder*/
-        viewModel.addAlarmSubject.subscribe { reminderToAddAlarmTo ->
+        disposable.add(viewModel.addAlarmSubject.subscribe ({ reminderToAddAlarmTo ->
             MyUtils.addAlarmManager(reminderToAddAlarmTo,requireContext())
+        },{
+            MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
+            Timber.d("${it}")
 
-        }
+        }))
 
 
     }
@@ -219,6 +234,11 @@ open class BaseFragment : Fragment() {
         }
 
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposable.clear()
     }
 
 }

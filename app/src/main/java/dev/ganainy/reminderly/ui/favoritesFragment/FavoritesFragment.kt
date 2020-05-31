@@ -16,11 +16,12 @@ import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.databinding.FavoritesFragmentBinding
 import dev.ganainy.reminderly.ui.baseFragment.BaseFragment
 import dev.ganainy.reminderly.ui.baseFragment.ProvideDatabaseViewModelFactory
+import io.reactivex.disposables.CompositeDisposable
 
 
 class FavoritesFragment : BaseFragment() {
 
-
+    private val disposable = CompositeDisposable()
     private lateinit var viewModel: FavoriteFragmentViewModel
     private lateinit var viewModelFactory: ProvideDatabaseViewModelFactory
 
@@ -46,22 +47,22 @@ class FavoritesFragment : BaseFragment() {
         initRecycler()
         initViewModel()
 
-        viewModel.reminderListSubject.subscribe{favoriteReminderList->
+        disposable.add(viewModel.reminderListSubject.subscribe{favoriteReminderList->
             adapter.submitList(favoriteReminderList)
             adapter.notifyItemRangeChanged(0,favoriteReminderList.size)
-        }
+        })
 
-        viewModel.errorSubject.subscribe {
+        disposable.add(viewModel.errorSubject.subscribe {
             MyUtils.showCustomToast(requireContext(), R.string.error_retreiving_favorite_reminder)
-        }
+        })
 
-        viewModel.emptyListSubject.subscribe {isEmptyList ->
+        disposable.add(viewModel.emptyListSubject.subscribe {isEmptyList ->
             if (isEmptyList){
                 showEmptyUi()
             }else{
                 hideEmptyUi()
             }
-        }
+        })
 
 
     }
@@ -113,5 +114,10 @@ class FavoritesFragment : BaseFragment() {
         binding.reminderReycler.visibility = View.VISIBLE
     }
 
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposable.clear()
+    }
 
 }

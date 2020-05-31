@@ -7,12 +7,11 @@ import android.widget.Toast
 import com.example.footy.database.ReminderDatabase
 import com.example.footy.database.ReminderDatabaseDao
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.utils.DONE_ACTION_FOR_REMINDERS
+import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.utils.DONE_ACTION_FOR_REPEATING_REMINDERS
 import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.utils.MyUtils.Companion.getReminderFromString
 import dev.ganainy.reminderly.utils.REMINDER
-import dev.ganainy.reminderly.database.Reminder
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -48,7 +47,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
                             //make the reminder done (won't fire alarm again)
                             //now check do we delete done reminders or keep them
                             //this is one time reminder
-                            if (shouldDeleteDoneReminders(context)) {
+                            if (MyUtils.shouldDeleteDoneReminders(context)) {
                                 //delete reminder
                                 deleteReminder(reminderDatabaseDao, reminder, context)
                             } else {
@@ -61,7 +60,7 @@ class DoneReminderReceiver : BroadcastReceiver() {
                     }else
                     {
                         //this is one time reminder
-                        if (shouldDeleteDoneReminders(context)) {
+                        if (MyUtils.shouldDeleteDoneReminders(context)) {
                             //delete reminder
                             deleteReminder(reminderDatabaseDao, reminder, context)
                         } else {
@@ -72,18 +71,6 @@ class DoneReminderReceiver : BroadcastReceiver() {
                     }
 
             }
-
-
-
-
-    /**
-     *  DONE_ACTION_FOR_REMINDERS:Int
-     *  this value changes based on user settings
-     *  0-> done reminder are saved and can be accessed through menu (default)
-     *  1-> done reminders are deleted
-     *  */
-    private fun shouldDeleteDoneReminders(context: Context) =
-        MyUtils.getInt(context, DONE_ACTION_FOR_REMINDERS) == 1
 
 
     /**

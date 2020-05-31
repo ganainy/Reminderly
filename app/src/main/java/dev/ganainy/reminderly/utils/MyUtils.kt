@@ -531,6 +531,15 @@ class MyUtils {
             return RXSHAREDPREF
         }
 
+        /**
+         *  DONE_ACTION_FOR_REMINDERS:Int
+         *  this value changes based on user settings
+         *  0-> done reminder are saved and can be accessed through menu (default)
+         *  1-> done reminders are deleted
+         *  */
+         fun shouldDeleteDoneReminders(context: Context) = getInt(context, DONE_ACTION_FOR_REMINDERS) == 1
+
+
         //endregion
 
         //region notification

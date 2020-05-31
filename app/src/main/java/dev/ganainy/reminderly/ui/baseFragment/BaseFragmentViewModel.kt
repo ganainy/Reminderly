@@ -1,6 +1,9 @@
 package dev.ganainy.reminderly.ui.baseFragment
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import dev.ganainy.reminderly.R
@@ -10,13 +13,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import timber.log.Timber
 
 class BaseFragmentViewModel(val app: Application, val database: ReminderDatabaseDao) : ViewModel() {
 
 
-    private val disposable = CompositeDisposable()
     val updatePositionSubject = BehaviorSubject.create<Int>()
-    val toastSubject = BehaviorSubject.create<Int>()
+    val toastSubject = BehaviorSubject.create<@StringRes Int>()
     val cancelAlarmSubject = BehaviorSubject.create<Reminder>()
     val addAlarmSubject = BehaviorSubject.create<Reminder>()
 
@@ -27,11 +30,11 @@ class BaseFragmentViewModel(val app: Application, val database: ReminderDatabase
     ) {
         reminder.isFavorite =
             !reminder.isFavorite //change favorite value then update in database
-        disposable.add(database.update(reminder).subscribeOn(Schedulers.io())
+        database.update(reminder).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 updatePositionSubject.onNext(position)
-            })
+            }
     }
 
 
@@ -39,7 +42,7 @@ class BaseFragmentViewModel(val app: Application, val database: ReminderDatabase
 
     fun deleteReminder(reminder: Reminder, position: Int) {
 
-        disposable.add(database.delete(reminder).subscribeOn(Schedulers.io())
+       database.delete(reminder).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 toastSubject.onNext(R.string.reminder_deleted)
@@ -49,7 +52,7 @@ class BaseFragmentViewModel(val app: Application, val database: ReminderDatabase
             }, { error ->
                 toastSubject.onNext(R.string.reminder_delete_failed)
             })
-        )
+
     }
 
     /**first check if reminder date after postpone is > current date then update reminder in DB*/
@@ -64,27 +67,50 @@ class BaseFragmentViewModel(val app: Application, val database: ReminderDatabase
         if (postponedReminder==null){
             //postpone failed do nothing
         }else{
-            disposable.add(database.update(postponedReminder).subscribeOn(Schedulers.io())
+            database.update(postponedReminder).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     // set alarm
                    addAlarmSubject.onNext(reminder)
                    updatePositionSubject.onNext(position)
                     toastSubject.onNext(R.string.reminder_postponed)
-                })
+                }
         }
 
     }
 
     /**make reminder done and update in db && show toast*/
     fun markReminderAsDone(reminder: Reminder, position: Int) {
-        reminder.isDone = true
-        disposable.add( database.update(reminder).subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                cancelAlarmSubject.onNext(reminder)
-                toastSubject.onNext(R.string.marked_as_done)
-            })
+
+        if (MyUtils.shouldDeleteDoneReminders(app)){
+            deleteReminder(reminder)
+        }else{
+            reminder.isDone = true
+            database.update(reminder).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    cancelAlarmSubject.onNext(reminder)
+                    toastSubject.onNext(R.string.marked_as_done)
+                }
+        }
     }
+
+
+    private fun deleteReminder(
+        reminder: Reminder
+    ) {
+        database.delete(reminder).subscribeOn(Schedulers.io()).observeOn(
+            AndroidSchedulers.mainThread()
+        ).subscribe(
+            {//complete
+                cancelAlarmSubject.onNext(reminder)
+                toastSubject.onNext(R.string.reminder_deleted_can_be_changed_in_settings)
+            },
+            { error ->
+                Timber.d("${error}")
+            }
+        )
+    }
+
 
 }

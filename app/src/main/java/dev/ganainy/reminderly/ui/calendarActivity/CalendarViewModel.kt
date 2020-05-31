@@ -5,8 +5,8 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import com.example.footy.database.ReminderDatabaseDao
 import com.prolificinteractive.materialcalendarview.CalendarDay
-import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
+import dev.ganainy.reminderly.utils.MyUtils
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,18 +27,21 @@ class CalendarViewModel(app: Application, val database: ReminderDatabaseDao) : V
     @SuppressLint("CheckResult")
     fun getDaysContainingReminders() {
 
-        disposable.add(database.getActiveRemindersObservable().subscribeOn(Schedulers.io()).observeOn(
-            AndroidSchedulers.mainThread()
-        ).flatMap { activeReminderList ->
-            getCalendarDaysFromReminderList(activeReminderList)
-        }.subscribe({ calendarDays ->
-            activeReminderListSubject.onNext(calendarDays)
-            mCalendarDays = calendarDays
-            disposable.clear()
-        }, { error ->
-            errorSubject.onNext(error.message.toString())
-            disposable.clear()
-        })
+        disposable.add(database.getActiveRemindersObservable().subscribeOn(Schedulers.io())
+            .flatMap { activeReminderList ->
+                getCalendarDaysFromReminderList(activeReminderList)
+            }
+            .observeOn(
+                AndroidSchedulers.mainThread()
+            )
+            .subscribe({ calendarDays ->
+                activeReminderListSubject.onNext(calendarDays)
+                mCalendarDays = calendarDays
+                disposable.clear()
+            }, { error ->
+                errorSubject.onNext(error.message.toString())
+                disposable.clear()
+            })
         )
 
     }

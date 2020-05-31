@@ -16,11 +16,10 @@ class FavoriteFragmentViewModel(app: Application, val database: ReminderDatabase
     val reminderListSubject = BehaviorSubject.create<MutableList<Reminder>>()
     val errorSubject = BehaviorSubject.create<String>()
     val emptyListSubject = BehaviorSubject.create<Boolean>()
-    private val disposable = CompositeDisposable()
 
 
     init {
-        disposable.add(
+
             getFavoriteReminders().subscribeOn(Schedulers.io()).observeOn(
                 AndroidSchedulers.mainThread()
             ).subscribe({ favoriteReminderList ->
@@ -34,16 +33,12 @@ class FavoriteFragmentViewModel(app: Application, val database: ReminderDatabase
             }, { error ->
                 errorSubject.onNext(error.message.toString())
             })
-        )
+
     }
 
     private fun getFavoriteReminders(): Observable<MutableList<Reminder>> {
         return database.getFavoriteReminders()
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        disposable.clear()
-    }
 
 }
