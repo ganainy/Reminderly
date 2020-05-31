@@ -43,6 +43,7 @@ class PostponeViewModel(val app: Application, val database: ReminderDatabaseDao)
 
         if (postponedReminder == null) {
             //postpone failed show error
+            toastSubject.onNext(R.string.must_be_upcoming_date)
             errorSubject.onNext(true)
         } else {
             errorSubject.onNext(false)

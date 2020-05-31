@@ -439,9 +439,6 @@ class MyUtils {
              *  if not; because its useless to postpone reminder to a previous date*/
 
             return if (reminder.createdAt.before(Calendar.getInstance())) {
-                if (context != null) {
-                    showCustomToast(context, R.string.must_be_upcoming_date)
-                }
                 //remove added duration since reminder won't be updated
                 reminder.createdAt.apply {
                     add(Calendar.DAY_OF_MONTH, -day)

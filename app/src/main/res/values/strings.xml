@@ -111,4 +111,5 @@
     <string name="take_moment_to_rate_app">Your review helps us a lot, thanks for taking a moment to rate us</string>
     <string name="proceed_to_store">Proceed to store</string>
     <string name="reminder_added_successfully">Reminder added</string>
+    <string name="postpone_failed">Postpone failed, Must be upcoming date.</string>
 </resources>

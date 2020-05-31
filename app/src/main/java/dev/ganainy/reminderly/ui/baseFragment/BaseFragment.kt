@@ -25,7 +25,9 @@ import dev.ganainy.reminderly.R
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.ui.mainActivity.ICommunication
 import dev.ganainy.reminderly.utils.MyUtils
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 
@@ -54,51 +56,50 @@ open class BaseFragment : Fragment() {
 
         initViewModel()
 
-        /**triggered by viewmodel on reminder update*/
-        disposable.add(viewModel.updatePositionSubject.subscribe({ position ->
-            adapter.notifyItemChanged(position)
-        },{
-            MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
-            Timber.d("${it}")
-        }))
-
         /**triggered by viewmodel when it needs to show some toast*/
-        disposable.add(viewModel.toastSubject.subscribe ({stringResourceId ->
-           MyUtils.showCustomToast(requireContext(),stringResourceId)
-        },{
-            MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
-            Timber.d("${it}")
-        }))
+        disposable.add(
+            viewModel.toastSubject
+                .subscribe({ stringResourceId ->
+                    MyUtils.showCustomToast(requireContext(), stringResourceId)
+                }, {
+                    MyUtils.showCustomToast(requireContext(), R.string.something_went_wrong)
+                    Timber.d("${it}")
+                })
+        )
 
-        /**triggered by viewmodel when it needs to cancel alarm related to certain reminder*/
-        disposable.add(viewModel.cancelAlarmSubject.subscribe({reminderToCancelAlarmOf ->
-            MyUtils.cancelAlarmManager(reminderToCancelAlarmOf, requireContext())
-        },{
-            MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
-            Timber.d("${it}")
-        }))
+        /**triggered by viewmodel to cancel alarms of certain reminder*/
+        disposable.add(
+            viewModel.cancelAlarmSubject
+                .subscribe({ reminderToCancelAlarmsOf ->
+                    MyUtils.cancelAlarmManager(reminderToCancelAlarmsOf, requireContext())
+                }, {
+                    Timber.d("${it}")
+                })
+        )
 
         /**triggered by viewmodel when it needs to add alarm related to certain reminder*/
-        disposable.add(viewModel.addAlarmSubject.subscribe ({ reminderToAddAlarmTo ->
-            MyUtils.addAlarmManager(reminderToAddAlarmTo,requireContext())
-        },{
-            MyUtils.showCustomToast(requireContext(),R.string.something_went_wrong)
-            Timber.d("${it}")
-
-        }))
+        disposable.add(
+            viewModel.addAlarmSubject
+                .subscribe({ reminderToAddAlarmTo ->
+                    MyUtils.addAlarmManager(reminderToAddAlarmTo, requireContext())
+                }, {
+                    MyUtils.showCustomToast(requireContext(), R.string.something_went_wrong)
+                    Timber.d("${it}")
+                })
+        )
 
 
     }
 
     private fun initViewModel() {
-        val reminderDatabaseDao =  ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
+        val reminderDatabaseDao = ReminderDatabase.getInstance(requireContext()).reminderDatabaseDao
 
         viewModelFactory =
 
-                ProvideDatabaseViewModelFactory(
-                    requireActivity().application,
-                    reminderDatabaseDao
-                )
+            ProvideDatabaseViewModelFactory(
+                requireActivity().application,
+                reminderDatabaseDao
+            )
 
         viewModel = ViewModelProvider(this, viewModelFactory).get(BaseFragmentViewModel::class.java)
     }
@@ -110,19 +111,28 @@ open class BaseFragment : Fragment() {
             }
 
             override fun onFavoriteClick(reminder: Reminder, position: Int) {
-                viewModel.updateReminderFavorite(reminder,position)
+                updateReminderFavorite(reminder)
             }
 
-            override fun onMenuClick(reminder: Reminder,position: Int) {
-                showOptionsSheet(reminder,position)
+            override fun onMenuClick(reminder: Reminder, position: Int) {
+                showOptionsSheet(reminder)
             }
 
         })
     }
 
+    private fun updateReminderFavorite(reminder: Reminder) {
+        disposable.add(viewModel.updateReminderFavorite(reminder).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()).subscribe({
+            //onComplete
+            }, {//onError
+                Timber.d("${it}")
+            })
+        )
+    }
+
     private fun showOptionsSheet(
-        reminder: Reminder,
-        position: Int
+        reminder: Reminder
     ) {
         val items = listOf(
             BasicGridItem(R.drawable.ic_check_grey, getString(R.string.done)),
@@ -137,10 +147,10 @@ open class BaseFragment : Fragment() {
             gridItems(items) { _, index, item ->
                 when (index) {
                     0 -> {
-                        viewModel.markReminderAsDone(reminder,position)
+                        handleReminderDoneBehaviour(reminder)
                     }
                     1 -> {
-                        postponeReminder(reminder,position)
+                        postponeReminder(reminder)
                     }
                     2 -> {
                         editReminder(reminder)
@@ -148,18 +158,43 @@ open class BaseFragment : Fragment() {
                     3 -> {
                         copyToClipboard(reminder)
                     }
-                    4->{
+                    4 -> {
                         shareReminder(reminder)
                     }
-                    5->{
-                        viewModel.deleteReminder(reminder,position)
+                    5 -> {
+                        deleteReminder(reminder)
                     }
-
                 }
             }
         }
     }
 
+    private fun deleteReminder(
+        reminder: Reminder
+    ) {
+        disposable.add(viewModel.deleteReminder(reminder).subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+            }, { error ->
+                Timber.d("${error}")
+            })
+        )
+    }
+
+    private fun handleReminderDoneBehaviour(
+        reminder: Reminder
+    ) {
+        disposable.add(
+            viewModel.handleReminderDoneBehaviour(reminder)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    //onComplete
+                }, { //onError
+                    Timber.d("${it}")
+                })
+        )
+    }
 
 
     private fun shareReminder(reminder: Reminder) {
@@ -178,7 +213,7 @@ open class BaseFragment : Fragment() {
             requireActivity().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("label", reminder.text)
         clipboard.setPrimaryClip(clip)
-        MyUtils.showCustomToast(requireContext(),R.string.copied_to_clipboard)
+        MyUtils.showCustomToast(requireContext(), R.string.copied_to_clipboard)
     }
 
     private fun editReminder(reminder: Reminder) {
@@ -187,8 +222,7 @@ open class BaseFragment : Fragment() {
 
 
     private fun postponeReminder(
-        reminder: Reminder,
-        position: Int
+        reminder: Reminder
     ) {
 
         //those variables to reflect the change in pickers
@@ -200,7 +234,7 @@ open class BaseFragment : Fragment() {
         val dialog = MaterialDialog(requireContext()).show {
             customView(R.layout.custom_postpone_dialog)
             positiveButton(R.string.confirm) {
-             viewModel.postponeReminder(reminder,day,hour,minute,position)
+                postponeReminder(reminder, day, hour, minute)
             }
             negativeButton(R.string.cancel)
             title(0, getString(R.string.select_time))
@@ -234,6 +268,23 @@ open class BaseFragment : Fragment() {
         }
 
 
+    }
+
+    private fun postponeReminder(
+        reminder: Reminder,
+        day: Int,
+        hour: Int,
+        minute: Int
+    ) {
+        disposable.add(
+            viewModel.postponeReminder(reminder, day, hour, minute)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe({
+                    //onComplete
+                }, {//onError
+                    Timber.d("${it}")
+                })
+        )
     }
 
     override fun onDestroy() {

@@ -120,4 +120,5 @@
     <string name="take_moment_to_rate_app">تقييمك لنا يصنع الفارق, شكرا لك</string>
     <string name="proceed_to_store">فتح المتجر</string>
     <string name="reminder_added_successfully">تم اضافة التذكير</string>
+    <string name="postpone_failed">فشل التأجيل, يجب ان يكون التاريخ اكبر ان يكون التاريخ مستقبلي</string>
 </resources>
