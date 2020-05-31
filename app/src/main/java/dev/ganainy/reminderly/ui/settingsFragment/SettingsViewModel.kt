@@ -17,6 +17,7 @@ import timber.log.Timber
 
 @SuppressLint("CheckResult")
 class SettingsViewModel(val app: Application, val database: ReminderDatabaseDao) : ViewModel() {
+    //todo refactor same as base fragment
 
     val toastSubject = BehaviorSubject.create<Int>()
     val dndSubject = BehaviorSubject.create<DndPeriod>()
@@ -44,23 +45,23 @@ class SettingsViewModel(val app: Application, val database: ReminderDatabaseDao)
     private val dndTime = DndPeriod()
 
     fun deleteExistingDoneReminders() {
-      database.getDoneRemindersSingle().subscribeOn(Schedulers.io())
+        database.getDoneRemindersSingle().subscribeOn(Schedulers.io())
             .flatMapObservable {
-               Observable.fromIterable(it)
+                Observable.fromIterable(it)
             }
             .map {
-                  deleteReminder(it)
+                deleteReminder(it)
                 it
             }
-          .toList()
-          .subscribe ()
+            .toList()
+            .subscribe()
     }
 
     private fun deleteReminder(reminderToDelete: Reminder) {
         database.delete(reminderToDelete).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnError {
-                 toastSubject.onNext(R.string.something_went_wrong)
+                toastSubject.onNext(R.string.something_went_wrong)
             }.subscribe()
     }
 
@@ -83,25 +84,17 @@ class SettingsViewModel(val app: Application, val database: ReminderDatabaseDao)
 
     /**check that the selected end time is higher than the selected/saved start time*/
     private fun validateEndTime(hour: Int, min: Int): Boolean {
-        when {
-            hour > MyUtils.getInt(app, DONT_DISTURB_START_HOURS) -> {
-                return true
-            }
-            hour == MyUtils.getInt(app, DONT_DISTURB_START_HOURS) -> {
-                when {
-                    min > MyUtils.getInt(app, DONT_DISTURB_START_MINUTES) -> {
-                        return true
-                    }
-                    else -> {
-                        toastSubject.onNext(R.string.wrong_dnd_period)
-                    }
-                }
-            }
-            else -> {
-                toastSubject.onNext(R.string.wrong_dnd_period)
-            }
+        val endTimeMillisCount = hour * 3600 * 100 + min * 60 * 1000
+        val startHours = MyUtils.getInt(app, DONT_DISTURB_START_HOURS)
+        val startTimeMilliCount = startHours * 3600 * 100
+        val startMinutes = MyUtils.getInt(app, DONT_DISTURB_START_MINUTES)
+        +startMinutes * 60 * 1000
+
+        if (startTimeMilliCount >= endTimeMillisCount) {
+            toastSubject.onNext(R.string.wrong_dnd_period)
+            return false
         }
-        return false
+        return true
     }
 
     /**check if dnd selected start time is valid and save it in preferences*/
@@ -116,25 +109,18 @@ class SettingsViewModel(val app: Application, val database: ReminderDatabaseDao)
 
     /**check that the selected start time is less than the selected/saved end time*/
     private fun validateStartTime(hour: Int, min: Int): Boolean {
-        when {
-            hour < MyUtils.getInt(app, DONT_DISTURB_END_HOURS) -> {
-                return true
-            }
-            hour == MyUtils.getInt(app, DONT_DISTURB_END_HOURS) -> {
-                when {
-                    min < MyUtils.getInt(app, DONT_DISTURB_END_MINUTES) -> {
-                        return true
-                    }
-                    else -> {
-                        toastSubject.onNext(R.string.wrong_dnd_period)
-                    }
-                }
-            }
-            else -> {
-                toastSubject.onNext(R.string.wrong_dnd_period)
-            }
+
+        val startTimeMilliCount = hour * 3600 * 100 + min * 60 * 1000
+        val endHour = MyUtils.getInt(app, DONT_DISTURB_END_HOURS)
+        val endTimeMillisCount = endHour * 3600 * 100
+        val endMinute = MyUtils.getInt(app, DONT_DISTURB_END_MINUTES)
+        +endMinute * 60 * 1000
+
+        if (startTimeMilliCount >= endTimeMillisCount) {
+            toastSubject.onNext(R.string.wrong_dnd_period)
+            return false
         }
-        return false
+        return true
     }
 
     //update shared pref value , setting summary based on user selection

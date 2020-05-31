@@ -11,13 +11,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.footy.database.ReminderDatabase
 import dev.ganainy.reminderly.R
-import dev.ganainy.reminderly.utils.MyUtils
 import dev.ganainy.reminderly.database.Reminder
 import dev.ganainy.reminderly.databinding.ReminderListFragmentBinding
 import dev.ganainy.reminderly.ui.baseFragment.BaseFragment
 import dev.ganainy.reminderly.ui.baseFragment.ProvideDatabaseViewModelFactory
+import dev.ganainy.reminderly.utils.MyUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 
 class ReminderListFragment : BaseFragment() {
@@ -50,26 +52,42 @@ class ReminderListFragment : BaseFragment() {
         initRecycler()
         initViewModel()
 
-        viewModel.getAllRemindersFormatted()
+        disposable.add(viewModel.getAllRemindersFormatted().subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread()).subscribe(
+            {
+                //onNext
+            },{
+                Timber.d("${it}")
+                
+            },{
+               //onComplete 
+            }
+        ))
 
         disposable.add(
             viewModel.reminderListSubject.observeOn(AndroidSchedulers.mainThread())
-                .subscribe { reminderListFormatted ->
+                .subscribe ({ reminderListFormatted ->
                     showReminders(reminderListFormatted)
-                })
+                },{
+                    Timber.d("${it}")
+                }))
 
         disposable.add(
             viewModel.errorSubject.observeOn(AndroidSchedulers.mainThread())
-                .subscribe { errorString ->
+                .subscribe ({ errorString ->
                     MyUtils.showCustomToast(requireContext(), R.string.error_retreiving_reminder)
-                })
+                },{
+                Timber.d("${it}")
+            }))
 
         disposable.add(
             viewModel.emptyListSubject.observeOn(AndroidSchedulers.mainThread())
-                .subscribe { isListEmpty ->
+                .subscribe ({ isListEmpty ->
                     if (isListEmpty) showEmptyUi()
                     else hideEmptyUi()
-                })
+                },{
+                Timber.d("${it}")
+            }))
 
     }
 

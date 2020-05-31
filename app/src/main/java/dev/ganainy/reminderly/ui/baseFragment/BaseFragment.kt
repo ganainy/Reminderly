@@ -89,6 +89,15 @@ open class BaseFragment : Fragment() {
         )
 
 
+        /**triggered by viewmodel when it needs to cancel notification of certain reminder*/
+        disposable.add(
+            viewModel.cancelNotificationSubject
+                .subscribe({ reminderToCancelNotificationOf ->
+                    MyUtils.cancelNotification(reminderToCancelNotificationOf.id, requireContext())
+                }, {
+                    Timber.d("${it}")
+                })
+        )
     }
 
     private fun initViewModel() {

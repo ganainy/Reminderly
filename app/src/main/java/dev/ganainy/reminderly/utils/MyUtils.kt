@@ -401,7 +401,7 @@ class MyUtils {
             notifyIntent.putExtra(REMINDER, reminder.getStringFromReminder())
             val notifyPendingIntent = PendingIntent.getBroadcast(
                 context, reminder.id.toInt(), notifyIntent,
-                PendingIntent.FLAG_ONE_SHOT
+                PendingIntent.FLAG_UPDATE_CURRENT
             )
             val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
             alarmManager?.cancel(notifyPendingIntent)

@@ -16,6 +16,7 @@ class BaseFragmentViewModel(val app: Application, val database: ReminderDatabase
     val toastSubject = PublishSubject.create<@StringRes Int>()
     val addAlarmSubject = PublishSubject.create<Reminder>()
     val cancelAlarmSubject = PublishSubject.create<Reminder>()
+    val cancelNotificationSubject = PublishSubject.create<Reminder>()
 
     /**change reminder favorite value then update in database*/
     fun updateReminderFavorite(
@@ -45,7 +46,10 @@ class BaseFragmentViewModel(val app: Application, val database: ReminderDatabase
             database.update(postponedReminder)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete {
-                    // set alarm
+                    //cancel any ongoing notification
+                    cancelNotificationSubject.onNext(reminder)
+                    // cancel existing alarm & set new alarm
+                    cancelAlarmSubject.onNext(reminder)
                     addAlarmSubject.onNext(reminder)
                   //  updatePositionSubject.onNext(position)
                     toastSubject.onNext(R.string.reminder_postponed)
@@ -72,6 +76,8 @@ class BaseFragmentViewModel(val app: Application, val database: ReminderDatabase
         return database.update(reminder).observeOn(AndroidSchedulers.mainThread()).doOnComplete {
             toastSubject.onNext(R.string.marked_as_done)
             cancelAlarmSubject.onNext(reminder)
+            //cancel any ongoing notification
+            cancelNotificationSubject.onNext(reminder)
         }.doOnError {
             toastSubject.onNext(R.string.something_went_wrong)
         }
@@ -81,6 +87,8 @@ class BaseFragmentViewModel(val app: Application, val database: ReminderDatabase
         return database.delete(reminder).observeOn(AndroidSchedulers.mainThread()).doOnComplete {
             toastSubject.onNext(R.string.reminder_deleted_can_be_changed_in_settings)
             cancelAlarmSubject.onNext(reminder)
+            //cancel any ongoing notification
+            cancelNotificationSubject.onNext(reminder)
         }
             .doOnError {
                 toastSubject.onNext(R.string.something_went_wrong)
@@ -95,6 +103,8 @@ class BaseFragmentViewModel(val app: Application, val database: ReminderDatabase
                toastSubject.onNext(R.string.reminder_deleted)
                //cancel alarm of this reminder
                cancelAlarmSubject.onNext(reminder)
+               //cancel any ongoing notification
+               cancelNotificationSubject.onNext(reminder)
            }
            .doOnError {error ->
                toastSubject.onNext(R.string.reminder_delete_failed)

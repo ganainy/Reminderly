@@ -52,6 +52,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         /**triggered by viewmodel to update dnd period on UI*/
         disposable.add(viewModel.dndSubject.subscribe({ dndPeriod ->
+            Timber.d("${dndPeriod}")
+            
             if (::dontDisturbView.isInitialized) {
 
                 //setup values in views
@@ -176,6 +178,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun showDontDisturbValueChangeDialog() {
         MaterialDialog(requireContext()).show {
             dontDisturbView = customView(R.layout.dont_disturb_layout)
+            //re-emit last value of subject to show on dontDisturbView views
+            viewModel.dndSubject.value?.let { viewModel.dndSubject.onNext(it) }
 
             dontDisturbView.findViewById<TextView>(R.id.startTextView).setOnClickListener {
                 //user clicked start time text view
