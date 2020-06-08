@@ -11,6 +11,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import timber.log.Timber
+import java.util.*
 
 class ReminderViewModel(
     val app: Application,
@@ -67,7 +68,6 @@ class ReminderViewModel(
 
     fun handleSaveButton() {
 
-/*//TODO uncomment
        if (reminder.text.isBlank()) {
            toastSubject.onNext(R.string.text_empty)
             return
@@ -75,7 +75,7 @@ class ReminderViewModel(
        else if(reminder.createdAt.timeInMillis <= Calendar.getInstance().timeInMillis){
            toastSubject.onNext(R.string.old_date_error)
        return
-   }*/
+   }
 
         disposable.add(isSameTimeOfAnotherAlarm()
             .subscribeOn(Schedulers.io())
@@ -83,10 +83,10 @@ class ReminderViewModel(
             .subscribe {sameTimeAlarms ->
                 Timber.d("DebugTag, ReminderViewModel->handleSaveButton: ")
 
-                /*TODO uncomment if (sameTimeAlarms.size>0){
+                if (sameTimeAlarms.size>0){
                     //there is another reminders near this reminder time so don't allow operation
                     toastSubject.onNext(R.string.another_reminder_in_proximity)
-                }else{*/
+                }else{
                 saveReminder().observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                         { reminderId ->
@@ -104,7 +104,7 @@ class ReminderViewModel(
                             toastSubject.onNext(R.string.error_saving_reminder)
                         }
                     )
-                /* }*/
+                 }
             })
 
     }
@@ -112,7 +112,7 @@ class ReminderViewModel(
 
     fun handleSaveButton2() {
 
-/*//TODO uncomment
+
        if (reminder.text.isBlank()) {
            toastSubject.onNext(R.string.text_empty)
             return
@@ -120,36 +120,35 @@ class ReminderViewModel(
        else if(reminder.createdAt.timeInMillis <= Calendar.getInstance().timeInMillis){
            toastSubject.onNext(R.string.old_date_error)
        return
-   }*/
+   }
 
         disposable.add(isSameTimeOfAnotherAlarm()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {_ ->
-                Timber.d("DebugTag, ReminderViewModel->handleSaveButton: ")
+            .subscribe {sameTimeAlarms ->
 
-                /*TODO uncomment if (sameTimeAlarms.size>0){
+                 if (sameTimeAlarms.size>0){
                     //there is another reminders near this reminder time so don't allow operation
                     toastSubject.onNext(R.string.another_reminder_in_proximity)
-                }else{*/
-                saveReminder().observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                        { reminderId ->
-                            reminder.id = reminderId
-                            //this reminder could be an update for existing reminder so we cancel any ongoing alarms
-                            cancelAlarmSubject.onNext(reminder)
-                            // set alarm manager
-                            addAlarmSubject.onNext(reminder)
+                }else {
+                     saveReminder().observeOn(AndroidSchedulers.mainThread())
+                         .subscribe(
+                             { reminderId ->
+                                 reminder.id = reminderId
+                                 //this reminder could be an update for existing reminder so we cancel any ongoing alarms
+                                 cancelAlarmSubject.onNext(reminder)
+                                 // set alarm manager
+                                 addAlarmSubject.onNext(reminder)
 
-                            toastSubject.onNext(R.string.reminder_added_successfully)
-                            backSubject.onNext(true)
-                        },
-                        {   //error
-                                error ->
-                            toastSubject.onNext(R.string.error_saving_reminder)
-                        }
-                    )
-                /* }*/
+                                 toastSubject.onNext(R.string.reminder_added_successfully)
+                                 backSubject.onNext(true)
+                             },
+                             {   //error
+                                     error ->
+                                 toastSubject.onNext(R.string.error_saving_reminder)
+                             }
+                         )
+                 }
             })
 
     }

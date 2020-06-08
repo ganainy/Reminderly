@@ -15,8 +15,8 @@ android {
         applicationId "dev.ganainy.reminderly"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -81,7 +81,7 @@ dependencies {
     //rx java , rx lint for linting errors
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.9'
-    implementation 'nl.littlerobots.rxlint:rxlint:1.7.0'
+   // implementation 'nl.littlerobots.rxlint:rxlint:1.7.0'
 
     //room
     implementation "androidx.room:room-runtime:2.2.3"
