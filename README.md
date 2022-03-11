@@ -1,7 +1,8 @@
 # Reminderly
 App to add one time/repeating reminders with option to be a notification or an alarm
 
-video preview : https://drive.google.com/file/d/1ihbyvQ-iIDlEs0YwEpgC67rJSvCQnDHm/view?usp=sharing
+https://user-images.githubusercontent.com/44480226/157987408-2a56ff0f-a575-4e7b-bfad-e959dfffa88b.mp4
+
 
 Used technologies:<br>
 -------------------
