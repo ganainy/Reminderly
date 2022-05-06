@@ -27,25 +27,11 @@ Features:<br>
 Pictures:<br>
 ---------
 
- <img src="https://cdn.discordapp.com/attachments/566581417606119424/697947040704888902/2020_04_10_01_02_31.jpg" width="350"><br>
- 
- <img src=" https://cdn.discordapp.com/attachments/566581417606119424/697947056467214457/2020_04_10_01_03_08.jpg" width="350"><br>
- 
-  <img src="https://cdn.discordapp.com/attachments/566581417606119424/697947057880825976/2020_04_10_01_03_14.jpg" width="350"><br>
-  
-   <img src="https://cdn.discordapp.com/attachments/566581417606119424/697947068114796624/2020_04_10_01_03_51.jpg" width="350"><br>
-   
-   <img src="https://cdn.discordapp.com/attachments/566581417606119424/697947056467214457/2020_04_10_01_03_08.jpg" width="350"><br>
-   
-   <img src="https://cdn.discordapp.com/attachments/566581417606119424/697947071826886731/2020_04_10_01_05_39.jpg" width="350"><br>
-   
- 
- 
-
- 
-
-
-
+ <img src="https://user-images.githubusercontent.com/44480226/167215630-5cf07594-1616-4d66-86fe-9fbd54e85863.jpg" width="200" height="400" >
+  <img src="https://user-images.githubusercontent.com/44480226/167215632-7c5f7ca2-b137-49c2-82cd-1bee86343eae.jpg" width="200" height="400" >
+    <img src="https://user-images.githubusercontent.com/44480226/167215634-6757edce-d3ee-4230-b324-ca5e388d6abb.jpg" width="200" height="400" >
+  <img src="https://user-images.githubusercontent.com/44480226/167215637-c314af7b-4d61-453e-80cd-8b222e8f6b4d.jpg" width="200" height="400" >
+  <img src="https://user-images.githubusercontent.com/44480226/167215638-7050e01f-e65a-4e45-b1ff-7c5a146ee4c4.jpg" width="200" height="400" >
 
 
 
